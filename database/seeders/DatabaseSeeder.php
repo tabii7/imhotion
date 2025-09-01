@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             BaseSeed::class,
+            PricingSeeder::class,
         ]);
     }
 }

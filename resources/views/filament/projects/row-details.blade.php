@@ -87,7 +87,7 @@
                                                     name="name"
                                                     value="{{ $name }}"
                                                     class="block w-full rounded border border-gray-300 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                    @keydown.enter="
+                                                    @keydown.enter.stop.prevent="
                                                         saving = true;
                                                         const name = $el.value;
                                                         const filename = $el.closest('td').querySelector('.filename-text').textContent;
@@ -164,7 +164,7 @@
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 x-data="{ savingAll: false }"
                 :class="{ 'opacity-50 pointer-events-none': savingAll }"
-                x-text="savingAll ? 'Saving All...' : 'Save All Changes'"
+                x-text="savingAll ? 'Saving...' : 'Save'"
                 @click="
                     savingAll = true;
                     const promises = [];

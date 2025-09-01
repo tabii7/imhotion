@@ -30,6 +30,10 @@ Route::get('/__proj_test', function () {
     }
 });
 
+// Pricing front-end
+use App\Http\Controllers\PricingController;
+Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
+
 // Admin-only: document maintenance used by the row-details modal
 Route::name('filament.admin.')
     ->prefix('admin')
@@ -70,6 +74,11 @@ Route::middleware('guest')->group(function () {
         abort(500, 'Login view missing (auth.simple-login or auth.login).');
     })->name('login');
 
+    // Redirect legacy/mistyped /login/admin to the admin login page
+    Route::get('/login/admin', function () {
+        return redirect('/admin/login');
+    });
+
     Route::post('/login', function (Request $request) {
         $creds = $request->validate([
             'email' => 'required|email',
@@ -102,3 +111,19 @@ Route::get('/logout', function (Request $request) {
     $request->session()->regenerateToken();
     return redirect('/login');
 })->middleware('auth')->name('logout.get');
+
+// Temporary debug endpoint (token-protected) to inspect admin auth & resource availability
+Route::get('/admin/__debug_pricing', function (Request $request) {
+    $token = env('ADMIN_DEBUG_TOKEN', null) ?: $request->query('token');
+    $provided = $request->header('X-Debug-Token') ?? $request->query('token');
+    if (!$token || $provided !== $token) {
+        return response()->json(['ok' => false, 'reason' => 'missing_or_invalid_token'], 403);
+    }
+
+    return response()->json([
+        'ok' => true,
+        'authenticated' => auth()->check(),
+        'user' => auth()->user() ? auth()->user()->only(['id','email','role']) : null,
+        'pricing_resource_exists' => class_exists(\App\Filament\Admin\Resources\PricingCategoryResource::class),
+    ]);
+})->name('admin.debug_pricing');
