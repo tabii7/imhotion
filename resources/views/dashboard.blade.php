@@ -423,6 +423,20 @@
                             <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->first()->id }}">
                             <button type="submit" class="btn btn-sm" title="Add test product to cart">Add test product</button>
                         </form>
+                        @if($pricingItems->count() > 1)
+                            <form method="POST" action="{{ route('dashboard.add-to-cart') }}" style="margin:0 8px 0 0;">
+                                @csrf
+                                <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->skip(1)->first()->id }}">
+                                <button type="submit" class="btn btn-sm" title="Add second test product">Add test product 2</button>
+                            </form>
+                        @else
+                            {{-- duplicate first as a second test button when only one product exists --}}
+                            <form method="POST" action="{{ route('dashboard.add-to-cart') }}" style="margin:0 8px 0 0;">
+                                @csrf
+                                <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->first()->id }}">
+                                <button type="submit" class="btn btn-sm" title="Add test product duplicate">Add test product 2</button>
+                            </form>
+                        @endif
                     @endif
                     <a href="{{ route('logout') }}" class="btn btn-sm"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

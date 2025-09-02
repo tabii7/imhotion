@@ -34,6 +34,7 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])->middleware('auth')->name('dashboard.add-to-cart');
 Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
+Route::post('/dashboard/remove-from-cart', [DashboardController::class, 'removeFromCart'])->middleware('auth')->name('dashboard.remove-from-cart');
 
 // Add missing profile.edit route to fix navigation dropdown
 Route::get('/profile', function () {

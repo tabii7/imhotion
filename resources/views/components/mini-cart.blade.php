@@ -70,6 +70,13 @@ $total = $subtotal - $discount + $tax;
                             @endif
                         </div>
                     </div>
+                    <div class="col actions">
+                        <form method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return confirm('Are you sure you want to delete this item from the cart?');">
+                            @csrf
+                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
+                            <button type="submit" class="qty-btn" title="Delete item">✕</button>
+                        </form>
+                    </div>
                     <div class="col unit">{{ $currency }}{{ number_format($item['price'], 0) }}</div>
                     <div class="col line">
                         @if($item['qty'] > 1)
@@ -80,7 +87,7 @@ $total = $subtotal - $discount + $tax;
                 </div>
             @endforeach
 
-            <div class="cart-summary">
+                <div class="cart-summary">
                 <div class="summary-row">
                     <div class="label">Subtotal</div>
                     <div class="value">{{ $currency }}{{ number_format($subtotal, 2, '.', ',') }}</div>
@@ -96,7 +103,7 @@ $total = $subtotal - $discount + $tax;
                     <div class="value">{{ $currency }}{{ number_format($total, 2, '.', ',') }}</div>
                 </div>
 
-                <div class="vat-note">The invoice does not include VAT due to article 21 of Law 37/1992</div>
+                <div class="vat-note">The invoice does not include VAT due to article 21 of Spanish Law 37/1992</div>
 
             <div class="payment-methods">
                 <span>Secure payment via</span>
@@ -127,6 +134,13 @@ $total = $subtotal - $discount + $tax;
                     </form>
                 @endif
             </div>
+            
+            {{-- Hidden global checkout form used by header quick action --}}
+            <form id="mini-cart-checkout-form" method="POST" action="{{ route('payment.create') }}" style="display:none;">
+                @csrf
+                <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] ?? ($pricingItems->first()->id ?? '') }}">
+                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+            </form>
         </div>
     @endif
 </div>
@@ -152,12 +166,12 @@ $total = $subtotal - $discount + $tax;
     color:#1f2937;
 }
 .mini-cart-title::before{
-    content:'ðŸ›’';
+    content:'🛒';
     font-size:18px;
 }
 .cart-header,.cart-row{
     display:grid;
-    grid-template-columns:100px 1fr 80px 100px;
+    grid-template-columns:100px 1fr 80px 80px 40px; /* qty, title, unit, total, actions */
     gap:8px;
     align-items:center;
     padding:4px 8px;
@@ -236,6 +250,9 @@ $total = $subtotal - $discount + $tax;
 }
 .col.line{
     text-align:right;
+}
+.col.actions{
+    text-align:center;
 }
 .line-breakdown{
     font-size:10px;
@@ -484,6 +501,12 @@ function updateQty(itemId, change) {
 
 <script>
 function proceedToCheckout() {
+    // Submit the hidden checkout form so we POST to the payment.create route (Mollie)
+    var f = document.getElementById('mini-cart-checkout-form');
+    if (f) {
+        f.submit();
+        return;
+    }
     window.location.href = '/payment/create';
 }
 </script>

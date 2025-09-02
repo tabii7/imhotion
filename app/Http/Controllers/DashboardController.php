@@ -155,4 +155,29 @@ class DashboardController extends Controller
             'total' => $total,
         ]);
     }
+
+    /**
+     * Remove an item from the cart
+     */
+    public function removeFromCart(Request $request)
+    {
+        $request->validate([
+            'item_id' => 'required|integer'
+        ]);
+
+        $itemId = $request->item_id;
+        $cart = session('cart', []);
+
+        foreach ($cart as $key => $it) {
+            if (($it['id'] ?? null) == $itemId) {
+                unset($cart[$key]);
+                break;
+            }
+        }
+
+        $cart = array_values($cart);
+        session(['cart' => $cart]);
+
+        return redirect()->route('dashboard')->with('success', 'Item removed from cart.');
+    }
 }
