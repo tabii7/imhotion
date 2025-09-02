@@ -379,10 +379,10 @@ function updateQty(itemId, change) {
     <div class="mini-cart-box">
         @if(!empty($resolved) && count($resolved) > 0)
             <!-- Cart with resolved items -->
-            <div class="cart-header">
-                <span class="cart-title">Items in your cart</span>
-                <button class="cart-buy-btn" onclick="showSection('services')">Order more days</button>
-            </div>
+                    <div class="mini-cart-header">
+                        <span class="cart-title">Items in your cart</span>
+                        <button class="cart-buy-btn" onclick="showSection('services')">Order more days</button>
+                    </div>
 
             <div class="cart-items">
                 @php $total = 0; @endphp
@@ -405,7 +405,7 @@ function updateQty(itemId, change) {
             </div>
         @else
             <!-- Empty cart -->
-            <div class="cart-header">
+            <div class="mini-cart-header">
                 <span class="cart-title">No items in your cart</span>
                 <a href="#services" class="cart-buy-btn" onclick="showSection('services')">Order more days</a>
             </div>
@@ -430,7 +430,7 @@ function updateQty(itemId, change) {
     gap: 6px;
 }
 
-.cart-header {
+.mini-cart-header {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -499,7 +499,7 @@ function updateQty(itemId, change) {
 }
 
 @media (max-width: 768px) {
-    .cart-header {
+    .mini-cart-header {
         flex-direction: column;
         gap: 8px;
         align-items: stretch;

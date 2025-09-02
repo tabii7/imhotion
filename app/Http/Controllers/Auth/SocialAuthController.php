@@ -8,43 +8,77 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\InvalidStateException;
 
 class SocialAuthController extends Controller
 {
-    public function redirectToProvider($provider)
+    public function redirectToProvider(string $provider)
     {
-        return Socialite::driver($provider)->redirect();
-    }
-
-    public function handleProviderCallback($provider)
-    {
-        $socialUser = Socialite::driver($provider)->stateless()->user();
-
-        if (!$socialUser || !isset($socialUser->getId)) {
-            return redirect()->route('login')->withErrors(['oauth' => 'Unable to authenticate with ' . $provider]);
+        if ($provider !== 'google') {
+            abort(404);
         }
 
-        $existing = User::where('email', $socialUser->getEmail())->orWhere('google_id', $socialUser->getId())->first();
+        return Socialite::driver('google')->redirect();
+    }
 
-        if ($existing) {
-            // update google id/avatar if missing
-            $existing->google_id = $existing->google_id ?: $socialUser->getId();
-            $existing->avatar = $socialUser->getAvatar();
-            $existing->save();
-            Auth::login($existing);
+    public function handleProviderCallback(string $provider)
+    {
+        if ($provider !== 'google') {
+            abort(404);
+        }
+
+        try {
+            $socialUser = Socialite::driver('google')->stateless()->user();
+        } catch (InvalidStateException $e) {
+            return redirect()->route('login')
+                ->withErrors(['oauth' => 'OAuth state error. Try again.']);
+        } catch (\Throwable $e) {
+            return redirect()->route('login')
+                ->withErrors(['oauth' => 'Could not complete Google login.']);
+        }
+
+        if (!$socialUser || !$socialUser->getId()) {
+            return redirect()->route('login')
+                ->withErrors(['oauth' => 'Unable to authenticate with Google.']);
+        }
+
+        $googleId = $socialUser->getId();
+        $email    = $socialUser->getEmail();
+        $name     = $socialUser->getName() ?: ($socialUser->getNickname() ?: 'Google User');
+        $avatar   = $socialUser->getAvatar();
+
+        // Check if user already exists
+        $user = User::where('google_id', $googleId)
+            ->orWhere(function ($q) use ($email) {
+                if ($email) {
+                    $q->where('email', $email);
+                }
+            })
+            ->first();
+
+        if ($user) {
+            if (!$user->google_id) {
+                $user->google_id = $googleId;
+            }
+            if ($avatar && $user->avatar !== $avatar) {
+                $user->avatar = $avatar;
+            }
+            $user->save();
+
+            Auth::login($user, remember: true);
             return redirect()->intended('/dashboard');
         }
 
-        // create new user
+        // Create new user
         $user = User::create([
-            'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: 'Google User',
-            'email' => $socialUser->getEmail(),
-            'password' => Hash::make(str()->random(24)),
-            'google_id' => $socialUser->getId(),
-            'avatar' => $socialUser->getAvatar(),
+            'name'      => $name,
+            'email'     => $email,
+            'password'  => Hash::make(str()->random(32)),
+            'google_id' => $googleId,
+            'avatar'    => $avatar,
         ]);
 
-        Auth::login($user);
+        Auth::login($user, remember: true);
 
         return redirect()->intended('/dashboard');
     }

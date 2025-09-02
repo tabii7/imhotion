@@ -285,7 +285,7 @@
             margin-bottom: 32px;
         }
         
-        .cart-header {
+        .cart-section .cart-header {
             display: flex;
             align-items: center;
             gap: 12px;
