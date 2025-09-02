@@ -90,3 +90,4 @@ Define CSS variables in a global stylesheet (recommended `resources/css/app.css`
 ---
 
 If you'd like, I can also generate a small reference `resources/css/brand.css` with the font-face rules and variables, and wire it into Vite for you.
+blue logo with transparant background imhotion-blue.png

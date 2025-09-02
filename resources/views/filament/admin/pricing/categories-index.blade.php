@@ -10,11 +10,17 @@
 @extends('layouts.admin-shell')
 
 @section('content')
+    @include('filament.admin.brand-styles')
+    <div class="filament-page relative">
     <div>
+        {{-- fixed top-right button so it always appears above Filament's header/search --}}
+        <a href="{{ $createUrl }}" class="fixed top-20 right-5 z-[9999] inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-lg" style="backdrop-filter: blur(6px);">
+            <x-heroicon-o-plus class="w-4 h-4" />
+            Add Category
+        </a>
+
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold">Pricing Categories</h1>
-            <a href="{{ $createUrl }}" class="text-sm text-indigo-600 hover:underline">Create Category</a>
-        </div>
 
         @foreach($categories as $category)
             <section class="mb-6">
@@ -43,4 +49,11 @@
             </section>
         @endforeach
     </div>
+@endsection
+
+@section('after-scripts')
+    {{-- floating quick-add button for convenience --}}
+    <a href="{{ $createUrl }}" class="fixed bottom-5 right-5 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg z-50 hidden md:inline-flex items-center justify-center" title="Add category">
+        <x-heroicon-o-plus class="w-5 h-5" />
+    </a>
 @endsection

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#e9f0ff" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#0f3b8f" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0066ff" stop-opacity="0.8" />
+    </linearGradient>
+    <style>
+      .title{ font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-size:48px; fill: #fff; font-weight:700 }
+      .subtitle{ font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-size:18px; fill: rgba(255,255,255,0.9) }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <!-- abstract shapes -->
+  <g transform="translate(1100,120)">
+    <ellipse cx="0" cy="0" rx="260" ry="160" fill="url(#g2)" opacity="0.18"/>
+    <ellipse cx="140" cy="80" rx="200" ry="120" fill="#0066ff" opacity="0.06"/>
+  </g>
+  <!-- hero illustration placeholder -->
+  <g transform="translate(260,380)">
+    <rect x="0" y="-240" width="720" height="480" rx="16" fill="#0b1220" opacity="0.9"/>
+    <g transform="translate(36,-208)">
+      <rect width="648" height="176" rx="8" fill="#111827"/>
+      <g transform="translate(20,18)">
+        <rect width="120" height="120" rx="8" fill="#1f2937"/>
+        <rect x="148" y="0" width="480" height="22" rx="6" fill="#0b1220"/>
+        <rect x="148" y="36" width="360" height="14" rx="6" fill="#0b1220"/>
+      </g>
+    </g>
+  </g>
+</svg>

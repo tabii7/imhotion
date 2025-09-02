@@ -42,6 +42,13 @@ class AdminPanelProvider extends PanelProvider
             // Also discover admin-scoped resources placed under app/Filament/Admin/Resources
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->widgets([
+                \App\Filament\Admin\Widgets\KpisWidget::class,
+                \App\Filament\Admin\Widgets\RevenueTrendWidget::class,
+                \App\Filament\Admin\Widgets\ProjectsPipelineWidget::class,
+                \App\Filament\Admin\Widgets\UpcomingMilestonesWidget::class,
+                \App\Filament\Admin\Widgets\ServerLoadWidget::class,
+            ])
 
             // Admin-scoped debug routes
             ->routes(function () {
@@ -76,7 +83,6 @@ class AdminPanelProvider extends PanelProvider
                 StartSession::class,
                 ShareErrorsFromSession::class,
                 SubstituteBindings::class,
-                DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([

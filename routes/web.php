@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\ProjectDocumentController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\DashboardController;
 use App\Models\Project;
+use App\Models\PricingCategory;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,17 +20,45 @@ use App\Models\Project;
 
 // Public landing
 Route::get('/', function () {
-    return view('welcome');
+    $categories = PricingCategory::with(['items' => function ($query) {
+        $query->where('active', true)->orderBy('sort');
+    }])
+    ->where('active', true)
+    ->orderBy('sort')
+    ->get();
+
+    return view('home', compact('categories'));
 })->name('home');
+
+// Dashboard route with cart functionality
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])->middleware('auth')->name('dashboard.add-to-cart');
+Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
+
+// Add missing profile.edit route to fix navigation dropdown
+Route::get('/profile', function () {
+    return redirect('/dashboard');
+})->middleware('auth')->name('profile.edit');
+
+// Payment routes
+Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
+Route::get('/payment/return/{purchase}', [PaymentController::class, 'paymentReturn'])->name('payment.return');
+Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
 
 // Tiny health check
 Route::get('/__proj_test', function () {
     try {
         $c = Project::count();
-        return "Projects OK. Count = {$c}";
-    } catch (\Throwable $e) {
-        return 'Project model error: ' . $e->getMessage();
+    } catch (\Exception $e) {
+        return "DB ERROR: " . $e->getMessage();
     }
+    return "Projects: " . $c;
+});
+
+// Session test route
+Route::get('/__session_test', function () {
+    session(['test_key' => 'session_works']);
+    return 'Session set. Token: ' . csrf_token() . ' | Session ID: ' . session()->getId();
 });
 
 // Pricing front-end
@@ -110,7 +141,14 @@ Route::get('/logout', function (Request $request) {
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return redirect('/login');
-})->middleware('auth')->name('logout.get');
+})->middleware('auth')->name('logout');
+
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/login');
+})->middleware('auth')->name('logout.post');
 
 // Temporary debug endpoint (token-protected) to inspect admin auth & resource availability
 Route::get('/admin/__debug_pricing', function (Request $request) {
@@ -127,3 +165,58 @@ Route::get('/admin/__debug_pricing', function (Request $request) {
         'pricing_resource_exists' => class_exists(\App\Filament\Admin\Resources\PricingCategoryResource::class),
     ]);
 })->name('admin.debug_pricing');
+
+// API routes for project files
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/projects/{project}/files', function (Project $project) {
+        // Ensure user can access this project
+        if ($project->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $files = $project->documents->map(function ($doc) {
+            $extension = pathinfo($doc->filename, PATHINFO_EXTENSION);
+            $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+            $isVideo = in_array(strtolower($extension), ['mp4', 'webm', 'ogg', 'mov']);
+
+            return [
+                'id' => $doc->id,
+                'name' => $doc->name,
+                'filename' => $doc->filename,
+                'size' => $doc->size,
+                'url' => asset('storage/' . $doc->path),
+                'thumbnail_url' => $isImage ? asset('storage/' . $doc->path) : null,
+                'poster_url' => $isVideo ? asset('storage/video-poster.jpg') : null, // You can generate actual video posters later
+            ];
+        });
+
+        return response()->json($files);
+    });
+
+    Route::get('/projects/{project}/download-all', function (Project $project) {
+        // Ensure user can access this project
+        if ($project->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // For now, redirect to first file or show a message
+        // You can implement actual ZIP generation later
+        $firstDoc = $project->documents->first();
+        if ($firstDoc) {
+            return redirect(asset('storage/' . $firstDoc->path));
+        }
+
+        return redirect()->back()->with('message', 'No files available for download');
+    });
+});
+
+// Include Laravel Breeze auth routes
+require __DIR__.'/auth.php';
+
+// Social login (Google) via Laravel Socialite
+use App\Http\Controllers\Auth\SocialAuthController;
+
+Route::middleware('guest')->group(function () {
+    Route::get('/auth/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('social.redirect');
+    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('social.callback');
+});

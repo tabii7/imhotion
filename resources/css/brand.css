@@ -1,0 +1,21 @@
+/* Brand variables and font-face */
+:root{
+  --brand-primary: #0066ff;
+  --brand-primary-200: #99c2ff;
+  --brand-bg: #f2f7ff;
+  --brand-dark: #001f4c;
+  --font-sans: 'BrittiSans', system-ui, -apple-system, sans-serif;
+}
+
+@font-face{
+  font-family: 'BrittiSans';
+  src: local('BrittiSans'), url('/fonts/BrittiSansRegular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body{ font-family: var(--font-sans); background: var(--brand-bg); }
+
+.btn-primary{ background: var(--brand-primary); color: white }
+.btn-outline{ border: 1px solid var(--brand-primary); color: var(--brand-primary) }
