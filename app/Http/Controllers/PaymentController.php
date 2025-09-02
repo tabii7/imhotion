@@ -15,42 +15,68 @@ class PaymentController extends Controller
     public function createPayment(Request $request)
     {
         // Allow either a posted pricing_item_id or a cart in session.
-        // Validate user_id is present.
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $user = User::findOrFail($request->user_id);
-
-        $pricingItem = null;
-        if ($request->filled('pricing_item_id')) {
-            $pricingItem = PricingItem::findOrFail($request->pricing_item_id);
+        // Prefer explicit user_id, otherwise use the authenticated user.
+        $user = null;
+        if ($request->filled('user_id')) {
+            $user = User::findOrFail($request->user_id);
+        } elseif (Auth::check()) {
+            $user = Auth::user();
         } else {
-            // Attempt to pick first item from session cart
-            $sessionCart = session('cart', []);
-            if (!empty($sessionCart)) {
-                $first = $sessionCart[0];
-                $pricingItem = PricingItem::find($first['id']);
-            }
+            return back()->with('error', 'User not authenticated for payment.');
         }
 
-        if (!$pricingItem) {
+        $pricingItem = null;
+        $sessionCart = session('cart', []);
+
+        // If a single pricing_item_id is provided, use that.
+        if ($request->filled('pricing_item_id')) {
+            $pricingItem = PricingItem::findOrFail($request->pricing_item_id);
+            $itemsForSummary = [[
+                'id' => $pricingItem->id,
+                'title' => $pricingItem->title,
+                'price' => (float) $pricingItem->price,
+                'qty' => 1,
+            ]];
+            $totalPrice = (float) $pricingItem->price;
+            $days = 1;
+            if ($pricingItem->category && $pricingItem->category->slug === 'our-packs') {
+                $days = (int) filter_var($pricingItem->title, FILTER_SANITIZE_NUMBER_INT);
+                $totalPrice = $pricingItem->price * $days;
+                $itemsForSummary[0]['qty'] = $days;
+            }
+        } else {
+            // Build items summary from session cart
+            $ids = collect($sessionCart)->pluck('id')->filter()->values()->all();
+            $items = $ids ? PricingItem::whereIn('id', $ids)->get()->keyBy('id') : collect();
+            $itemsForSummary = [];
+            $totalPrice = 0;
+            foreach ($sessionCart as $c) {
+                $id = $c['id'] ?? null;
+                $qty = $c['qty'] ?? ($c['quantity'] ?? 1);
+                $pi = $items->get($id);
+                if ($pi) {
+                    $price = (float) $pi->price;
+                    $itemsForSummary[] = [
+                        'id' => $pi->id,
+                        'title' => $pi->title,
+                        'price' => $price,
+                        'qty' => $qty,
+                    ];
+                    $totalPrice += $price * $qty;
+                }
+            }
+            $pricingItem = null; // multi-item purchase
+            $days = array_sum(array_column($itemsForSummary, 'qty')) ?: 1;
+        }
+
+        if (empty($itemsForSummary)) {
             return back()->with('error', 'No pricing item selected for payment.');
         }
 
-        // Calculate total price and days for packs
-        $totalPrice = $pricingItem->price;
-        $days = 1; // Default to 1 day
-
-        if ($pricingItem->category->slug === 'our-packs') {
-            $days = (int) filter_var($pricingItem->title, FILTER_SANITIZE_NUMBER_INT);
-            $totalPrice = $pricingItem->price * $days;
-        }
-
-        // Create purchase record
+        // Create purchase record (single record representing the whole purchase)
         $purchase = Purchase::create([
             'user_id' => $user->id,
-            'pricing_item_id' => $pricingItem->id,
+            'pricing_item_id' => $pricingItem ? $pricingItem->id : null,
             'days' => $days,
             'amount' => $totalPrice,
             'currency' => 'EUR',
@@ -65,12 +91,13 @@ class PaymentController extends Controller
                     'currency' => 'EUR',
                     'value' => number_format($totalPrice, 2, '.', ''),
                 ],
-                'description' => "Imhotion - {$pricingItem->title}",
+                'description' => "Imhotion - Purchase #{$purchase->id}",
                 'redirectUrl' => route('payment.return', ['purchase' => $purchase->id]),
                 'webhookUrl' => route('payment.webhook'),
                 'metadata' => [
                     'purchase_id' => $purchase->id,
                     'user_id' => $user->id,
+                    'items' => $itemsForSummary,
                 ],
             ]);
 

@@ -123,13 +123,14 @@ $total = $subtotal - $discount + $tax;
                     <form method="POST" action="{{ route('payment.create') }}">
                         @csrf
                         <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] }}">
+                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                         <button type="submit" class="btn btn-primary">Checkout Now</button>
                     </form>
                 @else
                     {{-- Multiple items - TODO: implement multi-item checkout --}}
                     <form method="POST" action="{{ route('payment.create') }}">
                         @csrf
-                        <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] ?? '' }}">
+                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                         <button type="submit" class="btn btn-primary">Checkout Now</button>
                     </form>
                 @endif
