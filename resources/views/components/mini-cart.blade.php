@@ -70,19 +70,19 @@ $total = $subtotal - $discount + $tax;
                             @endif
                         </div>
                     </div>
-                    <div class="col actions">
-                        <form method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return confirm('Are you sure you want to delete this item from the cart?');">
-                            @csrf
-                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
-                            <button type="submit" class="qty-btn" title="Delete item">✕</button>
-                        </form>
-                    </div>
                     <div class="col unit">{{ $currency }}{{ number_format($item['price'], 0) }}</div>
                     <div class="col line">
                         @if($item['qty'] > 1)
                             <div class="line-breakdown">({{ $item['qty'] }}x{{ $currency }}{{ number_format($item['price'], 0) }})</div>
                         @endif
                         <div class="line-total">{{ $currency }}{{ number_format($line, 2, '.', ',') }}</div>
+                    </div>
+                    <div class="col actions">
+                        <form method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return confirm('Are you sure you want to delete this item from the cart?');">
+                            @csrf
+                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
+                            <button type="submit" class="delete-btn" title="Delete item">✕</button>
+                        </form>
                     </div>
                 </div>
             @endforeach
@@ -253,6 +253,21 @@ $total = $subtotal - $discount + $tax;
 }
 .col.actions{
     text-align:center;
+}
+.delete-btn{
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    width:26px;
+    height:26px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:700;
+}
+.delete-btn:hover{
+    background:#fff0f0;
+    color:#b91c1c;
+    border-color:#fca5a5;
 }
 .line-breakdown{
     font-size:10px;
