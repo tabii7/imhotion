@@ -1,3 +1,9 @@
+@php
+    // Defensive defaults
+    $userPurchases = $userPurchases ?? collect();
+    $counts = $counts ?? ['active' => 0, 'balance' => 0, 'finalized' => 0];
+@endphp
+
 <!-- Mini Cart Component -->
 @include('components.mini-cart')
 
@@ -7,7 +13,7 @@
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Profile Settings
         </h2>
-        
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
             <!-- Profile Info -->
             <div style="background: #001f4c; border: 1px solid #7fa7e1; border-radius: 12px; padding: 20px;">
@@ -56,7 +62,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div style="background: #121e2f; border: 1px solid #7fa7e1; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
@@ -90,12 +96,12 @@
 
         <!-- Action Buttons -->
         <div style="display: flex; gap: 16px; margin-top: 24px;">
-            <a href="/client" 
+            <a href="/client"
                style="background: #3366cc; color: #ffffff; padding: 10px 20px; border: 1px solid #7fa7e1; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: opacity 0.2s ease;"
                onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                 View Full Client Area
             </a>
-            <a href="/" 
+            <a href="/"
                style="background: #121e2f; color: #ffffff; padding: 10px 20px; border: 1px solid #7fa7e1; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: opacity 0.2s ease;"
                onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                 Back to Homepage

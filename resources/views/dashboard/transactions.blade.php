@@ -1,3 +1,8 @@
+@php
+    // Defensive defaults
+    $userPurchases = $userPurchases ?? collect();
+@endphp
+
 <!-- Mini Cart Component -->
 @include('components.mini-cart')
 

@@ -1,11 +1,15 @@
 <!-- Services Section with Dark Blue Theme -->
+@php
+    // Defensive defaults to avoid fatal errors when variables are missing
+    $pricingItems = $pricingItems ?? collect();
+@endphp
 <div style="background: #0a1428; border-radius: 12px; padding: 20px; color: #ffffff;">
     <div class="services-section">
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Available Services
         </h2>
 
-        @foreach($pricingItems->groupBy('category.name') as $categoryName => $items)
+    @foreach($pricingItems->groupBy('category.name') as $categoryName => $items)
             <div style="margin-bottom: 35px;">
                 <h3 style="color: #7fa7e1; font-size: 16px; font-weight: 600; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.05em;">
                     {{ $categoryName }}

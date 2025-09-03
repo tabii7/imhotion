@@ -56,6 +56,44 @@ Route::get('/__proj_test', function () {
     return "Projects: " . $c;
 });
 
+// Debug: return last N lines of laravel log (token-protected via ADMIN_DEBUG_TOKEN or ?token=)
+Route::get('/__debug/logs', function (Request $request) {
+    $token = env('ADMIN_DEBUG_TOKEN') ?: $request->query('token');
+    $provided = $request->header('X-Debug-Token') ?? $request->query('token');
+    if (!$token || $provided !== $token) {
+        return response('Forbidden', 403);
+    }
+
+    $lines = (int) $request->query('lines', 200);
+    $path = storage_path('logs/laravel.log');
+    if (!file_exists($path)) {
+        return response()->json(['ok' => false, 'reason' => 'log_not_found']);
+    }
+
+    // Read last N lines efficiently
+    $fp = fopen($path, 'r');
+    $buffer = '';
+    $chunk = 4096;
+    $pos = -1;
+    $lineCount = 0;
+    $data = '';
+    fseek($fp, 0, SEEK_END);
+    $filesize = ftell($fp);
+    while ($lineCount < $lines && $filesize > 0) {
+        $readSize = min($chunk, $filesize);
+        fseek($fp, $filesize - $readSize);
+        $data = fread($fp, $readSize) . $data;
+        $filesize -= $readSize;
+        $lineCount = substr_count($data, "\n");
+        if ($filesize <= 0) break;
+    }
+    fclose($fp);
+
+    $all = explode("\n", trim($data));
+    $last = array_slice($all, -$lines);
+    return response()->json(['ok' => true, 'lines' => $last]);
+})->name('debug.logs');
+
 // Session test route
 Route::get('/__session_test', function () {
     session(['test_key' => 'session_works']);

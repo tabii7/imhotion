@@ -810,6 +810,28 @@
             }
         }
 
+        // Respect URL hash on initial page load (e.g. /dashboard#services)
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                var hash = window.location.hash || '';
+                if (hash && hash.startsWith('#')) {
+                    var section = hash.slice(1);
+                    var target = document.getElementById('section-' + section);
+                    if (target) {
+                        showSection(section);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Error handling initial hash navigation:', e);
+            }
+
+            // Default to overview if nothing matched
+            if (document.getElementById('section-overview')) {
+                showSection('overview');
+            }
+        });
+
         // Mobile menu toggle (if needed later)
         function toggleMobileMenu() {
             document.querySelector('.sidebar').classList.toggle('open');
