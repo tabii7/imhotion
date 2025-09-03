@@ -14,6 +14,15 @@ class PaymentController extends Controller
 {
     public function createPayment(Request $request)
     {
+        // Quick guard: ensure Mollie API key is configured
+        if (empty(config('mollie.key'))) {
+            \Log::error('Mollie key missing in configuration.');
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Payment initialization failed: Mollie API key not configured.'], 500);
+            }
+            return back()->with('error', 'Payment initialization failed: Mollie API key not configured.');
+        }
+
         // Allow either a posted pricing_item_id or a cart in session.
         // Prefer explicit user_id, otherwise use the authenticated user.
         $user = null;
@@ -114,6 +123,14 @@ class PaymentController extends Controller
             return redirect($payment->getCheckoutUrl());
 
         } catch (\Exception $e) {
+            // Log full exception for debugging
+            \Log::error('Mollie payment initialization error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Payment initialization failed: ' . $e->getMessage()], 500);
+            }
+
             return back()->with('error', 'Payment initialization failed: ' . $e->getMessage());
         }
     }
