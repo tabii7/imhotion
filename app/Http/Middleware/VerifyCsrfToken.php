@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+    // Allow Mollie webhook to POST without CSRF token
+    'payment/webhook',
     ];
 }
