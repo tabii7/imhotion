@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             // Also discover admin-scoped resources placed under app/Filament/Admin/Resources
-            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->widgets([
                 \App\Filament\Admin\Widgets\KpisWidget::class,

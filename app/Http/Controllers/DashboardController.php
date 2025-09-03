@@ -54,6 +54,59 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display the services page
+     */
+    public function services(): View
+    {
+        $user = Auth::user();
+        $pricingItems = PricingItem::with('category')->get();
+        
+        return view('dashboard.services-page', compact('pricingItems', 'user'));
+    }
+
+    /**
+     * Display the transactions page
+     */
+    public function transactions(): View
+    {
+        $user = Auth::user();
+        $userPurchases = Purchase::where('user_id', $user->id)->with('pricingItem')->get();
+        $pricingItems = PricingItem::with('category')->get();
+        
+        return view('dashboard.transactions-page', compact('userPurchases', 'user', 'pricingItems'));
+    }
+
+    /**
+     * Display the profile page
+     */
+    public function profile(): View
+    {
+        $user = Auth::user();
+        $projects = Project::where('user_id', $user->id)->latest()->get();
+        $pricingItems = PricingItem::with('category')->get();
+        
+        $activeStatuses = ['new', 'pending', 'in_progress', 'completed'];
+        $finalizedStatuses = ['cancelled', 'finalized'];
+
+        $active = Project::where('user_id', Auth::id())
+            ->whereIn('status', $activeStatuses)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $finalized = Project::where('user_id', Auth::id())
+            ->whereIn('status', $finalizedStatuses)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $counts = [
+            'active' => $active->count(),
+            'finalized' => $finalized->count(),
+        ];
+        
+        return view('dashboard.profile-page', compact('user', 'active', 'finalized', 'counts', 'pricingItems'));
+    }
+
+    /**
      * Add item to cart session
      */
     public function addToCart(Request $request)
@@ -93,7 +146,7 @@ class DashboardController extends Controller
         // Also set the old session format for backward compatibility
         session(['selected_plan_for_payment' => $pricingItemId]);
 
-        return redirect()->route('dashboard')->with('success', 'Item added to cart successfully!');
+        return redirect()->back()->with('success', 'Item added to cart successfully!');
     }
 
     /**

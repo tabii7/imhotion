@@ -31,10 +31,18 @@ Route::get('/', function () {
 })->name('home');
 
 // Dashboard route with cart functionality (accept optional section path segment)
-Route::get('/dashboard/{section?}', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])->middleware('auth')->name('dashboard.add-to-cart');
 Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
 Route::post('/dashboard/remove-from-cart', [DashboardController::class, 'removeFromCart'])->middleware('auth')->name('dashboard.remove-from-cart');
+
+// Separate dashboard section routes
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/services', [DashboardController::class, 'services'])->name('dashboard.services');
+    Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
+    Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
+});
 
 // Add missing profile.edit route to fix navigation dropdown
 Route::get('/profile', function () {
