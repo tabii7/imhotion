@@ -772,17 +772,35 @@
 
                 <!-- Services Section -->
                 <div id="section-services" class="section">
-                    @include('dashboard.services')
+                    @php
+                        try {
+                            echo view('dashboard.services', get_defined_vars())->render();
+                        } catch (\Throwable $e) {
+                            echo '<div class="empty-state">Error loading services: ' . e($e->getMessage()) . '</div>';
+                        }
+                    @endphp
                 </div>
 
                 <!-- Transactions Section -->
                 <div id="section-transactions" class="section">
-                    @include('dashboard.transactions')
+                    @php
+                        try {
+                            echo view('dashboard.transactions', get_defined_vars())->render();
+                        } catch (\Throwable $e) {
+                            echo '<div class="empty-state">Error loading transactions: ' . e($e->getMessage()) . '</div>';
+                        }
+                    @endphp
                 </div>
 
                 <!-- Profile Section -->
                 <div id="section-profile" class="section">
-                    @include('dashboard.profile')
+                    @php
+                        try {
+                            echo view('dashboard.profile', get_defined_vars())->render();
+                        } catch (\Throwable $e) {
+                            echo '<div class="empty-state">Error loading profile: ' . e($e->getMessage()) . '</div>';
+                        }
+                    @endphp
                 </div>
             </div>
         </main>
@@ -1193,7 +1211,7 @@
         </div>
     </div>
 
-    <button id="open-debug-panel-btn" onclick="openDebugPanel()" title="Show server logs" style="position:fixed; right:18px; bottom:18px; z-index:1999; background:#111827; color:#9fb3c9; border:1px solid #223045; padding:8px 10px; border-radius:10px; box-shadow:0 4px 18px rgba(2,6,23,0.4);">Show server logs</button>
+    <button id="open-debug-panel-btn" onclick="openDebugPanel()" title="Show server logs" style="position:fixed; right:18px; bottom:18px; display:block !important; z-index:99999 !important; background:#111827; color:#9fb3c9; border:1px solid #223045; padding:8px 10px; border-radius:10px; box-shadow:0 4px 18px rgba(2,6,23,0.4);">Show server logs</button>
 
     <script>
         var debugAutoInterval = null;
