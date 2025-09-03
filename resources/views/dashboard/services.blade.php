@@ -4,29 +4,29 @@
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Available Services
         </h2>
-        
+
         @foreach($pricingItems->groupBy('category.name') as $categoryName => $items)
             <div style="margin-bottom: 35px;">
                 <h3 style="color: #7fa7e1; font-size: 16px; font-weight: 600; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.05em;">
                     {{ $categoryName }}
                 </h3>
-                
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     @foreach($items as $item)
-                        <div style="background: #001f4c; border: 1px solid #7fa7e1; border-radius: 12px; padding: 20px; transition: all 0.3s ease;" 
-                             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0, 31, 76, 0.4)'" 
+                        <div style="background: #001f4c; border: 1px solid #7fa7e1; border-radius: 12px; padding: 20px; transition: all 0.3s ease;"
+                             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0, 31, 76, 0.4)'"
                              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                            
+
                             <h4 style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 12px;">
                                 {{ $item->title }}
                             </h4>
-                            
+
                             @if($item->description)
                                 <p style="color: #8fa8cc; font-size: 14px; line-height: 1.5; margin: 0 0 20px;">
                                     {{ $item->description }}
                                 </p>
                             @endif
-                            
+
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
                                 <div>
                                     <div style="color: #ffffff; font-size: 28px; font-weight: 700; margin-bottom: 4px;">
@@ -36,13 +36,13 @@
                                         per {{ str_replace('per_', '', $item->price_unit) }}
                                     </div>
                                 </div>
-                                
+
                                 <form method="POST" action="{{ route('dashboard.add-to-cart') }}" style="margin: 0;">
                                     @csrf
                                     <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                                    <button type="submit" 
+                                    <button type="submit"
                                             style="background: #3366cc; color: #ffffff; padding: 12px 20px; border: 1px solid #7fa7e1; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-                                            onmouseover="this.style.opacity='0.9'; this.style.transform='scale(1.05)'" 
+                                            onmouseover="this.style.opacity='0.9'; this.style.transform='scale(1.05)'"
                                             onmouseout="this.style.opacity='1'; this.style.transform='scale(1)'">
                                         Add to Cart
                                     </button>
@@ -53,7 +53,7 @@
                 </div>
             </div>
         @endforeach
-        
+
         @if($pricingItems->count() === 0)
             <div style="text-align: center; padding: 40px;">
                 <div style="color: #8fa8cc; margin-bottom: 20px;">

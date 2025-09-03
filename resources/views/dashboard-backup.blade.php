@@ -8,34 +8,34 @@
     <link href="/css/brand.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
-        :root { 
-            --bg: #f8fafc; 
-            --panel: #ffffff; 
-            --muted: #64748b; 
-            --text: #0f172a; 
-            --brand: #3b82f6; 
-            --ok: #10b981; 
-            --warn: #f59e0b; 
-            --bad: #ef4444; 
-            --line: #e2e8f0; 
+        :root {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --muted: #64748b;
+            --text: #0f172a;
+            --brand: #3b82f6;
+            --ok: #10b981;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --line: #e2e8f0;
             --sidebar: #1e293b;
             --sidebar-text: #cbd5e1;
             --sidebar-active: #3b82f6;
         }
         * { box-sizing: border-box; }
-        body { 
-            margin: 0; 
-            font-family: var(--font-sans), system-ui, -apple-system, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
+        body {
+            margin: 0;
+            font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.5;
         }
-        
+
         .dashboard-layout {
             display: flex;
             min-height: 100vh;
         }
-        
+
         /* Sidebar */
         .sidebar {
             width: 280px;
@@ -47,12 +47,12 @@
             top: 0;
             z-index: 1000;
         }
-        
+
         .sidebar-header {
             padding: 24px;
             border-bottom: 1px solid #334155;
         }
-        
+
         .sidebar-logo {
             display: flex;
             align-items: center;
@@ -60,25 +60,25 @@
             text-decoration: none;
             color: white;
         }
-        
+
         .sidebar-logo img {
             width: 32px;
             height: 32px;
         }
-        
+
         .sidebar-logo span {
             font-size: 18px;
             font-weight: 700;
         }
-        
+
         .sidebar-nav {
             padding: 16px;
         }
-        
+
         .nav-group {
             margin-bottom: 24px;
         }
-        
+
         .nav-group-title {
             font-size: 12px;
             color: #94a3b8;
@@ -88,7 +88,7 @@
             margin-bottom: 8px;
             padding: 0 12px;
         }
-        
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -100,29 +100,29 @@
             transition: all 0.2s;
             margin-bottom: 4px;
         }
-        
+
         .nav-link:hover {
             background: rgba(59, 130, 246, 0.1);
             color: white;
         }
-        
+
         .nav-link.active {
             background: var(--sidebar-active);
             color: white;
         }
-        
+
         .nav-link svg {
             width: 20px;
             height: 20px;
         }
-        
+
         /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 280px;
             background: var(--bg);
         }
-        
+
         .main-header {
             background: white;
             border-bottom: 1px solid var(--line);
@@ -131,20 +131,20 @@
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .main-header h1 {
             margin: 0;
             font-size: 24px;
             font-weight: 700;
             color: var(--text);
         }
-        
+
         .user-menu {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
+
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -157,21 +157,21 @@
             font-weight: 600;
             font-size: 14px;
         }
-        
+
         .main-body {
             padding: 32px;
         }
-        
+
         .grid {
             display: grid;
             gap: 24px;
             margin-bottom: 32px;
         }
-        
+
         .grid-3 {
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         }
-        
+
         .card {
             background: var(--panel);
             border: 1px solid var(--line);
@@ -179,7 +179,7 @@
             padding: 24px;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
-        
+
         .card h3 {
             margin: 0 0 8px;
             font-size: 14px;
@@ -188,13 +188,13 @@
             text-transform: uppercase;
             letter-spacing: 0.025em;
         }
-        
+
         .card .big {
             font-size: 32px;
             font-weight: 700;
             color: var(--text);
         }
-        
+
         .btn {
             border: 0;
             background: var(--brand);
@@ -210,37 +210,37 @@
             gap: 8px;
             transition: all 0.2s;
         }
-        
+
         .btn:hover {
             background: #2563eb;
             transform: translateY(-1px);
         }
-        
+
         .btn-success {
             background: var(--ok);
         }
-        
+
         .btn-success:hover {
             background: #059669;
         }
-        
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 16px;
         }
-        
+
         th, td {
             padding: 12px 16px;
             border-bottom: 1px solid var(--line);
             text-align: left;
         }
-        
+
         th {
             color: var(--muted);
             font-weight: 600;
@@ -249,11 +249,11 @@
             letter-spacing: 0.025em;
             background: #f8fafc;
         }
-        
+
         tr:hover {
             background: #f8fafc;
         }
-        
+
         .status {
             display: inline-block;
             padding: 4px 12px;
@@ -261,22 +261,22 @@
             font-size: 12px;
             font-weight: 600;
         }
-        
+
         .status-completed {
             background: rgba(16, 185, 129, 0.1);
             color: #059669;
         }
-        
+
         .status-pending {
             background: rgba(245, 158, 11, 0.1);
             color: #d97706;
         }
-        
+
         .status-failed {
             background: rgba(239, 68, 68, 0.1);
             color: #dc2626;
         }
-        
+
         .cart-section {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
@@ -284,71 +284,71 @@
             padding: 24px;
             margin-bottom: 32px;
         }
-        
+
         .cart-section .cart-header {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 16px;
         }
-        
+
         .cart-item {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             padding: 16px;
             margin-bottom: 16px;
         }
-        
+
         .payment-methods {
             display: flex;
             gap: 8px;
             align-items: center;
         }
-        
+
         .payment-methods img {
             height: 24px;
             opacity: 0.8;
         }
-        
+
         .section {
             display: none;
         }
-        
+
         .section.active {
             display: block;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 48px 24px;
             color: var(--muted);
         }
-        
+
         .empty-state svg {
             width: 64px;
             height: 64px;
             margin: 0 auto 16px;
             opacity: 0.5;
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s;
             }
-            
+
             .sidebar.open {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .main-body {
                 padding: 16px;
             }
-            
+
             .grid-3 {
                 grid-template-columns: 1fr;
             }
@@ -365,7 +365,7 @@
                     <span>Imhotion</span>
                 </a>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <div class="nav-group">
                     <div class="nav-group-title">Main</div>
@@ -382,7 +382,7 @@
                         Services
                     </a>
                 </div>
-                
+
                 <div class="nav-group">
                     <div class="nav-group-title">Account</div>
                     <a href="#transactions" onclick="showSection('transactions')" id="nav-transactions" class="nav-link">
@@ -398,7 +398,7 @@
                         Profile
                     </a>
                 </div>
-                
+
                 <div class="nav-group">
                     <div class="nav-group-title">External</div>
                     <a href="/client" class="nav-link">
@@ -426,7 +426,7 @@
                     <div class="user-avatar">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
-                    <a href="{{ route('logout') }}" class="btn btn-sm" 
+                    <a href="{{ route('logout') }}" class="btn btn-sm"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Logout
                     </a>
@@ -445,7 +445,7 @@
 
                 <!-- Overview Section -->
                 <div id="section-overview" class="section active">
-                    
+
                     <!-- Cart Section -->
                     @if(session('selected_plan_for_payment'))
                         @php
@@ -459,7 +459,7 @@
                                     </svg>
                                     <h2 style="margin: 0; font-size: 20px;">Your Cart</h2>
                                 </div>
-                                
+
                                 <div class="cart-item">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <div>
@@ -471,7 +471,7 @@
                                             <div style="opacity: 0.8; font-size: 12px;">per {{ str_replace('per_', '', $selectedPlan->price_unit) }}</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <div class="payment-methods">
                                             <span style="font-size: 12px; opacity: 0.8;">Secure payment via</span>
@@ -479,7 +479,7 @@
                                             <img src="https://mollie.com/img/payment-methods/creditcard.svg" alt="Credit Card">
                                             <img src="https://mollie.com/img/payment-methods/paypal.svg" alt="PayPal">
                                         </div>
-                                        
+
                                         <form method="POST" action="{{ route('dashboard.add-to-cart') }}">
                                             @csrf
                                             <input type="hidden" name="pricing_item_id" value="{{ session('selected_plan_for_payment') }}">
@@ -704,7 +704,7 @@
                                 }
                             }
                         </style>
-                        
+
                         <div class="exact-client-area">
                             <!-- Stats Grid -->
                             <div class="exact-stats-grid">
@@ -792,11 +792,11 @@
                 <div id="section-services" class="section">
                     <div class="card">
                         <h2 style="margin: 0 0 24px; font-size: 18px;">Available Services</h2>
-                        
+
                         @foreach($pricingItems->groupBy('category.title') as $categoryTitle => $items)
                             <div style="margin-bottom: 32px;">
                                 <h3 style="font-size: 16px; margin: 0 0 16px; color: var(--text);">{{ $categoryTitle }}</h3>
-                                
+
                                 <div class="grid grid-3">
                                     @foreach($items as $item)
                                         <div class="card" style="border: 2px solid var(--line); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--line)'">
@@ -827,7 +827,7 @@
                 <div id="section-transactions" class="section">
                     <div class="card">
                         <h2 style="margin: 0 0 24px; font-size: 18px;">Transaction History</h2>
-                        
+
                         @if($userPurchases->count() > 0)
                             <table>
                                 <thead>
@@ -879,36 +879,36 @@
                     <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 24px;">
                         <div class="card">
                             <h2 style="margin: 0 0 24px; font-size: 18px;">Profile Information</h2>
-                            
+
                             <div style="margin-bottom: 24px;">
                                 <label style="display: block; font-weight: 600; margin-bottom: 4px;">Full Name</label>
                                 <div style="color: var(--muted);">{{ Auth::user()->name }}</div>
                             </div>
-                            
+
                             <div style="margin-bottom: 24px;">
                                 <label style="display: block; font-weight: 600; margin-bottom: 4px;">Email Address</label>
                                 <div style="color: var(--muted);">{{ Auth::user()->email }}</div>
                             </div>
-                            
+
                             <div style="margin-bottom: 24px;">
                                 <label style="display: block; font-weight: 600; margin-bottom: 4px;">Member Since</label>
                                 <div style="color: var(--muted);">{{ Auth::user()->created_at->format('F d, Y') }}</div>
                             </div>
-                            
+
                             <div style="padding-top: 24px; border-top: 1px solid var(--line);">
                                 <a href="/client" class="btn" style="margin-right: 12px;">View Client Area</a>
                                 <a href="/" class="btn" style="background: var(--muted);">Homepage</a>
                             </div>
                         </div>
-                        
+
                         <div class="card">
                             <h3 style="margin: 0 0 16px; font-size: 16px;">Account Stats</h3>
-                            
+
                             <div style="margin-bottom: 16px; padding: 16px; background: #f8fafc; border-radius: 8px;">
                                 <div style="font-size: 24px; font-weight: 700; color: var(--brand);">{{ $userPurchases->count() }}</div>
                                 <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.025em;">Total Purchases</div>
                             </div>
-                            
+
                             <div style="margin-bottom: 16px; padding: 16px; background: #f0fdf4; border-radius: 8px;">
                                 <div style="font-size: 24px; font-weight: 700; color: var(--ok);">€{{ number_format($userPurchases->sum('amount'), 0) }}</div>
                                 <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.025em;">Total Spent</div>
@@ -926,15 +926,15 @@
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Remove active class from all nav links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
-            
+
             // Show selected section
             document.getElementById('section-' + sectionName).classList.add('active');
-            
+
             // Add active class to selected nav link
             const navLink = document.getElementById('nav-' + sectionName);
             if (navLink) {
@@ -949,10 +949,10 @@
     </script>
 </body>
 </html>
-                
+
                 <!-- Home Section -->
                 <div id="section-home" class="section active">
-                    
+
                     <!-- Virtual Cart at Top -->
                     @if(session('selected_plan_for_payment'))
                         @php
@@ -968,7 +968,7 @@
                                         <p class="text-blue-700 text-sm mb-4" style="font-family: var(--font-sans)">
                                             Review your selected items and proceed to secure checkout via Mollie
                                         </p>
-                                        
+
                                         <div class="bg-white rounded-lg p-4 border border-blue-300 mb-4">
                                             <div class="flex justify-between items-center">
                                                 <div>
@@ -996,11 +996,11 @@
                                         <img src="https://mollie.com/img/payment-methods/paypal.svg" alt="PayPal" class="h-6">
                                     </div>
                                 </div>
-                                
+
                                 <form method="POST" action="{{ route('dashboard.add-to-cart') }}" class="mt-4">
                                     @csrf
                                     <input type="hidden" name="pricing_item_id" value="{{ session('selected_plan_for_payment') }}">
-                                    <button type="submit" 
+                                    <button type="submit"
                                             class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
                                             style="font-family: var(--font-sans)">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1026,7 +1026,7 @@
                                     <h3 class="text-lg font-medium text-gray-800 mb-4" style="font-family: var(--font-sans)">
                                         {{ $categoryTitle }}
                                     </h3>
-                                    
+
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @foreach($items as $item)
                                             <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors">
@@ -1046,7 +1046,7 @@
                                                     <form method="POST" action="{{ route('dashboard.add-to-cart') }}">
                                                         @csrf
                                                         <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                                                                 style="font-family: var(--font-sans); background-color: var(--brand-primary);">
                                                             Add to Cart
@@ -1117,8 +1117,8 @@
                                                         </div>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                                            {{ $purchase->status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                            {{ $purchase->status === 'completed' ? 'bg-green-100 text-green-800' :
                                                                ($purchase->status === 'failed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}"
                                                             style="font-family: var(--font-sans)">
                                                             {{ ucfirst($purchase->status) }}
@@ -1140,7 +1140,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                
+
                                 @if($userPurchases->count() > 5)
                                     <div class="mt-4 text-center">
                                         <a href="/client" class="text-blue-600 hover:text-blue-900 font-medium" style="font-family: var(--font-sans)">
@@ -1210,8 +1210,8 @@
                                                         €{{ number_format($purchase->amount, 2) }}
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                                            {{ $purchase->status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                                            {{ $purchase->status === 'completed' ? 'bg-green-100 text-green-800' :
                                                                ($purchase->status === 'failed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}"
                                                             style="font-family: var(--font-sans)">
                                                             {{ ucfirst($purchase->status) }}
@@ -1314,12 +1314,12 @@
 
                             <!-- Action Buttons -->
                             <div class="mt-8 flex space-x-4">
-                                <a href="/client" 
+                                <a href="/client"
                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
                                    style="font-family: var(--font-sans); background-color: var(--brand-primary);">
                                     View Full Client Area
                                 </a>
-                                <a href="/" 
+                                <a href="/"
                                    class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
                                    style="font-family: var(--font-sans);">
                                     Back to Homepage
@@ -1351,15 +1351,15 @@ function showSection(sectionName) {
     document.querySelectorAll('.section').forEach(section => {
         section.style.display = 'none';
     });
-    
+
     // Remove active class from all nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     // Show selected section
     document.getElementById('section-' + sectionName).style.display = 'block';
-    
+
     // Add active class to selected nav link
     const navLink = document.getElementById('nav-' + sectionName);
     if (navLink) {
