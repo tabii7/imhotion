@@ -178,21 +178,32 @@ class PaymentController extends Controller
                 ]);
 
                 // Idempotent: only credit user days once per purchase
-                if (empty($purchase->credited)) {
-                    DB::transaction(function () use ($purchase) {
-                        $user = $purchase->user()->lockForUpdate()->first();
-                        $credit = (int) ($purchase->days ?? 0);
-                        // increment existing canonical column 'balance_days' if present
-                        if (array_key_exists('balance_days', $user->getAttributes())) {
-                            $user->balance_days = ($user->balance_days ?? 0) + $credit;
-                        } else {
-                            // fallback to legacy 'days_balance' accessor
-                            $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                try {
+                    $purchase->refresh();
+                    if (empty($purchase->credited)) {
+                        DB::beginTransaction();
+                        try {
+                            $user = User::where('id', $purchase->user_id)->lockForUpdate()->first();
+                            if ($user) {
+                                $credit = (int) ($purchase->days ?? 0);
+                                if (array_key_exists('balance_days', $user->getAttributes())) {
+                                    $user->balance_days = ($user->balance_days ?? 0) + $credit;
+                                } else {
+                                    $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                                }
+                                $user->save();
+                                $purchase->update(['credited' => 1]);
+                            } else {
+                                \Log::warning('Payment crediting: user not found for purchase ' . $purchase->id);
+                            }
+                            DB::commit();
+                        } catch (\Exception $ex) {
+                            DB::rollBack();
+                            \Log::error('Failed to credit user for purchase '.$purchase->id.': '.$ex->getMessage());
                         }
-                        $user->save();
-                        $purchase->credited = 1;
-                        $purchase->save();
-                    });
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Payment return post-processing error for purchase '.$purchase->id.': '.$e->getMessage());
                 }
 
                 return redirect('/dashboard')->with('success', 'Payment successful! Welcome to Imhotion.');
@@ -228,19 +239,32 @@ class PaymentController extends Controller
                                                 ]);
 
                                                 // Idempotent credit via webhook as well
-                                                if (empty($purchase->credited)) {
-                                                    DB::transaction(function () use ($purchase) {
-                                                        $user = $purchase->user()->lockForUpdate()->first();
-                                                        $credit = (int) ($purchase->days ?? 0);
-                                                        if (array_key_exists('balance_days', $user->getAttributes())) {
-                                                            $user->balance_days = ($user->balance_days ?? 0) + $credit;
-                                                        } else {
-                                                            $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                                                try {
+                                                    $purchase->refresh();
+                                                    if (empty($purchase->credited)) {
+                                                        DB::beginTransaction();
+                                                        try {
+                                                            $user = User::where('id', $purchase->user_id)->lockForUpdate()->first();
+                                                            if ($user) {
+                                                                $credit = (int) ($purchase->days ?? 0);
+                                                                if (array_key_exists('balance_days', $user->getAttributes())) {
+                                                                    $user->balance_days = ($user->balance_days ?? 0) + $credit;
+                                                                } else {
+                                                                    $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                                                                }
+                                                                $user->save();
+                                                                $purchase->update(['credited' => 1]);
+                                                            } else {
+                                                                \Log::warning('Webhook crediting: user not found for purchase ' . $purchase->id);
+                                                            }
+                                                            DB::commit();
+                                                        } catch (\Exception $ex) {
+                                                            DB::rollBack();
+                                                            \Log::error('Webhook crediting failed for purchase '.$purchase->id.': '.$ex->getMessage());
                                                         }
-                                                        $user->save();
-                                                        $purchase->credited = 1;
-                                                        $purchase->save();
-                                                    });
+                                                    }
+                                                } catch (\Exception $e) {
+                                                    \Log::error('Webhook post-processing error for purchase '.$purchase->id.': '.$e->getMessage());
                                                 }
                     } elseif ($payment->isFailed()) {
                         $purchase->update(['status' => 'failed']);

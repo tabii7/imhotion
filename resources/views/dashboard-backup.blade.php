@@ -845,8 +845,18 @@
                                         <tr>
                                             <td style="font-family: monospace; color: var(--muted);">#{{ str_pad($purchase->id, 6, '0', STR_PAD_LEFT) }}</td>
                                             <td>
-                                                <div style="font-weight: 600;">{{ $purchase->pricingItem->title }}</div>
-                                                <div style="font-size: 12px; color: var(--muted);">{{ $purchase->pricingItem->category->title }}</div>
+                                                @if($purchase->pricingItem)
+                                                    <div style="font-weight: 600;">{{ $purchase->pricingItem->title }}</div>
+                                                    <div style="font-size: 12px; color: var(--muted);">{{ optional($purchase->pricingItem->category)->title ?? '' }}</div>
+                                                @else
+                                                    @php $items = is_array($purchase->payment_data) ? $purchase->payment_data : json_decode($purchase->payment_data, true) ?? []; @endphp
+                                                    <div style="font-weight: 600;">Multiple items</div>
+                                                    <div style="font-size: 12px; color: var(--muted);">
+                                                        @foreach($items as $it)
+                                                            <div>{{ $it['title'] ?? 'Item' }} @if(($it['qty'] ?? 1) > 1) (x{{ $it['qty'] }}) @endif</div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td style="font-weight: 600;">€{{ number_format($purchase->amount, 2) }}</td>
                                             <td>
@@ -1110,7 +1120,12 @@
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="text-sm font-medium text-gray-900" style="font-family: var(--font-sans)">
-                                                            {{ $purchase->pricingItem->title }}
+                                                            @if($purchase->pricingItem)
+                                                                {{ $purchase->pricingItem->title }}
+                                                            @else
+                                                                @php $items = is_array($purchase->payment_data) ? $purchase->payment_data : json_decode($purchase->payment_data, true) ?? []; @endphp
+                                                                {{ $items[0]['title'] ?? 'Multiple items' }}
+                                                            @endif
                                                         </div>
                                                         <div class="text-sm text-gray-500" style="font-family: var(--font-sans)">
                                                             {{ $purchase->pricingItem->category->title }}
@@ -1200,7 +1215,12 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="text-sm font-medium text-gray-900" style="font-family: var(--font-sans)">
-                                                            {{ $purchase->pricingItem->title }}
+                                                            @if($purchase->pricingItem)
+                                                                {{ $purchase->pricingItem->title }}
+                                                            @else
+                                                                @php $items = is_array($purchase->payment_data) ? $purchase->payment_data : json_decode($purchase->payment_data, true) ?? []; @endphp
+                                                                {{ $items[0]['title'] ?? 'Multiple items' }}
+                                                            @endif
                                                         </div>
                                                         <div class="text-sm text-gray-500" style="font-family: var(--font-sans)">
                                                             {{ $purchase->pricingItem->category->title }}

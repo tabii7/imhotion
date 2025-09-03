@@ -206,9 +206,20 @@
                             <div class="border-b border-[#7fa7e1]/20 last:border-b-0 p-4 hover:bg-[#002a66] transition-colors">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <h4 class="text-white font-semibold">{{ $purchase->pricingItem->title ?? 'Service Purchase' }}</h4>
-                                        <p class="text-gray-300 text-sm">{{ $purchase->created_at->format('M j, Y H:i') }}</p>
-                                        <p class="text-gray-400 text-xs">Payment ID: {{ $purchase->mollie_payment_id }}</p>
+                                        @if($purchase->pricingItem)
+                                            <h4 class="text-white font-semibold">{{ optional($purchase->pricingItem)->title }}</h4>
+                                            <p class="text-gray-300 text-sm">{{ $purchase->created_at->format('M j, Y H:i') }}</p>
+                                            <p class="text-gray-400 text-xs">Payment ID: {{ $purchase->mollie_payment_id }}</p>
+                                        @else
+                                            @php $items = is_array($purchase->payment_data) ? $purchase->payment_data : json_decode($purchase->payment_data, true) ?? []; @endphp
+                                            <h4 class="text-white font-semibold">Multiple items</h4>
+                                            <p class="text-gray-300 text-sm">{{ $purchase->created_at->format('M j, Y H:i') }}</p>
+                                            <div class="text-gray-400 text-xs">
+                                                @foreach($items as $it)
+                                                    <div>{{ $it['title'] ?? 'Item' }} @if(($it['qty'] ?? 1) > 1) (x{{ $it['qty'] }}) @endif</div>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="text-right">
                                         <div class="text-white font-bold text-lg">€{{ number_format($purchase->amount, 2) }}</div>

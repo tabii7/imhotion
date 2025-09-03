@@ -28,12 +28,29 @@
                                     #{{ str_pad($purchase->id, 6, '0', STR_PAD_LEFT) }}
                                 </td>
                                 <td style="padding: 12px; border: 1px solid #7fa7e1;">
-                                    <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 2px;">
-                                        {{ $purchase->pricingItem->title }}
-                                    </div>
-                                    <div style="color: #8fa8cc; font-size: 12px;">
-                                        {{ $purchase->pricingItem->category->title }}
-                                    </div>
+                                    @if($purchase->pricingItem)
+                                        <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 2px;">
+                                            {{ $purchase->pricingItem->title }}
+                                        </div>
+                                        <div style="color: #8fa8cc; font-size: 12px;">
+                                            {{ optional($purchase->pricingItem->category)->title ?? '' }}
+                                        </div>
+                                    @else
+                                        {{-- Multi-item purchase or legacy purchase without a single pricing_item_id --}}
+                                        @php $items = is_array($purchase->payment_data) ? $purchase->payment_data : json_decode($purchase->payment_data, true) ?? []; @endphp
+                                        <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">
+                                            Multiple items
+                                        </div>
+                                        <div style="color: #8fa8cc; font-size: 12px;">
+                                            @foreach($items as $it)
+                                                @php
+                                                    $title = $it['title'] ?? ($it->title ?? 'Item');
+                                                    $qty = $it['qty'] ?? ($it->quantity ?? 1);
+                                                @endphp
+                                                <div>{{ $title }} @if($qty > 1) (x{{ $qty }}) @endif</div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </td>
                                 <td style="padding: 12px; color: #ffffff; font-size: 14px; font-weight: 600; border: 1px solid #7fa7e1;">
                                     €{{ number_format($purchase->amount, 2) }}
