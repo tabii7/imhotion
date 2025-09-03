@@ -164,7 +164,7 @@ class ProjectResource extends Resource
                     ->sortable()
                     ->alignCenter()
                     ->getStateUsing(fn (Project $record) => (int) ($record->documents_count ?? 0))
-                    ->formatStateUsing(function ($state) {
+                    ->formatStateUsing(function (?int $state): string {
                         $count = is_numeric($state) ? (int) $state : 0;
                         return '<span style="display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:0.25rem;background:#ffffff;color:#000000;border:1px solid #e5e7eb;font-size:0.75rem;font-weight:700;">'
                             . $count .

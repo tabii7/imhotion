@@ -455,6 +455,23 @@
                     </div>
                 @endif
 
+                {{-- Debug banner: enable with ?dbg=1 in the URL --}}
+                @if(request()->query('dbg') === '1')
+                    <div style="background:#fff3bf;border:1px solid #f59e0b;color:#92400e;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+                        <strong>DEBUG</strong>: initialSection = {{ json_encode($initialSection ?? null) }} | pricingItems = {{ isset($pricingItems) ? $pricingItems->count() : 'null' }} | userPurchases = {{ isset($userPurchases) ? $userPurchases->count() : 'null' }}
+                        <div style="margin-top:8px;color:#92400e;font-size:12px;">Open the browser console for DOM checks.</div>
+                    </div>
+                    <script>
+                        // Console checks to help debug sections
+                        console.log('DEBUG: initialSection=', @json($initialSection ?? null));
+                        ['overview','services','transactions','profile'].forEach(s => {
+                            console.log('DEBUG: section-' + s + ' exists=', !!document.getElementById('section-' + s));
+                            console.log('DEBUG: nav-' + s + ' exists=', !!document.getElementById('nav-' + s));
+                        });
+                        console.log('DEBUG: window.location =', window.location.href);
+                    </script>
+                @endif
+
                 <!-- Overview Section -->
                 <div id="section-overview" class="section active">
 
