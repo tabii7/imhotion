@@ -1173,5 +1173,87 @@
 
     <!-- Include Project Modal Component -->
     @include('components.project-modal')
+
+    <!-- Temporary Debug Panel (visible to authenticated users) -->
+    <div id="server-debug-panel" style="position:fixed; right:18px; bottom:18px; width:420px; max-height:60vh; display:none; background:#0b1220; color:#d1d5db; border:1px solid #223045; border-radius:8px; box-shadow:0 6px 30px rgba(2,6,23,0.6); z-index:2000; font-family: monospace;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid #162233;">
+            <strong style="font-size:13px; color:#fff;">Server logs</strong>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button id="debug-refresh-btn" onclick="fetchServerLogs()" style="background:#1f6feb; color:white; border:0; padding:6px 8px; border-radius:6px; font-size:12px; cursor:pointer;">Refresh</button>
+                <button id="debug-auto-toggle" onclick="toggleAutoRefresh()" style="background:#0ea5a4; color:white; border:0; padding:6px 8px; border-radius:6px; font-size:12px; cursor:pointer;">Auto</button>
+                <button onclick="closeDebugPanel()" style="background:transparent; color:#9fb3c9; border:0; padding:6px; font-size:14px; cursor:pointer;">✕</button>
+            </div>
+        </div>
+        <div id="server-debug-body" style="padding:10px; overflow:auto; max-height:calc(60vh - 64px); font-size:12px; line-height:1.3; white-space:pre-wrap;"></div>
+        <div style="padding:8px; border-top:1px solid #162233; display:flex; gap:8px; align-items:center;">
+            <label style="font-size:12px; color:#9fb3c9;">Lines</label>
+            <input id="debug-lines" type="number" value="200" min="10" max="2000" style="width:80px; background:#071022; color:#d1d5db; border:1px solid #223045; padding:6px; border-radius:6px;" />
+            <label style="font-size:12px; color:#9fb3c9; margin-left:8px;">Token</label>
+            <input id="debug-token" type="text" placeholder="dev" style="flex:1; background:#071022; color:#d1d5db; border:1px solid #223045; padding:6px; border-radius:6px;" />
+        </div>
+    </div>
+
+    <button id="open-debug-panel-btn" onclick="openDebugPanel()" title="Show server logs" style="position:fixed; right:18px; bottom:18px; z-index:1999; background:#111827; color:#9fb3c9; border:1px solid #223045; padding:8px 10px; border-radius:10px; box-shadow:0 4px 18px rgba(2,6,23,0.4);">Show server logs</button>
+
+    <script>
+        var debugAutoInterval = null;
+
+        function openDebugPanel() {
+            document.getElementById('server-debug-panel').style.display = '';
+            document.getElementById('open-debug-panel-btn').style.display = 'none';
+            // Prefill token with 'dev' so the debug route works when ADMIN_DEBUG_TOKEN is not set
+            var tokenInput = document.getElementById('debug-token');
+            if (!tokenInput.value) tokenInput.value = 'dev';
+            fetchServerLogs();
+        }
+
+        function closeDebugPanel() {
+            document.getElementById('server-debug-panel').style.display = 'none';
+            document.getElementById('open-debug-panel-btn').style.display = '';
+            stopAutoRefresh();
+        }
+
+        function fetchServerLogs() {
+            var lines = parseInt(document.getElementById('debug-lines').value) || 200;
+            var token = encodeURIComponent(document.getElementById('debug-token').value || '');
+            var url = '/__debug/logs?lines=' + lines + (token ? '&token=' + token : '');
+            fetch(url, { credentials: 'same-origin' })
+                .then(function(res){ return res.json(); })
+                .then(function(json){
+                    if (!json.ok) {
+                        document.getElementById('server-debug-body').textContent = 'Error fetching logs: ' + (json.reason || JSON.stringify(json));
+                        return;
+                    }
+                    document.getElementById('server-debug-body').textContent = json.lines.join('\n');
+                    // scroll to bottom
+                    var b = document.getElementById('server-debug-body');
+                    b.scrollTop = b.scrollHeight;
+                })
+                .catch(function(err){
+                    document.getElementById('server-debug-body').textContent = 'Fetch error: ' + err;
+                });
+        }
+
+        function toggleAutoRefresh() {
+            if (debugAutoInterval) {
+                stopAutoRefresh();
+            } else {
+                startAutoRefresh();
+            }
+        }
+
+        function startAutoRefresh() {
+            debugAutoInterval = setInterval(fetchServerLogs, 2500);
+            document.getElementById('debug-auto-toggle').style.background = '#ef4444';
+            document.getElementById('debug-auto-toggle').textContent = 'Stop';
+        }
+
+        function stopAutoRefresh() {
+            if (debugAutoInterval) clearInterval(debugAutoInterval);
+            debugAutoInterval = null;
+            document.getElementById('debug-auto-toggle').style.background = '#0ea5a4';
+            document.getElementById('debug-auto-toggle').textContent = 'Auto';
+        }
+    </script>
 </body>
 </html>
