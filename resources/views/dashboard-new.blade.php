@@ -8,7 +8,7 @@
         <div class="w-64 bg-[#0a1428] h-screen sticky top-0">
             <div class="p-6">
                 <h2 class="text-white text-xl font-bold mb-8">Dashboard</h2>
-                
+
                 <!-- Navigation Menu -->
                 <nav class="space-y-2">
                     <a href="#home" onclick="showSection('home')" class="nav-item active flex items-center px-4 py-3 text-white bg-[#2563eb] rounded-lg transition-colors">
@@ -17,14 +17,14 @@
                         </svg>
                         Home
                     </a>
-                    
+
                     <a href="#transactions" onclick="showSection('transactions')" class="nav-item flex items-center px-4 py-3 text-gray-300 hover:text-white hover:bg-[#1e40af] rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
                         </svg>
                         Transactions
                     </a>
-                    
+
                     <a href="#profile" onclick="showSection('profile')" class="nav-item flex items-center px-4 py-3 text-gray-300 hover:text-white hover:bg-[#1e40af] rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
@@ -42,7 +42,7 @@
                 <!-- Virtual Cart -->
                 <div class="p-8 border-b border-[#7fa7e1]/20">
                     <h3 class="text-white text-2xl font-bold mb-6">🛒 Your Cart</h3>
-                    
+
                     <div id="cart-items" class="space-y-4 mb-6">
                         @if(session('cart'))
                             @foreach(session('cart') as $item)
@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                             @endforeach
-                            
+
                             <!-- Checkout Button -->
                             <div class="pt-4 border-t border-[#7fa7e1]/20">
                                 <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-[#1d4ed8] hover:to-[#1e40af] transition-all duration-300 flex items-center justify-center space-x-3">
@@ -87,7 +87,7 @@
                 <!-- Client Area Copy (from /client) -->
                 <div class="p-8">
                     <h3 class="text-white text-2xl font-bold mb-6">📊 Project Overview</h3>
-                    
+
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-3 gap-4 mb-8 max-w-lg mx-auto">
                         <div class="bg-[#001f4c] border border-[#7fa7e1] rounded-lg p-4 text-center hover:bg-[#002a66] hover:scale-105 transition-all duration-300 cursor-pointer">
@@ -200,7 +200,7 @@
             <div id="transactions-section" class="section-content hidden">
                 <div class="p-8">
                     <h3 class="text-white text-2xl font-bold mb-6">💳 Transaction History</h3>
-                    
+
                     <div class="bg-[#001f4c] rounded-lg overflow-hidden">
                         @forelse($userPurchases as $purchase)
                             <div class="border-b border-[#7fa7e1]/20 last:border-b-0 p-4 hover:bg-[#002a66] transition-colors">
@@ -252,7 +252,7 @@
             <div id="profile-section" class="section-content hidden">
                 <div class="p-8">
                     <h3 class="text-white text-2xl font-bold mb-6">👤 Profile Settings</h3>
-                    
+
                     <div class="bg-[#001f4c] rounded-lg p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -272,7 +272,7 @@
                                 <input type="text" value="{{ $active->count() + $finalized->count() }}" class="w-full bg-[#0a1428] border border-[#7fa7e1] rounded-lg px-4 py-2 text-white" readonly>
                             </div>
                         </div>
-                        
+
                         <div class="mt-6 pt-6 border-t border-[#7fa7e1]/20">
                             <button class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-2 rounded-lg font-medium transition-colors">
                                 Edit Profile
@@ -294,16 +294,16 @@ function showSection(sectionName) {
     document.querySelectorAll('.section-content').forEach(section => {
         section.classList.add('hidden');
     });
-    
+
     // Remove active class from all nav items
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active', 'bg-[#2563eb]');
         item.classList.add('text-gray-300');
     });
-    
+
     // Show selected section
     document.getElementById(sectionName + '-section').classList.remove('hidden');
-    
+
     // Add active class to clicked nav item
     event.target.closest('.nav-item').classList.add('active', 'bg-[#2563eb]');
     event.target.closest('.nav-item').classList.remove('text-gray-300');

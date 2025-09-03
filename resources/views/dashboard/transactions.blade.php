@@ -12,7 +12,7 @@
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Transaction History
         </h2>
-        
+
         @if($userPurchases->count() > 0)
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse;">

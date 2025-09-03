@@ -30,8 +30,8 @@ Route::get('/', function () {
     return view('home', compact('categories'));
 })->name('home');
 
-// Dashboard route with cart functionality
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+// Dashboard route with cart functionality (accept optional section path segment)
+Route::get('/dashboard/{section?}', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])->middleware('auth')->name('dashboard.add-to-cart');
 Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
 Route::post('/dashboard/remove-from-cart', [DashboardController::class, 'removeFromCart'])->middleware('auth')->name('dashboard.remove-from-cart');

@@ -14,7 +14,7 @@ class DashboardController extends Controller
     /**
      * Display the dashboard with cart and menu options.
      */
-    public function index(): View
+    public function index(Request $request, $section = null): View
     {
         $user = Auth::user();
         $pricingItems = PricingItem::with('category')->get();
@@ -50,7 +50,7 @@ class DashboardController extends Controller
             'finalized' => $finalized->count(),
         ];
 
-        return view('dashboard', compact('pricingItems', 'userPurchases', 'user', 'active', 'finalized', 'counts'));
+    return view('dashboard', compact('pricingItems', 'userPurchases', 'user', 'active', 'finalized', 'counts'))->with('initialSection', $section);
     }
 
     /**

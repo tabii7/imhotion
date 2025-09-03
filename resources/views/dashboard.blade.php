@@ -808,6 +808,8 @@
 
     <script>
         function showSection(sectionName) {
+            if (!sectionName || typeof sectionName !== 'string') return;
+
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
@@ -818,19 +820,41 @@
                 link.classList.remove('active');
             });
 
-            // Show selected section
-            document.getElementById('section-' + sectionName).classList.add('active');
+            // Show selected section if it exists
+            const target = document.getElementById('section-' + sectionName);
+            if (!target) {
+                // Don't throw if target is missing; log and bail out gracefully.
+                console.warn('showSection: section not found:', sectionName);
+                // Update the URL hash anyway so browser reflects requested section
+                try { history.replaceState(null, '', '#' + sectionName); } catch (e) {}
+                return;
+            }
 
-            // Add active class to selected nav link
+            target.classList.add('active');
+
+            // Add active class to selected nav link (if present)
             const navLink = document.getElementById('nav-' + sectionName);
             if (navLink) {
                 navLink.classList.add('active');
             }
+
+            // Update URL hash without scrolling
+            try { history.replaceState(null, '', '#' + sectionName); } catch (e) {}
         }
 
         // Respect URL hash on initial page load (e.g. /dashboard#services)
         document.addEventListener('DOMContentLoaded', function() {
             try {
+                // Server-provided initial section (from route /dashboard/{section?}) takes precedence
+                var initialServerSection = @json($initialSection ?? null);
+                if (initialServerSection) {
+                    var serverTarget = document.getElementById('section-' + initialServerSection);
+                    if (serverTarget) {
+                        showSection(initialServerSection);
+                        return;
+                    }
+                }
+
                 var hash = window.location.hash || '';
                 if (hash && hash.startsWith('#')) {
                     var section = hash.slice(1);
@@ -847,6 +871,19 @@
             // Default to overview if nothing matched
             if (document.getElementById('section-overview')) {
                 showSection('overview');
+            }
+        });
+
+        // React to hash changes after initial load (supports links that change hash)
+        window.addEventListener('hashchange', function() {
+            try {
+                var hash = window.location.hash || '';
+                if (hash && hash.startsWith('#')) {
+                    var section = hash.slice(1);
+                    showSection(section);
+                }
+            } catch (e) {
+                console.error('Error handling hashchange:', e);
             }
         });
 
