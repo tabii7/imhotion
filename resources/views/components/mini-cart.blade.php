@@ -130,15 +130,15 @@ $total = $subtotal - $discount + $tax;
             <div class="mini-cart-actions">
                 @if(count($resolved) === 1)
                     {{-- Single item - use existing payment flow --}}
-                    <form method="POST" action="{{ route('payment.create') }}">
+                    <form id="mini-cart-checkout-form-single" method="POST" action="{{ route('payment.create') }}">
                         @csrf
                         <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] }}">
                         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                         <button type="submit" class="btn btn-primary">Checkout Now</button>
                     </form>
                 @else
-                    {{-- Multiple items - TODO: implement multi-item checkout --}}
-                    <form method="POST" action="{{ route('payment.create') }}">
+                    {{-- Multiple items - submit cart totals to payment.create --}}
+                    <form id="mini-cart-checkout-form-multi" method="POST" action="{{ route('payment.create') }}">
                         @csrf
                         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                         <button type="submit" class="btn btn-primary">Checkout Now</button>
@@ -146,10 +146,10 @@ $total = $subtotal - $discount + $tax;
                 @endif
             </div>
 
-            {{-- Hidden global checkout form used by header quick action --}}
+            {{-- Hidden global checkout form used by header quick action (fallback) --}}
             <form id="mini-cart-checkout-form" method="POST" action="{{ route('payment.create') }}" style="display:none;">
                 @csrf
-                <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] ?? ($pricingItems->first()->id ?? '') }}">
+                {{-- Do not set pricing_item_id here to avoid forcing single-item payment when cart has multiple items. --}}
                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
             </form>
         </div>
@@ -544,8 +544,16 @@ function proceedToCheckout() {
 // AJAX-friendly checkout: intercept payment.create forms and follow Mollie's redirect_url
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        const selector = 'form[action="' + "{{ route('payment.create') }}" + '"]';
-        document.querySelectorAll(selector).forEach(function(form) {
+    // Prefer multi-item checkout form, then single, then any form that posts to payment.create
+    const multi = document.getElementById('mini-cart-checkout-form-multi');
+    const single = document.getElementById('mini-cart-checkout-form-single');
+    const selector = 'form[action="' + "{{ route('payment.create') }}" + '"]';
+    const forms = document.querySelectorAll(selector);
+    const targetForms = [];
+    if (multi) targetForms.push(multi);
+    if (single) targetForms.push(single);
+    forms.forEach(f => { if (!targetForms.includes(f)) targetForms.push(f); });
+    targetForms.forEach(function(form) {
             form.addEventListener('submit', function(e) {
                 // Submit via fetch so we can follow JSON redirect responses from the controller
                 e.preventDefault();
@@ -585,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.submit();
                 });
             });
-        });
+    });
     } catch (e) {
         console.error('Checkout JS init error', e);
     }
