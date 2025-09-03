@@ -85,11 +85,11 @@ $total = $subtotal - $discount + $tax;
                         <div class="line-total">{{ $currency }}{{ number_format($line, 2, '.', ',') }}</div>
                     </div>
                     <div class="col actions">
-                        <form method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return confirm('Are you sure you want to delete this item from the cart?');">
-                            @csrf
-                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
-                            <button type="submit" class="delete-btn" title="Delete item">✕</button>
-                        </form>
+                                        <form class="delete-form" method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return false;">
+                                            @csrf
+                                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
+                                            <button type="button" class="delete-btn" title="Delete item" data-confirm="Are you sure you want to delete this item from the cart?">✕</button>
+                                        </form>
                     </div>
                 </div>
             @endforeach
@@ -597,5 +597,35 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {
         console.error('Checkout JS init error', e);
     }
+});
+// Delete item handler (AJAX) — send credentials & CSRF to avoid 419 Page Expired
+document.addEventListener('click', function(e){
+    if (!e.target) return;
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    const confirmMsg = btn.getAttribute('data-confirm') || 'Delete item?';
+    if (!confirm(confirmMsg)) return;
+    const form = btn.closest('.delete-form');
+    if (!form) return;
+    const action = form.action;
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const fd = new FormData(form);
+
+    fetch(action, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: fd
+    }).then(r => r.json ? r.json() : Promise.resolve({ok:true})).then(data => {
+        // If server returns JSON with success, reload. Otherwise just reload.
+        location.reload();
+    }).catch(err => {
+        console.error('Delete failed', err);
+        // fallback: navigate to the form action so server handles it
+        window.location = action;
+    });
 });
 </script>
