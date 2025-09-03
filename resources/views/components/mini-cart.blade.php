@@ -365,8 +365,11 @@ $total = $subtotal - $discount + $tax;
 function updateQty(itemId, change) {
     fetch('/dashboard/update-cart-qty', {
         method: 'POST',
+        credentials: 'same-origin', // send cookies so auth/session is preserved
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
@@ -535,4 +538,56 @@ function proceedToCheckout() {
     }
     window.location.href = '/payment/create';
 }
+</script>
+
+<script>
+// AJAX-friendly checkout: intercept payment.create forms and follow Mollie's redirect_url
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const selector = 'form[action="' + "{{ route('payment.create') }}" + '"]';
+        document.querySelectorAll(selector).forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                // Submit via fetch so we can follow JSON redirect responses from the controller
+                e.preventDefault();
+                const url = form.action;
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const body = new URLSearchParams(new FormData(form));
+
+                fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: body.toString()
+                }).then(async function(res) {
+                    // If controller returned JSON with redirect_url, use it
+                    const contentType = res.headers.get('content-type') || '';
+                    if (res.ok && contentType.indexOf('application/json') !== -1) {
+                        const json = await res.json();
+                        if (json.redirect_url) {
+                            window.location = json.redirect_url;
+                            return;
+                        }
+                    }
+                    // If response is a redirect, follow it
+                    if (res.redirected) {
+                        window.location = res.url;
+                        return;
+                    }
+                    // Fallback to normal submit (lets server render error messages)
+                    form.submit();
+                }).catch(function(err) {
+                    console.error('Checkout failed:', err);
+                    form.submit();
+                });
+            });
+        });
+    } catch (e) {
+        console.error('Checkout JS init error', e);
+    }
+});
 </script>
