@@ -91,6 +91,7 @@ class PaymentController extends Controller
             'currency' => 'EUR',
             'status' => 'pending',
             'mollie_payment_id' => null,
+            'payment_data' => $itemsForSummary, // store items summary for admin/reporting
         ]);
 
         try {
@@ -151,6 +152,14 @@ class PaymentController extends Controller
 
                 // Clear the selected plan session
                 session()->forget('selected_plan_for_payment');
+                // Clear cart now that purchase completed
+                session()->forget('cart');
+
+                // Save payment metadata and paid timestamp
+                $purchase->update([
+                    'payment_data' => $payment->toArray(),
+                    'paid_at' => now(),
+                ]);
 
                 return redirect('/dashboard')->with('success', 'Payment successful! Welcome to Imhotion.');
             } elseif ($payment->isFailed()) {
@@ -178,7 +187,11 @@ class PaymentController extends Controller
 
                 if ($purchase) {
                     if ($payment->isPaid()) {
-                        $purchase->update(['status' => 'completed']);
+                                $purchase->update([
+                                    'status' => 'completed',
+                                    'payment_data' => $payment->toArray(),
+                                    'paid_at' => now(),
+                                ]);
                     } elseif ($payment->isFailed()) {
                         $purchase->update(['status' => 'failed']);
                     }
