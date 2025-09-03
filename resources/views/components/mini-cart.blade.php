@@ -59,9 +59,9 @@ $total = $subtotal - $discount + $tax;
                 <div class="col line">TOTAL</div>
             </div>
 
-            @foreach($resolved as $item)
+                @foreach($resolved as $item)
                 @php $line = $item['price'] * $item['qty']; @endphp
-                <div class="cart-row">
+                <div class="cart-row" data-item-id="{{ $item['id'] }}">
                     <div class="col qty">
                         <div class="qty-controls">
                             <button class="qty-btn" onclick="updateQty({{ $item['id'] }}, -1)">−</button>
@@ -97,7 +97,7 @@ $total = $subtotal - $discount + $tax;
                 <div class="cart-summary">
                 <div class="summary-row">
                     <div class="label">Subtotal</div>
-                    <div class="value">{{ $currency }}{{ number_format($subtotal, 2, '.', ',') }}</div>
+                    <div class="value" id="subtotal-value">{{ $currency }}{{ number_format($subtotal, 2, '.', ',') }}</div>
                 </div>
                 @if($discount > 0)
                 <div class="summary-row">
@@ -107,7 +107,7 @@ $total = $subtotal - $discount + $tax;
                 @endif
                 <div class="summary-row total">
                     <div class="label">Total</div>
-                    <div class="value">{{ $currency }}{{ number_format($total, 2, '.', ',') }}</div>
+                    <div class="value" id="total-value">{{ $currency }}{{ number_format($total, 2, '.', ',') }}</div>
                 </div>
 
                 <div class="vat-note">The invoice does not include VAT due to article 21 of Spanish Law 37/1992</div>
@@ -412,9 +412,9 @@ function updateQty(itemId, change) {
                     </div>
                 @endforeach
 
-                <div class="cart-total">
-                    <strong>Total: €{{ number_format($total, 2) }}</strong>
-                </div>
+                    <div class="cart-total">
+                        <strong id="mini-cart-total">Total: {{ $currency }}{{ number_format($total, 2) }}</strong>
+                    </div>
             </div>
         @else
             <!-- Empty cart -->
@@ -619,8 +619,32 @@ document.addEventListener('click', function(e){
             'X-Requested-With': 'XMLHttpRequest'
         },
         body: fd
-    }).then(r => r.json ? r.json() : Promise.resolve({ok:true})).then(data => {
-        // If server returns JSON with success, reload. Otherwise just reload.
+    }).then(async function(res) {
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.indexOf('application/json') !== -1) {
+            const json = await res.json();
+            if (json.success) {
+                // Remove the row from the DOM
+                const row = document.querySelector('.cart-row[data-item-id="' + form.querySelector('[name="item_id"]').value + '"]');
+                if (row) row.remove();
+
+                // Update subtotal/total values if provided
+                if (typeof json.subtotal !== 'undefined') {
+                    const currency = document.querySelector('#subtotal-value') ? document.querySelector('#subtotal-value').textContent.trim().charAt(0) : '€';
+                    const subtotalEl = document.getElementById('subtotal-value');
+                    const totalEl = document.getElementById('total-value');
+                    if (subtotalEl) subtotalEl.textContent = currency + (Math.round(json.subtotal * 100) / 100).toFixed(2);
+                    if (totalEl) totalEl.textContent = currency + (Math.round(json.total * 100) / 100).toFixed(2);
+                }
+
+                // If cart is now empty, reload to render empty state
+                if (json.empty) {
+                    location.reload();
+                }
+                return;
+            }
+        }
+        // Fallback: reload the page so server handles it
         location.reload();
     }).catch(err => {
         console.error('Delete failed', err);

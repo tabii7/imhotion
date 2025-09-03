@@ -183,6 +183,40 @@ class DashboardController extends Controller
             session()->forget('selected_plan_for_payment');
         }
 
+        // Recompute totals for AJAX clients
+        $ids = collect($cart)->pluck('id')->filter()->values()->all();
+        $items = $ids ? PricingItem::whereIn('id', $ids)->get()->keyBy('id') : collect();
+
+        $lines = [];
+        $subtotal = 0;
+        foreach ($cart as $c) {
+            $id = $c['id'];
+            $qty = $c['qty'] ?? ($c['quantity'] ?? 1);
+            $price = isset($items[$id]) ? (float) $items[$id]->price : (float) ($c['price'] ?? 0);
+            $line = $price * $qty;
+            $subtotal += $line;
+            $lines[$id] = [
+                'qty' => $qty,
+                'price' => $price,
+                'line' => $line,
+            ];
+        }
+
+        $discount = 0;
+        $tax = 0;
+        $total = $subtotal - $discount + $tax;
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'cart' => $cart,
+                'lines' => $lines,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'empty' => empty($cart),
+            ]);
+        }
+
         return redirect()->route('dashboard')->with('success', 'Item removed from cart.');
     }
 }

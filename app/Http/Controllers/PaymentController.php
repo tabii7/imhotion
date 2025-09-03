@@ -80,6 +80,9 @@ class PaymentController extends Controller
         }
 
         if (empty($itemsForSummary)) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'No pricing item selected for payment.'], 422);
+            }
             return back()->with('error', 'No pricing item selected for payment.');
         }
 
@@ -117,9 +120,21 @@ class PaymentController extends Controller
                 'mollie_payment_id' => $payment->id,
             ]);
 
-            // If AJAX/json request, return URL as JSON for client to follow, otherwise redirect
+            // Prepare response payload
+            $payload = [
+                'redirect_url' => $payment->getCheckoutUrl(),
+                'purchase' => [
+                    'id' => $purchase->id,
+                    'amount' => (float) $purchase->amount,
+                    'currency' => $purchase->currency,
+                    'days' => $purchase->days,
+                    'items' => $itemsForSummary,
+                ],
+            ];
+
+            // If AJAX/json request, return structured JSON for client to follow, otherwise redirect
             if ($request->expectsJson()) {
-                return response()->json(['redirect_url' => $payment->getCheckoutUrl()]);
+                return response()->json($payload);
             }
 
             return redirect($payment->getCheckoutUrl());

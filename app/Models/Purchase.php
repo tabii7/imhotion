@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Purchase extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'user_id',
         'pricing_item_id',
