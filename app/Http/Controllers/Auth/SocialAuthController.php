@@ -49,7 +49,7 @@ class SocialAuthController extends Controller
 
         // Check if user already exists
         $user = User::where('google_id', $googleId)
-            ->orWhere(function ($q) use ($email) {
+            ->orWhere(function (\Illuminate\Database\Eloquent\Builder $q) use ($email) {
                 if ($email) {
                     $q->where('email', $email);
                 }

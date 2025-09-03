@@ -20,7 +20,7 @@ use App\Models\PricingCategory;
 
 // Public landing
 Route::get('/', function () {
-    $categories = PricingCategory::with(['items' => function ($query) {
+    $categories = PricingCategory::with(['items' => function (\Illuminate\Database\Eloquent\Builder $query) {
         $query->where('active', true)->orderBy('sort');
     }])
     ->where('active', true)

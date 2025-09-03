@@ -68,8 +68,8 @@ class UserResource extends Resource
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->revealable()
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                            ->dehydrated(fn (?string $state) => filled($state))
+                            ->dehydrateStateUsing(fn (?string $state) => filled($state) ? Hash::make($state) : null)
                             ->required(fn (string $context) => $context === 'create')
                             ->rule('confirmed')
                             ->helperText('Leave empty to keep current password'),
@@ -133,15 +133,15 @@ class UserResource extends Resource
                     'admin' => 'Admin',
                     'client' => 'Client',
                 ]),
-                TernaryFilter::make('verified')
+        TernaryFilter::make('verified')
                     ->label('Email verified')
                     ->nullable()
                     ->trueLabel('Verified')
                     ->falseLabel('Unverified')
                     ->queries(
-                        true: fn ($q) => $q->whereNotNull('email_verified_at'),
-                        false: fn ($q) => $q->whereNull('email_verified_at'),
-                        blank: fn ($q) => $q
+            true: fn (\Illuminate\Database\Eloquent\Builder $q) => $q->whereNotNull('email_verified_at'),
+            false: fn (\Illuminate\Database\Eloquent\Builder $q) => $q->whereNull('email_verified_at'),
+            blank: fn (\Illuminate\Database\Eloquent\Builder $q) => $q
                     ),
             ])
             ->actions([

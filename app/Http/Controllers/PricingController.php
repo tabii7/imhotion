@@ -9,7 +9,7 @@ class PricingController extends Controller
 {
     public function index()
     {
-        $categories = PricingCategory::with(['items' => static function ($q) {
+        $categories = PricingCategory::with(['items' => static function (\Illuminate\Database\Eloquent\Builder $q) {
             $q->where('active', true)->orderBy('sort');
         }])->where('active', true)->orderBy('sort')->get();
 

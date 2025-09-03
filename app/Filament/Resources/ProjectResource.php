@@ -103,7 +103,8 @@ class ProjectResource extends Resource
                     ->tooltip(fn (Project $record) => 'Internal ID: ' . $record->id)
                     ->copyable()
                     ->grow(false)
-                    ->sortable(),
+                    // virtual column: not backed by a DB column, avoid database ORDER BY errors
+                    ->sortable(false),
 
                 TextColumn::make('title')
                     ->label('Project')
