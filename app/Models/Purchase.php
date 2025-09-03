@@ -19,12 +19,15 @@ class Purchase extends Model
     'mollie_payment_id',
     'payment_data',
     'paid_at',
+    'credited',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
     'payment_data' => 'array',
     'paid_at' => 'datetime',
+    'days' => 'integer',
+    'credited' => 'boolean',
     ];
 
     public function user()

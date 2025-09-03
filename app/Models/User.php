@@ -23,7 +23,8 @@ class User extends Authenticatable implements FilamentUser
         'country',
         'phone',
         'role',
-        'balance_days',
+    'balance_days',
+    'days_balance',
     ];
 
     protected $hidden = [
@@ -34,7 +35,25 @@ class User extends Authenticatable implements FilamentUser
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'balance_days' => 'integer',
+        'days_balance' => 'integer',
     ];
+
+    // Backwards-compatible accessor/mutator: alias days_balance to balance_days
+    public function getDaysBalanceAttribute()
+    {
+        return $this->attributes['balance_days'] ?? $this->attributes['days_balance'] ?? 0;
+    }
+
+    public function setDaysBalanceAttribute($value)
+    {
+        // write-through to the canonical column if present
+        if (array_key_exists('balance_days', $this->attributes)) {
+            $this->attributes['balance_days'] = $value;
+        } else {
+            $this->attributes['days_balance'] = $value;
+        }
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {

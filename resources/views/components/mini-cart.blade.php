@@ -85,7 +85,7 @@ $total = $subtotal - $discount + $tax;
                         <div class="line-total">{{ $currency }}{{ number_format($line, 2, '.', ',') }}</div>
                     </div>
                     <div class="col actions">
-                                        <form class="delete-form" method="POST" action="{{ route('dashboard.remove-from-cart') }}" onsubmit="return false;">
+                                        <form class="delete-form" method="POST" action="{{ route('dashboard.remove-from-cart') }}">
                                             @csrf
                                             <input type="hidden" name="item_id" value="{{ $item['id'] }}">
                                             <button type="button" class="delete-btn" title="Delete item" data-confirm="Are you sure you want to delete this item from the cart?">✕</button>
@@ -624,8 +624,11 @@ document.addEventListener('click', function(e){
         location.reload();
     }).catch(err => {
         console.error('Delete failed', err);
-        // fallback: navigate to the form action so server handles it
-        window.location = action;
+        // fallback: submit the original form so the POST endpoint is used (avoid GET causing MethodNotAllowed)
+        try {
+            form.removeAttribute('onsubmit');
+        } catch (e) {}
+        try { form.submit(); } catch (e) { window.location = action; }
     });
 });
 </script>

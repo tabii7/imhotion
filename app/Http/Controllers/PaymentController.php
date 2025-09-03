@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mollie\Laravel\Facades\Mollie;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -161,6 +162,24 @@ class PaymentController extends Controller
                     'paid_at' => now(),
                 ]);
 
+                // Idempotent: only credit user days once per purchase
+                if (empty($purchase->credited)) {
+                    DB::transaction(function () use ($purchase) {
+                        $user = $purchase->user()->lockForUpdate()->first();
+                        $credit = (int) ($purchase->days ?? 0);
+                        // increment existing canonical column 'balance_days' if present
+                        if (array_key_exists('balance_days', $user->getAttributes())) {
+                            $user->balance_days = ($user->balance_days ?? 0) + $credit;
+                        } else {
+                            // fallback to legacy 'days_balance' accessor
+                            $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                        }
+                        $user->save();
+                        $purchase->credited = 1;
+                        $purchase->save();
+                    });
+                }
+
                 return redirect('/dashboard')->with('success', 'Payment successful! Welcome to Imhotion.');
             } elseif ($payment->isFailed()) {
                 $purchase->update(['status' => 'failed']);
@@ -187,11 +206,27 @@ class PaymentController extends Controller
 
                 if ($purchase) {
                     if ($payment->isPaid()) {
-                                $purchase->update([
-                                    'status' => 'completed',
-                                    'payment_data' => $payment->toArray(),
-                                    'paid_at' => now(),
-                                ]);
+                                                $purchase->update([
+                                                    'status' => 'completed',
+                                                    'payment_data' => $payment->toArray(),
+                                                    'paid_at' => now(),
+                                                ]);
+
+                                                // Idempotent credit via webhook as well
+                                                if (empty($purchase->credited)) {
+                                                    DB::transaction(function () use ($purchase) {
+                                                        $user = $purchase->user()->lockForUpdate()->first();
+                                                        $credit = (int) ($purchase->days ?? 0);
+                                                        if (array_key_exists('balance_days', $user->getAttributes())) {
+                                                            $user->balance_days = ($user->balance_days ?? 0) + $credit;
+                                                        } else {
+                                                            $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                                                        }
+                                                        $user->save();
+                                                        $purchase->credited = 1;
+                                                        $purchase->save();
+                                                    });
+                                                }
                     } elseif ($payment->isFailed()) {
                         $purchase->update(['status' => 'failed']);
                     }
