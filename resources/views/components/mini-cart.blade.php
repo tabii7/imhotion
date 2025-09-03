@@ -3,6 +3,13 @@ use App\Models\PricingItem;
 
 // Handle backward compatibility with existing session logic
 $cart = $cart ?? session('cart', []);
+// Normalize cart items: allow legacy integer IDs or inconsistent shapes
+$cart = array_map(function($it){
+    if (!is_array($it)) {
+        return ['id' => $it, 'qty' => 1];
+    }
+    return $it;
+}, $cart ?: []);
 $selectedPlanId = session('selected_plan_for_payment');
 
 // If we have the old session format, convert it to the new cart format
@@ -108,11 +115,14 @@ $total = $subtotal - $discount + $tax;
             <div class="payment-methods">
                 <span>Secure payment via</span>
                 <div class="payment-icons">
-                    <img src="/images/logos/ideal.svg" alt="iDEAL">
-                    <img src="/images/logos/mastercard.svg" alt="Mastercard">
-                    <img src="/images/logos/visa.svg" alt="Visa">
-                    <img src="/images/logos/paypal.svg" alt="PayPal">
                     <img src="/images/logos/apple-pay.svg" alt="Apple Pay">
+                    <img src="/images/logos/visa.svg" alt="Visa">
+                    <img src="/images/logos/mastercard.svg" alt="Mastercard">
+                    <img src="/images/logos/google-pay.svg" alt="Google Pay">
+                    <img src="/images/logos/bancontact.svg" alt="Bancontact">
+                    <img src="/images/logos/ideal.svg" alt="iDEAL">
+                    <img src="/images/logos/klarna.svg" alt="Klarna">
+                    <img src="/images/logos/paypal.svg" alt="PayPal">
                 </div>
             </div>
             </div>
@@ -135,7 +145,7 @@ $total = $subtotal - $discount + $tax;
                     </form>
                 @endif
             </div>
-            
+
             {{-- Hidden global checkout form used by header quick action --}}
             <form id="mini-cart-checkout-form" method="POST" action="{{ route('payment.create') }}" style="display:none;">
                 @csrf

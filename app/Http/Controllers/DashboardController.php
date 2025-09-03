@@ -178,6 +178,11 @@ class DashboardController extends Controller
         $cart = array_values($cart);
         session(['cart' => $cart]);
 
+        // If cart is now empty, also clear legacy selected plan session to hide old-format cart
+        if (empty($cart)) {
+            session()->forget('selected_plan_for_payment');
+        }
+
         return redirect()->route('dashboard')->with('success', 'Item removed from cart.');
     }
 }
