@@ -171,9 +171,9 @@ class PaymentController extends Controller
                 // Clear cart now that purchase completed
                 session()->forget('cart');
 
-                // Save payment metadata and paid timestamp
+                // Save payment metadata and paid timestamp (convert Mollie resource to array safely)
                 $purchase->update([
-                    'payment_data' => $payment->toArray(),
+                    'payment_data' => $this->paymentToArray($payment),
                     'paid_at' => now(),
                 ]);
 
@@ -234,7 +234,7 @@ class PaymentController extends Controller
                     if ($payment->isPaid()) {
                                                 $purchase->update([
                                                     'status' => 'completed',
-                                                    'payment_data' => $payment->toArray(),
+                                                    'payment_data' => $this->paymentToArray($payment),
                                                     'paid_at' => now(),
                                                 ]);
 
@@ -276,5 +276,22 @@ class PaymentController extends Controller
         }
 
         return response('OK', 200);
+    }
+
+    /**
+     * Safely convert a Mollie payment resource to an array for storage.
+     */
+    private function paymentToArray($payment): array
+    {
+        if (is_array($payment)) {
+            return $payment;
+        }
+
+        // Mollie resources may be objects without toArray; use JSON round-trip
+        try {
+            return json_decode(json_encode($payment), true) ?: [];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }

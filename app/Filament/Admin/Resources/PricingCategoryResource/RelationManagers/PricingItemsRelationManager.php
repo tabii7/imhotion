@@ -43,7 +43,7 @@ class PricingItemsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->searchable()->limit(30),
-                Tables\Columns\TextColumn::make('price')->formatStateUsing(fn ($state) => '€' . number_format($state, 2)),
+                    Tables\Columns\TextColumn::make('price')->formatStateUsing(fn (?float $state) => '€' . number_format($state, 2)),
                 Tables\Columns\TextColumn::make('price_unit')->label('Unit'),
                 Tables\Columns\IconColumn::make('has_gift_box')->boolean()->label('Gift'),
                 Tables\Columns\IconColumn::make('has_project_files')->boolean()->label('Files'),
