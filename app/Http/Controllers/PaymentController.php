@@ -152,7 +152,7 @@ class PaymentController extends Controller
                 // Clear the selected plan session
                 session()->forget('selected_plan_for_payment');
 
-                return redirect('/client')->with('success', 'Payment successful! Welcome to Imhotion.');
+                return redirect('/dashboard')->with('success', 'Payment successful! Welcome to Imhotion.');
             } elseif ($payment->isFailed()) {
                 $purchase->update(['status' => 'failed']);
                 return redirect('/')->with('error', 'Payment failed. Please try again.');
