@@ -496,7 +496,7 @@ nav .nav-link:active {
   /* slightly lighter background and set the requested border color */
   background-color: rgba(255,255,255,0.06); /* ~10% lighter */
   border: 1px solid #7fa7e1;
-  border-top: none; /* use the ::before stripe to avoid double-line */
+  /* normal full border around card; no top stripe */
   padding: 0.9rem 0.9rem 1.2rem 0.9rem; /* slightly tighter vertical spacing */
   min-height: 420px;
   max-width: 360px;
@@ -507,40 +507,18 @@ nav .nav-link:active {
 }
 
 /* subtle top stripe for each pricing card */
-.grid-3 .pricing-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px; /* slightly larger so it visually overlaps the card border */
-  background: linear-gradient(90deg, #7fa7e1 0%, #7fa7e1 100%);
-  border-top-left-radius: 1.5rem;
-  border-top-right-radius: 1.5rem;
-  box-shadow: 0 -1px 0 rgba(0,0,0,0.05) inset;
-}
+.grid-3 .pricing-card::before { display: none !important; }
 
 /* Match styling for grid-2 (addons) cards: smaller padding, thin stripe, and border color */
 .grid-2 .pricing-card {
   background-color: rgba(255,255,255,0.06); /* slightly lighter ~10% */
   border: 1px solid #7fa7e1;
-  border-top: none;
   padding: 0.7rem 0.9rem 0.9rem 0.9rem;
   min-height: 200px;
   position: relative;
 }
 
-.grid-2 .pricing-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #7fa7e1;
-  border-top-left-radius: 1.5rem;
-  border-top-right-radius: 1.5rem;
-}
+.grid-2 .pricing-card::before { display: none !important; }
 
 /* Make the addons badge arrow darker and consistent */
 .grid-2 .pricing-badge .arrow,
