@@ -58,13 +58,13 @@ div[style*="d1fae5"], div.alert-success, .notify-success {
 .mini-cart-component {
   /* cart base color (user requested) */
   background: #33527a !important;
-  /* give the complete cart a gold border as requested */
-  border: 2px solid #D4AF37 !important;
-  box-shadow: 0 6px 30px rgba(212,175,55,0.09) !important;
-  color: #eff1f5 !important; /* all cart text nearly white */
+  /* use a single subtle border line as requested */
+  border: 1px solid #7fa7e1 !important;
+  box-shadow: 0 6px 18px rgba(10,20,40,0.18) !important;
+  color: #eff1f5 !important; /* default cart text nearly white */
 }
 .mini-cart-component * {
-  /* force all nested text to the nearly-white color */
+  /* force all nested text to the nearly-white color by default */
   color: #eff1f5 !important;
 }
 .mini-cart-component .btn {
@@ -100,11 +100,59 @@ div[style*="d1fae5"], div.alert-success, .notify-success {
 /* Rows should be ~10% lighter than the cart background (cart: #33527a -> rows ~#476387) */
 .cart-row {
   background: #476387 !important; /* ~10% lighter than #33527a */
-  border: 1px solid rgba(255,255,255,0.06) !important; /* subtle border slightly lighter */
+  border: 1px solid #7fa7e1 !important; /* single line border per request */
   border-radius: 6px !important;
 }
 .cart-row .title-main, .cart-row .qty-value, .cart-row .line-total, .cart-item, .cart-item .item-name, .cart-item .item-price {
   color: #eff1f5 !important; /* ensure all row text is nearly white */
+}
+
+/* 1. Ensure unit column is nearly white but not bold */
+.mini-cart-component .col.unit {
+  color: #eff1f5 !important;
+  font-weight: 400 !important;
+}
+
+/* 2. vat-note and any full-width info bar should match the row background (~10% lighter) */
+.mini-cart-component .vat-note,
+.mini-cart-component .cart-total,
+.mini-cart-component .cart-items .cart-item,
+.mini-cart-component .cart-items {
+  background: #476387 !important;
+  color: #eff1f5 !important;
+}
+
+/* 3. specific description/text that should be darker (#33527a) */
+.mini-cart-component .title-desc,
+.mini-cart-component .line-breakdown {
+  color: #33527a !important;
+  font-weight: 400 !important;
+}
+
+/* 4. Plus/minus buttons: background #33527a, sign color nearly white, border single line #7fa7e1 */
+.mini-cart-component .qty-btn{
+  background: #33527a !important;
+  color: #eff1f5 !important;
+  border: 1px solid #7fa7e1 !important;
+  font-weight: 700 !important;
+}
+
+/* small tweak: make the +/- icons perfectly centered and not too large */
+.mini-cart-component .qty-btn { width:22px; height:22px; font-size:13px; }
+
+/* multiplier box styling */
+.boxed-multiplier{
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #33527a !important;
+  border: 1px solid #7fa7e1 !important;
+  margin-left: 8px;
+}
+.boxed-multiplier .multiplier{
+  color: #eff1f5 !important;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 /* Keep the summary area subtle but legible */

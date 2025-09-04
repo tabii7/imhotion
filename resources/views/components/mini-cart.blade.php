@@ -80,7 +80,9 @@ $total = $subtotal - $discount + $tax;
                     <div class="col unit">{{ $currency }}{{ number_format($item['price'], 0) }}</div>
                     <div class="col line">
                         @if($item['qty'] > 1)
-                            <div class="line-breakdown">({{ $item['qty'] }}x{{ $currency }}{{ number_format($item['price'], 0) }})</div>
+                            <div class="line-breakdown boxed-multiplier">
+                                <span class="multiplier">{{ $item['qty'] }} x {{ $currency }}{{ number_format($item['price'], 0) }}</span>
+                            </div>
                         @endif
                         <div class="line-total">{{ $currency }}{{ number_format($line, 2, '.', ',') }}</div>
                     </div>
