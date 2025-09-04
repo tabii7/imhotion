@@ -233,13 +233,17 @@ body.home {
 
 /* Mobile hamburger menu */
 .mobile-menu-btn {
-  display: none;
   background: none;
   border: none;
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
+}
+
+/* Show sandwich menu on desktop in header top-right as requested */
+.header-content-with-logo .mobile-menu-btn {
+  display: block;
 }
 
 .mobile-menu {
@@ -871,6 +875,11 @@ nav .nav-link:active {
   gap: 1.5rem;
   max-width: 800px;
   margin: 0 auto;
+}
+
+/* Add 15px spacing above price badge for grid-2 cards to lift the badge */
+.grid-2 .pricing-badge {
+  margin-top: 15px;
 }
 
 .grid-3 {
