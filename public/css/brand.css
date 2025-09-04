@@ -322,6 +322,14 @@ html > body[style], body[style] {
   position: relative;
 }
 
+.nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
 .top-nav-center {
   display: flex;
   gap: 2rem;
@@ -415,7 +423,9 @@ nav .nav-link:active {
 
 /* Mobile navigation */
 @media (max-width: 768px) {
-  .header-content {
+  .header-content,
+  .header-content-with-logo,
+  .nav-container {
     justify-content: space-between;
   }
 
@@ -425,6 +435,7 @@ nav .nav-link:active {
 
   .mobile-menu-btn {
     display: block;
+    order: 3;
   }
 
   .top-nav-center {
@@ -433,6 +444,44 @@ nav .nav-link:active {
 
   .top-nav {
     justify-content: space-between;
+  }
+
+  .nav-container .logo {
+    order: 2;
+  }
+
+  .nav-container .nav-links {
+    order: 1;
+  }
+
+  .mobile-menu {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    background: rgba(0, 31, 76, 0.95);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    z-index: 20;
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  .mobile-menu a {
+    color: white !important;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .mobile-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
   .footer-links {
@@ -871,9 +920,9 @@ nav .nav-link:active {
 /* Grid Layouts */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  max-width: 800px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -884,8 +933,8 @@ nav .nav-link:active {
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
 }
 
 /* Text Utilities */

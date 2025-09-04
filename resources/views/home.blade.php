@@ -6,19 +6,19 @@
 <!-- Simple Header for Public Users -->
 @guest
 <header class="header" x-data="{ mobileOpen: false }">
-  <div class="header-content-with-logo">
-    <!-- Logo on left -->
-    <div class="logo">
-      <img src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion Logo" class="logo-image">
-      <span>Imhotion</span>
-    </div>
-
-    <!-- Desktop Navigation - Right side -->
+  <div class="nav-container">
+    <!-- Desktop Navigation - Left side -->
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="#pricing">Pricing</a>
       <a href="/login">Login</a>
       <a href="/register">Sign Up</a>
+    </div>
+
+    <!-- Logo on right -->
+    <div class="logo">
+      <img src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion Logo" class="logo-image">
+      <span>Imhotion</span>
     </div>
 
     <!-- Mobile Menu Button -->
@@ -32,44 +32,6 @@
       <a href="#pricing">Pricing</a>
       <a href="/login">Login</a>
       <a href="/register">Sign Up</a>
-    </div>
-  </div>
-</header>
-@else
-<!-- Header for Authenticated Users -->
-<header class="header" x-data="{ mobileOpen: false }">
-  <div class="header-content-with-logo">
-    <!-- Logo on left -->
-    <div class="logo">
-      <img src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion Logo" class="logo-image">
-      <span>Imhotion</span>
-    </div>
-
-    <!-- Desktop Navigation - Right side -->
-    <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="#pricing">Pricing</a>
-      <a href="/client">{{ Auth::user()->name }}</a>
-      <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-        @csrf
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
-      </form>
-    </div>
-
-    <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" @click="mobileOpen = !mobileOpen">
-      ☰
-    </button>
-
-    <!-- Mobile Navigation -->
-    <div class="mobile-menu" :class="{ 'active': mobileOpen }">
-      <a href="/">Home</a>
-      <a href="#pricing">Pricing</a>
-      <a href="/client">{{ Auth::user()->name }}</a>
-      <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
-      </form>
     </div>
   </div>
 </header>
