@@ -107,7 +107,7 @@
         </header>
 
         <!-- Main Content -->
-        <main style="min-height: calc(100vh - 150px);">
+        <main class="min-h-[calc(100vh-150px)]">
             {{ $slot }}
         </main>
 

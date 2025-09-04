@@ -20,6 +20,12 @@ export default {
                     'primary-200': '#99c2ff',
                     dark: '#001f4c',
                 },
+                sidebar: {
+                    bg: '#0a1428',
+                    text: '#8fa8cc',
+                    active: '#001f4c',
+                    hover: 'rgba(127, 167, 225, 0.1)',
+                },
                 pricing: {
                     bg: 'linear-gradient(135deg, #001f4c 0%, #0d1b3e 100%)',
                     text: 'white',
@@ -32,6 +38,12 @@ export default {
             },
             backgroundImage: {
                 'tile-pattern': "url('/images/background.png')",
+            },
+            width: {
+                '70': '17.5rem', // 280px
+            },
+            margin: {
+                '70': '17.5rem', // 280px
             },
         },
     },

@@ -70,6 +70,20 @@ class ProjectResource extends Resource
                         ->displayFormat('d-m-Y')
                         ->nullable(),
 
+                    TextInput::make('days_used')
+                        ->label('Days used')
+                        ->numeric()
+                        ->default(0)
+                        ->minValue(0)
+                        ->suffix('days'),
+
+                    TextInput::make('weekend_days')
+                        ->label('Weekend days')
+                        ->numeric()
+                        ->default(0)
+                        ->minValue(0)
+                        ->suffix('days'),
+
                     Textarea::make('pending_note')
                         ->label('Pending note')
                         ->rows(2)
@@ -157,6 +171,18 @@ class ProjectResource extends Resource
                         };
                     })
                     ->wrap(),
+
+                TextColumn::make('days_used')
+                    ->label('Days')
+                    ->sortable()
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('weekend_days')
+                    ->label('Weekend')
+                    ->sortable()
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 // Docs count (white square, BLACK number; 0 by default)
                 TextColumn::make('documents_count')

@@ -21,6 +21,7 @@ class Project extends Model
         'delivery_date',
         'day_budget',
         'days_used',
+        'weekend_days',
         'notes',
 
         // status meta
@@ -36,6 +37,8 @@ class Project extends Model
         'delivery_date' => 'date',
         'due_date'      => 'date',
         'completed_at'  => 'date',
+        'days_used'     => 'integer',
+        'weekend_days'  => 'integer',
     ];
 
     public function user()

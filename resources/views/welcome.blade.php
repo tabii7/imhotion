@@ -2,295 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>IMHOTION — Client Access</title>
-
-  <style>
-    :root{
-      --bg1:#0b3bff;   /* deep brand blue */
-      --bg2:#0a2fd4;   /* darker blend */
-      --accent:#6aa1ff;
-      --card:#0d1326d9; /* glass card */
-      --text:#eaf1ff;
-      --muted:#a9b7d9;
-      --btn:#00c2ff;
-      --btn2:#0066ff;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-
-    *{ box-sizing:border-box }
-
-    body{
-      margin:0;
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-      background: radial-gradient(1200px 800px at 10% -10%, #1b49ff 0%, #0f33db 45%, #0b1f9f 100%) fixed;
-      min-height:100dvh;
-      display:flex;
-      flex-direction:column;
-    }
-
-    /* ===== NAV ===== */
-    header{
-      position:sticky; top:0; z-index:50;
-      background: linear-gradient(180deg, rgba(6,14,40,.65), rgba(6,14,40,.35), transparent);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .nav{
-      display:flex; align-items:center; gap:20px;
-      padding:14px clamp(16px, 3vw, 32px);
-      max-width:1200px; margin:0 auto;
-    }
-    .brand{
-      display:flex; align-items:center; gap:12px; flex:0 0 auto;
-      color:#fff; text-decoration:none; font-weight:800; letter-spacing:.06em;
-    }
-    .brand img{
-      width:36px; height:36px; object-fit:cover; border-radius:8px; box-shadow: var(--shadow);
-    }
-    .brand span{ font-size:14px; opacity:.95 }
-
-    .links{ margin-left:auto; margin-right:auto; display:flex; gap:24px }
-    .links a{
-      color:#ffffffd6; text-decoration:none; font-weight:600; font-size:14px;
-    }
-    .links a:hover{ color:#fff }
-
-    .right{ display:flex; gap:10px; align-items:center }
-    .btn, .btn-outline{
-      appearance:none; border:0; cursor:pointer;
-      padding:.65rem 1rem; border-radius:10px; font-weight:700; letter-spacing:.02em;
-    }
-    .btn{
-      background: linear-gradient(160deg, var(--btn), var(--btn2)); color:#fff;
-      box-shadow: 0 6px 18px rgba(0,102,255,.45);
-    }
-    .btn-outline{
-      background: transparent; color:#fff; border:1px solid rgba(255,255,255,.25);
-    }
-    .btn:hover{ filter:brightness(1.05) }
-    .btn-outline:hover{ background:rgba(255,255,255,.06) }
-
-    /* ===== HERO ===== */
-    .hero{
-      display:grid; place-items:center;
-      padding: clamp(40px, 8vw, 90px) 20px 40px;
-      position:relative; overflow:hidden;
-    }
-    .center-wrap{ text-align:center; max-width:950px }
-    .logo-big{
-      width:min(420px, 70vw);
-      aspect-ratio: 2 / 1;
-      object-fit:cover; object-position:center;
-      border-radius:20px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.45), inset 0 0 40px rgba(255,255,255,.12);
-      display:block; margin: 6px auto 18px;
-      animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100%{ transform: translateY(0) }
-      50%{ transform: translateY(-6px) }
-    }
-    h1{
-      margin:.25rem 0 0;
-      font-size: clamp(26px, 4.2vw, 44px); font-weight:900; letter-spacing:.02em;
-    }
-    p.sub{
-      margin:.7rem auto 2rem; color: var(--muted);
-      font-size: clamp(14px, 2.2vw, 18px); max-width: 720px;
-    }
-
-    /* ===== CARD (Login) ===== */
-    .card{
-      margin: 16px auto 0;
-      width:min(430px, 92vw);
-      background: linear-gradient(180deg, rgba(8,12,30,.75), rgba(8,12,30,.55));
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius:16px; padding:22px 22px 20px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-    }
-    .card h3{
-      margin:0 0 12px; text-align:center; font-size:18px; color:#e9f2ff; letter-spacing:.04em
-    }
-    form.login{
-      display:grid; gap:12px;
-    }
-    .field{
-      display:grid; gap:8px;
-    }
-    .field input{
-      width:100%; padding:12px 14px;
-      border-radius:12px; border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      color:#fff; outline: none;
-    }
-    .field input::placeholder{ color:#cdd7ff99 }
-    .remember{
-      display:flex; gap:8px; align-items:center; color:#dbe5ffbb; font-size:14px;
-    }
-    .error{
-      background:#2b1020; border:1px solid #ff4e86; color:#ffd1e1;
-      padding:10px 12px; border-radius:10px; margin-bottom:8px; font-size:14px;
-    }
-    .helper{
-      text-align:center; color:#b2c1ff; font-size:13px; margin-top:10px;
-    }
-
-    /* ===== Animated Wave into White Section ===== */
-    .wave-wrap{
-      position:relative; width:100%; margin-top:60px;
-    }
-    .waves{
-      position:relative; width:100%; height:140px; overflow:hidden; line-height:0;
-    }
-    .waves svg{
-      position:absolute; bottom:0; left:-25%;
-      width:150%; height:140px;
-      transform: translate3d(0,0,0);
-      filter: drop-shadow(0 -6px 12px rgba(0,0,0,.12));
-    }
-    .wave-1{ animation: waveMove 14s linear infinite; opacity:.8 }
-    .wave-2{ animation: waveMove 22s linear infinite; opacity:.55 }
-    .wave-3{ animation: waveMove 36s linear infinite; opacity:.35 }
-    @keyframes waveMove{
-      0%{ transform: translateX(0) }
-      100%{ transform: translateX(-33.333%) }
-    }
-
-    .white-section{
-      background:#fff;
-      color:#0f172a; padding: 60px 22px 80px;
-      text-align:center;
-    }
-    .white-section h2{
-      font-size: clamp(22px, 3vw, 32px); margin:0 0 12px
-    }
-    .white-section p{
-      color:#475569; margin:0 auto; max-width:820px; font-size:16px
-    }
-
-    /* Small screens tweaks */
-    @media (max-width:520px){
-      .links{ display:none }
-      .brand span{ display:none }
-    }
-  </style>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-
-  <!-- ===== NAVBAR ===== -->
-  <header>
-    <div class="nav">
-      <a class="brand" href="/">
-        <img src="{{ asset('images/imhotion.jpg') }}" alt="IMHOTION">
-        <span>IMHOTION</span>
+<body class="m-0 text-blue-100 font-sans bg-gradient-radial from-blue-600 via-blue-700 to-blue-900 min-h-screen flex flex-col">
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 bg-gradient-to-b from-slate-800/65 via-slate-800/35 to-transparent backdrop-blur-lg border-b border-white/10">
+    <nav class="flex items-center gap-5 px-4 sm:px-8 max-w-7xl mx-auto">
+      <a href="/" class="flex items-center gap-3 flex-shrink-0 text-white no-underline font-extrabold tracking-wider">
+        <img src="/images/imhotion.jpg" alt="Imhotion" class="w-9 h-9 object-cover rounded-lg shadow-2xl">
+        <span class="text-sm opacity-95">IMHOTION</span>
       </a>
-
-      <nav class="links" aria-label="Primary">
-        <a href="/">Home</a>
-        <a href="#about">About us</a>
-        @guest
-          <a href="{{ route('login') }}">Login</a>
-        @endguest
-        @auth
-          <a href="{{ route('client') }}">Client</a>
-        @endauth
-      </nav>
-
-      <div class="right">
-        @auth
-          <a href="{{ route('logout.get') }}" class="btn-outline" title="Logout">Logout</a>
-        @endauth
+      
+      <div class="ml-auto mr-auto flex gap-6">
+        <a href="/" class="text-white/85 no-underline font-semibold text-sm hover:text-white transition-colors">Home</a>
+        <a href="/#pricing" class="text-white/85 no-underline font-semibold text-sm hover:text-white transition-colors">Pricing</a>
+        <a href="/about" class="text-white/85 no-underline font-semibold text-sm hover:text-white transition-colors">About</a>
+        <a href="/contact" class="text-white/85 no-underline font-semibold text-sm hover:text-white transition-colors">Contact</a>
       </div>
-    </div>
+      
+      <div class="flex gap-2.5 items-center">
+        <a href="/login" class="appearance-none border-0 cursor-pointer px-4 py-2.5 rounded-lg font-bold tracking-wide bg-transparent text-white border border-white/25 hover:bg-white/10 transition-colors">
+          Login
+        </a>
+        <a href="/register" class="appearance-none border-0 cursor-pointer px-4 py-2.5 rounded-lg font-bold tracking-wide bg-gradient-to-br from-cyan-400 to-brand-primary text-white shadow-lg shadow-blue-500/45 hover:brightness-105 transition-all">
+          Sign Up
+        </a>
+      </div>
+    </nav>
   </header>
 
-  <!-- ===== HERO + BIG LOGO + LOGIN CARD ===== -->
-  <section class="hero">
-    <div class="center-wrap">
-      <img class="logo-big" src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion logo large" />
-      <h1>Motion-first product visuals — made easy</h1>
-      <p class="sub">High-end 3D design & motion for brands who care about detail and pace. Log in to your client area to track progress, deliveries, and timelines.</p>
+  <!-- Hero Section -->
+  <section class="grid place-items-center px-5 py-10 sm:py-20 relative overflow-hidden">
+    <div class="text-center max-w-4xl">
+      <img src="/images/imhotion.jpg" alt="Imhotion Logo" 
+           class="w-full max-w-md mx-auto aspect-[2/1] object-cover object-center rounded-2xl shadow-2xl shadow-black/45 mb-4 animate-float">
+      
+      <h1 class="mt-1 text-3xl sm:text-4xl lg:text-5xl font-black tracking-wide text-white">
+        Welcome to IMHOTION
+      </h1>
+      
+      <p class="mt-3 mx-auto mb-8 text-slate-300 text-sm sm:text-base lg:text-lg max-w-3xl">
+        Your gateway to professional digital solutions. Access your projects, manage your account, and explore our services.
+      </p>
 
-      @guest
-        <div class="card">
-          <h3>Client sign in</h3>
+      <!-- Login Card -->
+      <div class="mt-4 mx-auto w-full max-w-md bg-gradient-to-b from-slate-800/75 to-slate-800/55 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur-lg">
+        <h3 class="m-0 mb-3 text-center text-lg text-blue-100 tracking-wide">Client Login</h3>
+        
+        @if($errors->any())
+          <div class="bg-red-900/50 border border-red-400 text-red-200 p-3 rounded-lg mb-3 text-sm">
+            @foreach($errors->all() as $error)
+              <div>{{ $error }}</div>
+            @endforeach
+          </div>
+        @endif
 
-          @if ($errors->any())
-            <div class="error">{{ $errors->first() }}</div>
-          @endif
-
-          <form method="POST" action="{{ route('login.post') }}" class="login" autocomplete="on">
-            @csrf
-            <label class="field">
-              <input type="email" name="email" placeholder="Email address" required value="{{ old('email') }}">
-            </label>
-            <label class="field">
-              <input type="password" name="password" placeholder="Password" required>
-            </label>
-
-            <label class="remember">
-              <input type="checkbox" name="remember">
-              <span>Remember me on this device</span>
-            </label>
-
-            <button class="btn" type="submit">Sign in</button>
-            <div class="helper">Need access? Contact your Imhotion producer.</div>
-          </form>
+        <form method="POST" action="{{ route('login') }}" class="grid gap-3">
+          @csrf
+          
+          <div class="grid gap-2">
+            <input type="email" name="email" placeholder="Email address" required value="{{ old('email') }}"
+                   class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white outline-none placeholder-blue-200/60">
+          </div>
+          
+          <div class="grid gap-2">
+            <input type="password" name="password" placeholder="Password" required
+                   class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white outline-none placeholder-blue-200/60">
+          </div>
+          
+          <div class="flex gap-2 items-center text-blue-200/75 text-sm">
+            <input type="checkbox" name="remember" id="remember" class="w-4 h-4">
+            <label for="remember">Remember me</label>
+          </div>
+          
+          <button type="submit" 
+                  class="w-full bg-gradient-to-br from-brand-primary to-blue-600 text-white py-3 px-4 rounded-xl font-bold tracking-wide shadow-lg shadow-blue-500/45 hover:brightness-105 transition-all">
+            Sign In
+          </button>
+        </form>
+        
+        <div class="text-center text-blue-200/75 text-sm mt-3">
+          <a href="/register" class="text-cyan-300 hover:text-cyan-200 transition-colors">Don't have an account? Sign up</a>
         </div>
-      @else
-        <div style="margin-top:6px;">
-          <a class="btn" href="{{ route('client') }}">Go to Client Area</a>
-        </div>
-      @endguest
-    </div>
-
-    <!-- Waves transition -->
-    <div class="wave-wrap" aria-hidden="true">
-      <div class="waves">
-        <svg class="wave-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,0 C300,100 900,-60 1200,40 L1200,120 L0,120 Z" fill="#0a2fd4"></path>
-        </svg>
-        <svg class="wave-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,20 C280,120 920,-40 1200,60 L1200,120 L0,120 Z" fill="#0b3bff"></path>
-        </svg>
-        <svg class="wave-3" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,40 C260,140 940,-20 1200,80 L1200,120 L0,120 Z" fill="#ffffff"></path>
-        </svg>
       </div>
     </div>
   </section>
 
-  <!-- ===== WHITE SECTION ===== -->
-  <section class="white-section" id="about">
-    <h2>Why Imhotion</h2>
-    <p>
-      We craft premium 3D visuals and motion for product launches and always-on content.
-      Your client area centralizes briefs, deliveries, and approvals — so projects ship on time and look outstanding.
-    </p>
+  <!-- Wave Transition -->
+  <div class="relative w-full mt-15">
+    <div class="relative w-full h-35 overflow-hidden leading-none">
+      <svg class="relative block w-full h-full" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-white"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- White Section -->
+  <section class="bg-white text-gray-900 py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-8">Why Choose IMHOTION?</h2>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="p-6">
+          <div class="w-16 h-16 bg-brand-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Fast Delivery</h3>
+          <p class="text-gray-600">Quick turnaround times without compromising quality.</p>
+        </div>
+        
+        <div class="p-6">
+          <div class="w-16 h-16 bg-brand-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Quality Assurance</h3>
+          <p class="text-gray-600">Every project is thoroughly tested and reviewed.</p>
+        </div>
+        
+        <div class="p-6">
+          <div class="w-16 h-16 bg-brand-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">24/7 Support</h3>
+          <p class="text-gray-600">Round-the-clock assistance for all your needs.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <script>
-    // Tiny hover parallax for the big logo (subtle)
-    const logo = document.querySelector('.logo-big');
-    if (logo){
-      let tId;
-      window.addEventListener('mousemove', e=>{
-        cancelAnimationFrame(tId);
-        tId = requestAnimationFrame(()=>{
-          const { innerWidth:w, innerHeight:h } = window;
-          const dx = (e.clientX - w/2) / (w/2);
-          const dy = (e.clientY - h/2) / (h/2);
-          logo.style.transform = `translateY(${ -6 + dy*4 }px) rotate(${ dx*1.2 }deg)`;
-        });
-      });
-      window.addEventListener('mouseleave', ()=>logo.style.transform = '');
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-8">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <div class="flex flex-col md:flex-row justify-center gap-8 mb-4">
+        <a href="#" class="text-white hover:text-brand-primary-200 transition-colors">Privacy Policy</a>
+        <a href="#" class="text-white hover:text-brand-primary-200 transition-colors">Terms & Conditions</a>
+        <a href="#" class="text-white hover:text-brand-primary-200 transition-colors">Contact</a>
+        <a href="#" class="text-white hover:text-brand-primary-200 transition-colors">About</a>
+      </div>
+      <div class="text-sm text-gray-400">
+        © {{ date('Y') }} Imhotion. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
-  </script>
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+    .bg-gradient-radial {
+      background: radial-gradient(1200px 800px at 10% -10%, #1b49ff 0%, #0f33db 45%, #0b1f9f 100%);
+    }
+  </style>
 </body>
 </html>

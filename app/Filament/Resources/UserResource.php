@@ -119,6 +119,11 @@ class UserResource extends Resource
                 TextColumn::make('city')->toggleable(isToggledHiddenByDefault: true)->searchable(),
                 TextColumn::make('country')->toggleable(isToggledHiddenByDefault: true)->searchable(),
                 TextColumn::make('balance_days')->label('Balance')->sortable(),
+                TextColumn::make('projects_count')
+                    ->label('Projects')
+                    ->counts('projects')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('email_verified_at')
                     ->dateTime('Y-m-d H:i')
                     ->label('Verified')

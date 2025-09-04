@@ -44,617 +44,181 @@ $total = $subtotal - $discount + $tax;
 @endphp
 
 @if(!empty($resolved))
+<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-6">
+    <h4 class="text-lg font-semibold text-gray-900 mb-4">Your cart</h4>
 
-<div class="mini-cart-component">
-    <h4 class="mini-cart-title">Your cart</h4>
-
-    @if(empty($resolved))
-        {{-- Cart is hidden when empty --}}
-    @else
-        <div class="cart-table">
-            <div class="cart-header">
-                <div class="col qty">QTY</div>
-                <div class="col title">TITLE</div>
-                <div class="col unit">UNIT</div>
-                <div class="col line">TOTAL</div>
-            </div>
-
-                @foreach($resolved as $item)
-                @php $line = $item['price'] * $item['qty']; @endphp
-                <div class="cart-row" data-item-id="{{ $item['id'] }}">
-                    <div class="col qty">
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="updateQty({{ $item['id'] }}, -1)">−</button>
-                            <span class="qty-value">{{ $item['qty'] }}</span>
-                            <button class="qty-btn" onclick="updateQty({{ $item['id'] }}, 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="col title">
-                        <div class="title-main">
-                            <strong>{{ $item['title'] }}</strong>
-                            @if(!empty($item['description']))
-                                <span class="title-desc"> - {{ $item['description'] }}</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="col unit">{{ $currency }}{{ number_format($item['price'], 0) }}</div>
-                    <div class="col line">
-                        @if($item['qty'] > 1)
-                            <div class="line-breakdown boxed-multiplier">
-                                <span class="multiplier">{{ $item['qty'] }} x {{ $currency }}{{ number_format($item['price'], 0) }}</span>
-                            </div>
-                        @endif
-                        <div class="line-total">{{ $currency }}{{ number_format($line, 2, '.', ',') }}</div>
-                    </div>
-                    <div class="col actions">
-                                        <form class="delete-form" method="POST" action="{{ route('dashboard.remove-from-cart') }}">
-                                            @csrf
-                                            <input type="hidden" name="item_id" value="{{ $item['id'] }}">
-                                            <button type="button" class="delete-btn" title="Delete item" data-confirm="Are you sure you want to delete this item from the cart?">✕</button>
-                                        </form>
-                    </div>
-                </div>
-            @endforeach
-
-                <div class="cart-summary">
-                <div class="summary-row">
-                    <div class="label">Subtotal</div>
-                    <div class="value" id="subtotal-value">{{ $currency }}{{ number_format($subtotal, 2, '.', ',') }}</div>
-                </div>
-                @if($discount > 0)
-                <div class="summary-row">
-                    <div class="label">Discount</div>
-                    <div class="value">-{{ $currency }}{{ number_format($discount, 2, '.', ',') }}</div>
-                </div>
-                @endif
-                <div class="summary-row total">
-                    <div class="label">Total</div>
-                    <div class="value" id="total-value">{{ $currency }}{{ number_format($total, 2, '.', ',') }}</div>
-                </div>
-
-                <div class="vat-note">The invoice does not include VAT due to article 21 of Spanish Law 37/1992</div>
-
-            <div class="payment-methods">
-                <span>Secure payment via</span>
-                <div class="payment-icons">
-                    <img src="/images/logos/apple-pay.svg" alt="Apple Pay">
-                    <img src="/images/logos/visa.svg" alt="Visa">
-                    <img src="/images/logos/mastercard.svg" alt="Mastercard">
-                    <img src="/images/logos/google-pay.svg" alt="Google Pay">
-                    <img src="/images/logos/bancontact.svg" alt="Bancontact">
-                    <img src="/images/logos/ideal.svg" alt="iDEAL">
-                    <img src="/images/logos/klarna.svg" alt="Klarna">
-                    <img src="/images/logos/paypal.svg" alt="PayPal">
-                </div>
-            </div>
-            </div>
-
-            <div class="mini-cart-actions">
-                @if(count($resolved) === 1)
-                    {{-- Single item - use existing payment flow --}}
-                    <form id="mini-cart-checkout-form-single" method="POST" action="{{ route('payment.create') }}">
-                        @csrf
-                        <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] }}">
-                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                        <button type="submit" class="btn btn-primary">Checkout Now</button>
-                    </form>
-                @else
-                    {{-- Multiple items - submit cart totals to payment.create --}}
-                    <form id="mini-cart-checkout-form-multi" method="POST" action="{{ route('payment.create') }}">
-                        @csrf
-                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                        <button type="submit" class="btn btn-primary">Checkout Now</button>
-                    </form>
-                @endif
-            </div>
-
-            {{-- Hidden global checkout form used by header quick action (fallback) --}}
-            <form id="mini-cart-checkout-form" method="POST" action="{{ route('payment.create') }}" style="display:none;">
-                @csrf
-                {{-- Do not set pricing_item_id here to avoid forcing single-item payment when cart has multiple items. --}}
-                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-            </form>
+    <div class="space-y-4">
+        <!-- Cart Header -->
+        <div class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-200 pb-2">
+            <div class="col-span-2">QTY</div>
+            <div class="col-span-5">TITLE</div>
+            <div class="col-span-2">UNIT</div>
+            <div class="col-span-2">TOTAL</div>
+            <div class="col-span-1"></div>
         </div>
-    @endif
-</div>
 
-<style>
-.mini-cart-component{
-    font-family:var(--font-sans, system-ui);
-    background:#ffffff;
-    color:#1f2937;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:12px;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.mini-cart-title{
-    font-weight:700;
-    margin-bottom:8px;
-    font-size:16px;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    color:#1f2937;
-}
-.mini-cart-title::before{
-    content:'🛒';
-    font-size:18px;
-}
-.cart-header,.cart-row{
-    display:grid;
-    grid-template-columns:100px 1fr 80px 80px 40px; /* qty, title, unit, total, actions */
-    gap:8px;
-    align-items:center;
-    padding:4px 8px;
-}
-.cart-header{
-    color:#6b7280;
-    font-weight:700;
-    font-size:11px;
-    text-transform:uppercase;
-    border-bottom:1px solid #e5e7eb;
-    margin-bottom:6px;
-    padding-bottom:4px;
-}
-.cart-row{
-    background:#f9fafb;
-    border:1px solid #e5e7eb;
-    border-radius:6px;
-    margin-bottom:4px;
-    padding:8px;
-    transition:all 0.2s ease;
-}
-.cart-row:hover{
-    background:#f3f4f6;
-    border-color:#d1d5db;
-}
-.qty-controls{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    justify-content:center;
-}
-.qty-btn{
-    width:20px;
-    height:20px;
-    border:1px solid #d1d5db;
-    background:#ffffff;
-    border-radius:4px;
-    cursor:pointer;
-    font-size:12px;
-    font-weight:700;
-    color:#374151;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:all 0.2s;
-}
-.qty-btn:hover{
-    background:#f3f4f6;
-    border-color:#9ca3af;
-}
-.qty-value{
-    font-weight:700;
-    color:#1f2937;
-    font-size:14px;
-    min-width:20px;
-    text-align:center;
-}
-.title-main{
-    font-weight:400;
-    color:#1f2937;
-    font-size:14px;
-    line-height:1.2;
-}
-.title-main strong{
-    font-weight:700;
-}
-.title-desc{
-    color:#6b7280;
-    font-weight:400;
-}
-.col.unit{
-    text-align:right;
-    color:#374151;
-    font-weight:600;
-    font-size:13px;
-}
-.col.line{
-    text-align:right;
-}
-.col.actions{
-    text-align:center;
-}
-.delete-btn{
-    background: transparent;
-    border: 1px solid #e5e7eb;
-    color: #6b7280;
-    width:26px;
-    height:26px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:700;
-}
-.delete-btn:hover{
-    background:#fff0f0;
-    color:#b91c1c;
-    border-color:#fca5a5;
-}
-.line-breakdown{
-    font-size:10px;
-    color:#6b7280;
-    margin-bottom:1px;
-}
-.line-total{
-    font-weight:700;
-    color:#1f2937;
-    font-size:14px;
-}
-.cart-summary{
-    margin-top:8px;
-    padding-top:8px;
-    border-top:1px solid #e5e7eb;
-}
-.summary-row{
-    display:flex;
-    justify-content:space-between;
-    padding:3px 4px;
-    color:#6b7280;
-    font-size:13px;
-}
-.summary-row.total{
-    font-size:16px;
-    font-weight:800;
-    color:#1f2937;
-    border-top:1px solid #d1d5db;
-    margin-top:6px;
-    padding-top:8px;
-}
-.vat-note{
-    margin-top:8px;
-    font-size:10px;
-    color:#6b7280;
-    text-align:center;
-    padding:6px;
-    background:#f3f4f6;
-    border-radius:4px;
-}
-.payment-methods{
-    margin-top:8px;
-    text-align:center;
-    color:#6b7280;
-    font-size:11px;
-}
-.payment-icons{
-    display:flex;
-    justify-content:center;
-    gap:6px;
-    margin-top:4px;
-}
-.payment-icons img{
-    height:18px;
-    opacity:0.7;
-    transition:opacity 0.2s;
-}
-.payment-icons img:hover{
-    opacity:1;
-}
-.mini-cart-actions{
-    display:flex;
-    justify-content:center;
-    margin-top:10px;
-}
-.btn{
-    padding:8px 16px;
-    border-radius:6px;
-    border:none;
-    background:#10a37f;
-    color:white;
-    font-weight:600;
-    cursor:pointer;
-    transition:all 0.2s ease;
-    font-size:13px;
-}
-.btn:hover{
-    background:#0d8b69;
-    transform:translateY(-1px);
-}
-</style>
+        <!-- Cart Items -->
+        @foreach($resolved as $item)
+            @php $line = $item['price'] * $item['qty']; @endphp
+            <div class="grid grid-cols-12 gap-4 items-center py-3 border-b border-gray-100" data-item-id="{{ $item['id'] }}">
+                <!-- Quantity -->
+                <div class="col-span-2">
+                    <div class="flex items-center border border-gray-300 rounded-lg">
+                        <button class="flex-1 px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors" onclick="updateQty({{ $item['id'] }}, -1)">−</button>
+                        <span class="px-3 py-1 text-sm font-medium">{{ $item['qty'] }}</span>
+                        <button class="flex-1 px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors" onclick="updateQty({{ $item['id'] }}, 1)">+</button>
+                    </div>
+                </div>
+                
+                <!-- Title -->
+                <div class="col-span-5">
+                    <div class="font-medium text-gray-900">
+                        {{ $item['title'] }}
+                        @if(!empty($item['description']))
+                            <span class="text-gray-500 text-sm"> - {{ $item['description'] }}</span>
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- Unit Price -->
+                <div class="col-span-2 text-sm text-gray-600">
+                    {{ $currency }}{{ number_format($item['price'], 0) }}
+                </div>
+                
+                <!-- Line Total -->
+                <div class="col-span-2">
+                    @if($item['qty'] > 1)
+                        <div class="text-xs text-gray-500 mb-1">
+                            {{ $item['qty'] }} x {{ $currency }}{{ number_format($item['price'], 0) }}
+                        </div>
+                    @endif
+                    <div class="font-medium text-gray-900">
+                        {{ $currency }}{{ number_format($line, 2, '.', ',') }}
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="col-span-1">
+                    <form class="delete-form" method="POST" action="{{ route('remove-from-cart') }}">
+                        @csrf
+                        <input type="hidden" name="item_id" value="{{ $item['id'] }}">
+                        <button type="button" class="text-red-500 hover:text-red-700 transition-colors" title="Delete item" data-confirm="Are you sure you want to delete this item from the cart?">✕</button>
+                    </form>
+                </div>
+            </div>
+        @endforeach
+
+        <!-- Cart Summary -->
+        <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Subtotal</span>
+                <span class="font-medium" id="subtotal-value">{{ $currency }}{{ number_format($subtotal, 2, '.', ',') }}</span>
+            </div>
+            
+            @if($discount > 0)
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Discount</span>
+                    <span class="font-medium text-green-600">-{{ $currency }}{{ number_format($discount, 2, '.', ',') }}</span>
+                </div>
+            @endif
+            
+            <div class="flex justify-between text-lg font-semibold border-t border-gray-200 pt-2">
+                <span>Total</span>
+                <span id="total-value">{{ $currency }}{{ number_format($total, 2, '.', ',') }}</span>
+            </div>
+        </div>
+
+        <!-- VAT Note -->
+        <div class="text-xs text-gray-500 text-center">
+            The invoice does not include VAT due to article 21 of Spanish Law 37/1992
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="text-center">
+            <div class="text-xs text-gray-500 mb-2">Secure payment via</div>
+            <div class="flex justify-center items-center gap-2 flex-wrap">
+                <img src="/images/logos/apple-pay.svg" alt="Apple Pay" class="h-6 w-auto">
+                <img src="/images/logos/visa.svg" alt="Visa" class="h-6 w-auto">
+                <img src="/images/logos/mastercard.svg" alt="Mastercard" class="h-6 w-auto">
+                <img src="/images/logos/google-pay.svg" alt="Google Pay" class="h-6 w-auto">
+                <img src="/images/logos/bancontact.svg" alt="Bancontact" class="h-6 w-auto">
+                <img src="/images/logos/ideal.svg" alt="iDEAL" class="h-6 w-auto">
+                <img src="/images/logos/klarna.svg" alt="Klarna" class="h-6 w-auto">
+                <img src="/images/logos/paypal.svg" alt="PayPal" class="h-6 w-auto">
+            </div>
+        </div>
+
+        <!-- Checkout Actions -->
+        <div class="pt-4">
+            @if(count($resolved) === 1)
+                {{-- Single item - use existing payment flow --}}
+                <form id="mini-cart-checkout-form-single" method="POST" action="{{ route('payment.create') }}">
+                    @csrf
+                    <input type="hidden" name="pricing_item_id" value="{{ $resolved[0]['id'] }}">
+                    <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                    <button type="submit" class="w-full bg-brand-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200">
+                        Checkout Now
+                    </button>
+                </form>
+            @else
+                {{-- Multiple items - submit cart totals to payment.create --}}
+                <form id="mini-cart-checkout-form-multi" method="POST" action="{{ route('payment.create') }}">
+                    @csrf
+                    <input type="hidden" name="cart_data" value="{{ json_encode($resolved) }}">
+                    <input type="hidden" name="subtotal" value="{{ $subtotal }}">
+                    <input type="hidden" name="discount" value="{{ $discount }}">
+                    <input type="hidden" name="tax" value="{{ $tax }}">
+                    <input type="hidden" name="total" value="{{ $total }}">
+                    <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                    <button type="submit" class="w-full bg-brand-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200">
+                        Checkout Now
+                    </button>
+                </form>
+            @endif
+        </div>
+    </div>
+</div>
 
 <script>
 function updateQty(itemId, change) {
-    fetch('/dashboard/update-cart-qty', {
+    fetch('{{ route("update-cart-qty") }}', {
         method: 'POST',
-        credentials: 'same-origin', // send cookies so auth/session is preserved
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
             item_id: itemId,
-            change: change
+            qty_change: change
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload(); // Reload to update cart display
+            location.reload();
+        } else {
+            alert('Error updating quantity: ' + (data.message || 'Unknown error'));
         }
     })
-    .catch(error => console.error('Error:', error));
-}
-</script>
-
-@endif
-<div class="mini-cart-container" style="margin: 20px 0;">
-    <div class="mini-cart-box">
-        @if(!empty($resolved) && count($resolved) > 0)
-            <!-- Cart with resolved items -->
-                    <div class="mini-cart-header">
-                        <span class="cart-title">Items in your cart</span>
-                        <button class="cart-buy-btn" onclick="showSection('services')">Order more days</button>
-                    </div>
-
-            <div class="cart-items">
-                @php $total = 0; @endphp
-                @foreach($resolved as $item)
-                    @php
-                        $qty = $item['qty'] ?? ($item['quantity'] ?? 1);
-                        $price = $item['price'] ?? 0;
-                        $line = $price * $qty;
-                        $total += $line;
-                    @endphp
-                    <div class="cart-item">
-                        <span class="item-name">{{ $item['title'] ?? 'Item' }}</span>
-                        <span class="item-price">€{{ number_format($line, 2) }}</span>
-                    </div>
-                @endforeach
-
-                    <div class="cart-total">
-                        <strong id="mini-cart-total">Total: {{ $currency }}{{ number_format($total, 2) }}</strong>
-                    </div>
-            </div>
-        @else
-            <!-- Empty cart -->
-            <div class="mini-cart-header">
-                <span class="cart-title">No items in your cart</span>
-                <a href="#services" class="cart-buy-btn" onclick="showSection('services')">Order more days</a>
-            </div>
-        @endif
-    </div>
-</div>
-
-<style>
-.mini-cart-container {
-    width: 100%;
-    margin: 5px 0;
-}
-
-.mini-cart-box {
-    background: transparent;
-    border: none;
-    border-radius: 15px;
-    padding: 6px 12px;
-    min-height: 35px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.mini-cart-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.cart-title {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.cart-buy-btn {
-    background: #3366cc;
-    color: #ffffff;
-    padding: 4px 12px;
-    border: 1px solid #7fa7e1;
-    border-radius: 18px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-}
-
-.cart-buy-btn:hover {
-    opacity: 0.9;
-}
-
-.cart-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: 1px solid #7fa7e1;
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.item-name {
-    color: #ffffff;
-    font-size: 14px;
-    flex: 1;
-}
-
-.item-price {
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.cart-total {
-    padding-top: 8px;
-    text-align: right;
-    color: #ffffff;
-    font-size: 16px;
-    border-top: 1px solid #7fa7e1;
-}
-
-@media (max-width: 768px) {
-    .mini-cart-header {
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
-    }
-
-    .cart-title {
-        text-align: center;
-    }
-
-    .cart-buy-btn {
-        align-self: center;
-    }
-}
-</style>
-
-<script>
-function proceedToCheckout() {
-    // Submit the hidden checkout form so we POST to the payment.create route (Mollie)
-    var f = document.getElementById('mini-cart-checkout-form');
-    if (f) {
-        f.submit();
-        return;
-    }
-    window.location.href = '/payment/create';
-}
-</script>
-
-<script>
-// AJAX-friendly checkout: intercept payment.create forms and follow Mollie's redirect_url
-document.addEventListener('DOMContentLoaded', function() {
-    try {
-    // Prefer multi-item checkout form, then single, then any form that posts to payment.create
-    const multi = document.getElementById('mini-cart-checkout-form-multi');
-    const single = document.getElementById('mini-cart-checkout-form-single');
-    const selector = 'form[action="' + "{{ route('payment.create') }}" + '"]';
-    const forms = document.querySelectorAll(selector);
-    const targetForms = [];
-    if (multi) targetForms.push(multi);
-    if (single) targetForms.push(single);
-    forms.forEach(f => { if (!targetForms.includes(f)) targetForms.push(f); });
-    targetForms.forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                // Submit via fetch so we can follow JSON redirect responses from the controller
-                e.preventDefault();
-                const url = form.action;
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const body = new URLSearchParams(new FormData(form));
-
-                fetch(url, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    body: body.toString()
-                }).then(async function(res) {
-                    // If controller returned JSON with redirect_url, use it
-                    const contentType = res.headers.get('content-type') || '';
-                    if (res.ok && contentType.indexOf('application/json') !== -1) {
-                        const json = await res.json();
-                        if (json.redirect_url) {
-                            window.location = json.redirect_url;
-                            return;
-                        }
-                    }
-                    // If response is a redirect, follow it
-                    if (res.redirected) {
-                        window.location = res.url;
-                        return;
-                    }
-                    // Fallback to normal submit (lets server render error messages)
-                    form.submit();
-                }).catch(function(err) {
-                    console.error('Checkout failed:', err);
-                    form.submit();
-                });
-            });
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating quantity');
     });
-    } catch (e) {
-        console.error('Checkout JS init error', e);
-    }
-});
-// Delete item handler (AJAX) — send credentials & CSRF to avoid 419 Page Expired
-document.addEventListener('click', function(e){
-    if (!e.target) return;
-    const btn = e.target.closest('.delete-btn');
-    if (!btn) return;
-    const confirmMsg = btn.getAttribute('data-confirm') || 'Delete item?';
-    if (!confirm(confirmMsg)) return;
-    const form = btn.closest('.delete-form');
-    if (!form) return;
-    const action = form.action;
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const fd = new FormData(form);
+}
 
-    fetch(action, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-            'X-CSRF-TOKEN': token,
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: fd
-    }).then(async function(res) {
-        const contentType = res.headers.get('content-type') || '';
-        if (res.ok && contentType.indexOf('application/json') !== -1) {
-            const json = await res.json();
-            if (json.success) {
-                // Remove the row from the DOM
-                const row = document.querySelector('.cart-row[data-item-id="' + form.querySelector('[name="item_id"]').value + '"]');
-                if (row) row.remove();
-
-                // Update subtotal/total values if provided
-                if (typeof json.subtotal !== 'undefined') {
-                    const currency = document.querySelector('#subtotal-value') ? document.querySelector('#subtotal-value').textContent.trim().charAt(0) : '€';
-                    const subtotalEl = document.getElementById('subtotal-value');
-                    const totalEl = document.getElementById('total-value');
-                    if (subtotalEl) subtotalEl.textContent = currency + (Math.round(json.subtotal * 100) / 100).toFixed(2);
-                    if (totalEl) totalEl.textContent = currency + (Math.round(json.total * 100) / 100).toFixed(2);
-                }
-
-                // If cart is now empty, reload to render empty state
-                if (json.empty) {
-                    location.reload();
-                }
-                return;
+// Handle delete button clicks
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+        const button = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+        const confirmMessage = button.getAttribute('data-confirm') || 'Are you sure you want to delete this item?';
+        
+        if (confirm(confirmMessage)) {
+            const form = button.closest('.delete-form');
+            if (form) {
+                form.submit();
             }
         }
-        // Fallback: reload the page so server handles it
-        location.reload();
-    }).catch(err => {
-        console.error('Delete failed', err);
-        // fallback: submit the original form so the POST endpoint is used (avoid GET causing MethodNotAllowed)
-        try {
-            form.removeAttribute('onsubmit');
-        } catch (e) {}
-        try { form.submit(); } catch (e) { window.location = action; }
-    });
+    }
 });
 </script>
+@endif

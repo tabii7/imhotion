@@ -1,8 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Mini Cart Component -->
-@include('components.mini-cart')
+<!-- Success Messages -->
+@if(session('success'))
+    <div class="bg-green-500 text-white px-4 py-2 rounded-lg mx-4 mb-4 text-center">
+        {{ session('success') }}
+    </div>
+@endif
+
+<!-- Floating Cart Button -->
+@include('components.floating-cart')
 
 <!-- Theme toggle removed — we keep nightmode only and show sandwich menu instead -->
 
@@ -282,15 +289,31 @@
               <div class="bg-white/5 backdrop-blur-sm border-2 border-dashed border-brand-primary-200/20 rounded-2xl p-6 transition-all duration-300 hover:border-brand-primary-200/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-primary/10 flex flex-col justify-center items-center text-center min-h-[200px]">
                 <h3 class="text-2xl font-semibold mb-4">{{ $item->title }}</h3>
                 <div>
-                  <a href="/register?plan={{ $item->id }}" class="pricing-badge">
-                    <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
-                    <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
-                    <div class="arrow">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                      </svg>
-                    </div>
-                  </a>
+                  @auth
+                    <form method="POST" action="{{ route('add-to-cart') }}" class="inline">
+                      @csrf
+                      <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
+                      <button type="submit" class="pricing-badge">
+                        <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
+                        <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
+                        <div class="arrow">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                          </svg>
+                        </div>
+                      </button>
+                    </form>
+                  @else
+                    <a href="/register?plan={{ $item->id }}" class="pricing-badge">
+                      <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
+                      <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
+                      <div class="arrow">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                      </div>
+                    </a>
+                  @endauth
                 </div>
               </div>
             @endforeach
