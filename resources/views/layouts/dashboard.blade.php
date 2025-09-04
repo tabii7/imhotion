@@ -12,7 +12,7 @@
 <body class="home text-white font-sans">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-70 text-sidebar-text fixed h-screen left-0 top-0 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300" id="sidebar">
+        <aside class="w-70 bg-sidebar-bg text-sidebar-text fixed h-screen left-0 top-0 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300" id="sidebar">
             <div class="p-6 border-slate-700">
                 <a href="/" class="flex items-center gap-3 text-white no-underline">
                     <img src="/images/imhotion-blue.png" alt="Imhotion" class="w-8 h-8">
