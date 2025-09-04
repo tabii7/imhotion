@@ -608,6 +608,11 @@ nav .nav-link:active {
   margin-top: 1.1rem;
 }
 
+/* Add 15px additional spacing specifically for the first pack (Extended Day) between title/price and CTA */
+.grid-3 > .pricing-card:nth-child(1) .btn-purchase {
+  margin-top: calc(1.1rem + 15px) !important;
+}
+
 /* Meta right alignment (small label like '5 days' or '3 days') */
 .meta-right {
   color: var(--subtitle-color);
