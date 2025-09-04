@@ -79,6 +79,11 @@ html, body {
   height: 100%;
 }
 
+/* Ensure page root has no opaque background that would hide the tiled image */
+html, body {
+  background: transparent !important;
+}
+
 /* Make any declared "bold" classes use semibold instead so bold is never too heavy */
 .font-bold { font-weight: 600 !important; }
 
@@ -101,6 +106,16 @@ html, body {
   background-position: 0 0, 0 40px;
   background-size: auto, auto;
   image-rendering: auto;
+}
+
+/* Fallback: some browsers or stacking contexts can hide a pseudo-element with z-index:-1.
+   Place the tiled image directly on the body when on the homepage as a robust fallback. */
+body.home {
+  background-image: url('/images/background.png');
+  background-repeat: repeat;
+  background-position: 0 0;
+  background-attachment: fixed;
+  background-size: auto;
 }
 
 /* Theme Toggle */
@@ -240,6 +255,40 @@ html, body {
   gap: 1rem;
   z-index: 20;
 }
+
+/* Force page-level backgrounds to be fully transparent so the tiled homepage background shows through.
+   This overrides inline styles or view-level CSS variables that may set a light blue background. */
+html, body, .site-wrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Keep the homepage pseudo-element tiled background intact (z-index below content). */
+.home {
+  background: transparent !important;
+}
+
+/* Strong overrides to remove any residual light-blue backgrounds applied elsewhere.
+   Targets common wrappers and specific sections that used the light blue color. */
+body.home, html.home, .site-wrapper, main, .container, #pricing, .pricing-dark, .pricing-light, .pricing-bg, .pricing-bg * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Also override any elements that might be using the CSS variable directly. */
+*[style*="--brand-bg"], *[style*="background: var(--brand-bg)"], [style*="background: var(--brand-bg)"] {
+  background: transparent !important;
+}
+
+/* Some blade templates set inline body styles (guest/compiled views). Override them with highest specificity. */
+html > body[style], body[style] {
+  background: transparent !important;
+}
+
+/* Ensure the main wrapper is transparent so the background shows through */
+.site-wrapper { background: transparent; }
 
 .mobile-menu.active {
   display: flex;
@@ -430,7 +479,7 @@ nav .nav-link:active {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 1.5rem;
-  padding: 2rem;
+  padding: 0.8rem; /* much smaller padding */
   transition: all 0.3s ease;
   margin-bottom: 1.5rem;
   backdrop-filter: blur(10px);
@@ -442,11 +491,78 @@ nav .nav-link:active {
   box-shadow: 0 20px 40px var(--card-shadow);
 }
 
+/* Specific tweaks for 'Our Packs' cards */
+.grid-3 .pricing-card {
+  /* slightly lighter background and set the requested border color */
+  background-color: rgba(255,255,255,0.04); /* 10% lighter feel depending on theme */
+  border: 1px solid #7fa7e1;
+  padding: 0.9rem 0.9rem 1.6rem 0.9rem; /* a bit taller but narrower padding */
+  min-height: 420px;
+  max-width: 360px; /* make this card less wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* subtle top stripe for each pricing card */
+.grid-3 .pricing-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #7fa7e1 0%, #7fa7e1 100%);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+}
+
+/* Align the pack title and the price to the right */
+.grid-3 .pricing-card h3,
+.grid-3 .pricing-card p.text-center {
+  text-align: right;
+}
+
+/* Price total badge at top-right */
+.price-total {
+  background: transparent;
+  color: #7fa7e1;
+  border-radius: 999px;
+  padding: 10px 12px; /* 10px padding top/right as requested */
+  display: inline-block;
+  font-size: 0.95rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 6;
+  border: 2px solid #7fa7e1;
+}
+
+/* Positioning container for price total - ensure relative positioning */
+.grid-3 .pricing-card { position: relative; }
+
+/* Make the CTA button less wide and place it at the bottom right */
+.grid-3 .btn-purchase {
+  width: auto;
+  align-self: flex-end;
+  padding: 0.55rem 1.1rem;
+  border-radius: 1.5rem;
+}
+
+/* Circular arrow for the hero badge style in darker color */
+.grid-3 .pricing-badge .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  box-shadow: none;
+}
+
 .pricing-badge {
   background-color: white;
   color: var(--brand-dark);
   border-radius: 2rem;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.75rem;
   display: inline-flex;
   align-items: center;
   font-weight: 600;
@@ -465,15 +581,15 @@ nav .nav-link:active {
 }
 
 .pricing-badge .arrow {
-  background-color: var(--brand-primary);
+  background-color: #33527a; /* darker circle */
   color: white;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem; /* slightly larger */
+  height: 2.25rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.75rem;
+  margin-left: 0.5rem;
 }
 
 [data-theme="light"] .pricing-badge .arrow {

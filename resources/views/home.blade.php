@@ -133,7 +133,7 @@
               <div class="pricing-card">
                 <!-- Price badge -->
                 <div class="text-center mb-4">
-                  <div style="background: #374151; color: white; border-radius: 2rem; padding: 0.25rem 1rem; display: inline-block; font-size: 0.875rem;">
+                  <div class="price-total">
                     €{{ number_format($totalPrice, 0) }}
                   </div>
                 </div>
