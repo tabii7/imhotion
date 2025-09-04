@@ -122,31 +122,15 @@
               <div class="bg-white/5 backdrop-blur-sm border border-brand-primary-200/20 rounded-2xl p-6 transition-all duration-300 hover:border-brand-primary-200/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-primary/10">
                 <h3 class="text-2xl font-semibold mb-6 text-center">{{ $item->title }}</h3>
                 <div class="text-center">
-                  @auth
-                    <form method="POST" action="{{ route('add-to-cart') }}" class="inline">
-                      @csrf
-                      <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                      <button type="submit" class="pricing-badge">
-                        <span class="text-lg font-semibold">€{{ number_format($item->price, 0) }}</span>
-                        <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
-                        <div class="arrow">
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                          </svg>
-                        </div>
-                      </button>
-                    </form>
-                  @else
-                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
-                      <span class="text-lg font-semibold">€{{ number_format($item->price, 0) }}</span>
-                      <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
-                      <div class="arrow">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                      </div>
-                    </button>
-                  @endauth
+                  <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
+                    <span class="text-lg font-semibold">€{{ number_format($item->price, 0) }}</span>
+                    <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
+                    <div class="arrow">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </div>
+                  </button>
                 </div>
               </div>
             @endforeach
@@ -246,29 +230,14 @@
 
                 <!-- CTA Button -->
                 <div class="text-center">
-                  @auth
-                    <form method="POST" action="{{ route('add-to-cart') }}" class="inline">
-                      @csrf
-                      <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                      <button type="submit" class="btn-purchase">
-                        <span>Add {{ $item->title }} to Cart</span>
-                        <div class="arrow">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                          </svg>
-                        </div>
-                      </button>
-                    </form>
-                  @else
-                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="btn-purchase">
-                      <span>Get {{ $item->title }}</span>
-                      <div class="arrow">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                      </div>
-                    </button>
-                  @endauth
+                  <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="btn-purchase">
+                    <span>Get {{ $item->title }}</span>
+                    <div class="arrow">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </div>
+                  </button>
                 </div>
               </div>
             @endforeach
@@ -289,31 +258,15 @@
               <div class="bg-white/5 backdrop-blur-sm border-2 border-dashed border-brand-primary-200/20 rounded-2xl p-6 transition-all duration-300 hover:border-brand-primary-200/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-primary/10 flex flex-col justify-center items-center text-center min-h-[200px]">
                 <h3 class="text-2xl font-semibold mb-4">{{ $item->title }}</h3>
                 <div>
-                  @auth
-                    <form method="POST" action="{{ route('add-to-cart') }}" class="inline">
-                      @csrf
-                      <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                      <button type="submit" class="pricing-badge">
-                        <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
-                        <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
-                        <div class="arrow">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                          </svg>
-                        </div>
-                      </button>
-                    </form>
-                  @else
-                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
-                      <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
-                      <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
-                      <div class="arrow">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                      </div>
-                    </button>
-                  @endauth
+                  <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
+                    <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
+                    <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
+                    <div class="arrow">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </div>
+                  </button>
                 </div>
               </div>
             @endforeach

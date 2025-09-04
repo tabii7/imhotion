@@ -314,5 +314,13 @@
             }
         }
     });
+
+    // Check if user should be redirected to checkout after login
+    // @if(session('redirect_to_checkout'))
+    //     // User was redirected here after login, now redirect to checkout
+    //     setTimeout(() => {
+    //         proceedToCheckout();
+    //     }, 1000);
+    // @endif
     </script>
 @endsection

@@ -36,9 +36,10 @@ class PaymentController extends Controller
         }
 
         $pricingItem = null;
-        $sessionCart = session('cart', []);
+        $itemsForSummary = [];
+        $totalPrice = 0;
 
-        // If a single pricing_item_id is provided, use that.
+        // If a single pricing_item_id is provided, use that (legacy support).
         if ($request->filled('pricing_item_id')) {
             $pricingItem = PricingItem::findOrFail($request->pricing_item_id);
             $itemsForSummary = [[
@@ -54,8 +55,29 @@ class PaymentController extends Controller
                 $totalPrice = $pricingItem->price * $days;
                 $itemsForSummary[0]['qty'] = $days;
             }
+        } elseif ($request->filled('cart_data')) {
+            // Use cart data from localStorage (new system)
+            $cartData = json_decode($request->cart_data, true);
+            if (is_array($cartData) && !empty($cartData)) {
+                $itemsForSummary = [];
+                $totalPrice = 0;
+                foreach ($cartData as $item) {
+                    if (isset($item['id'], $item['title'], $item['price'], $item['qty'])) {
+                        $itemsForSummary[] = [
+                            'id' => (int) $item['id'],
+                            'title' => $item['title'],
+                            'price' => (float) $item['price'],
+                            'qty' => (int) $item['qty'],
+                        ];
+                        $totalPrice += (float) $item['price'] * (int) $item['qty'];
+                    }
+                }
+                $pricingItem = null; // multi-item purchase
+                $days = array_sum(array_column($itemsForSummary, 'qty')) ?: 1;
+            }
         } else {
-            // Build items summary from session cart
+            // Fallback to session cart (for backward compatibility)
+            $sessionCart = session('cart', []);
             $ids = collect($sessionCart)->pluck('id')->filter()->values()->all();
             $items = $ids ? PricingItem::whereIn('id', $ids)->get()->keyBy('id') : collect();
             $itemsForSummary = [];

@@ -28,6 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Check if user should be redirected to checkout
+        if ($request->has('redirect_to_checkout') && $request->redirect_to_checkout === 'true') {
+            // Redirect to dashboard first, then JavaScript will handle the checkout
+            return redirect()->route('dashboard')->with('redirect_to_checkout', true);
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

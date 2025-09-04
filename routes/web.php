@@ -30,27 +30,12 @@ Route::get('/', function () {
     return view('home', compact('categories'));
 })->name('home');
 
-// Dashboard route with cart functionality (accept optional section path segment)
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
-Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])->middleware('auth')->name('dashboard.add-to-cart');
-Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
-Route::post('/dashboard/remove-from-cart', [DashboardController::class, 'removeFromCart'])->middleware('auth')->name('dashboard.remove-from-cart');
-
-// Cart routes for home page (work for both authenticated and guest users)
-Route::post('/add-to-cart', [DashboardController::class, 'addToCart'])->name('add-to-cart');
-Route::post('/update-cart-qty', [DashboardController::class, 'updateCartQty'])->name('update-cart-qty');
-Route::post('/remove-from-cart', [DashboardController::class, 'removeFromCart'])->name('remove-from-cart');
-
-
-// Separate dashboard section routes
+// Dashboard routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/services', [DashboardController::class, 'services'])->name('dashboard.services');
     Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
     Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
-    
-    // Project file download
-    Route::post('/projects/{project}/download', [DashboardController::class, 'downloadFiles'])->name('projects.download');
 });
 
 // Add missing profile.edit route to fix navigation dropdown

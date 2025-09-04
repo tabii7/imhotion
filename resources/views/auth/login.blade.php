@@ -102,3 +102,24 @@
         </div>
     </div>
 </x-guest-layout>
+
+<script>
+// Check if user should be redirected to checkout after login
+document.addEventListener('DOMContentLoaded', function() {
+    const shouldRedirect = localStorage.getItem('redirect_to_checkout');
+    if (shouldRedirect === 'true') {
+        // Clear the flag
+        localStorage.removeItem('redirect_to_checkout');
+        
+        // Add a hidden input to the login form to indicate redirect
+        const form = document.querySelector('form');
+        if (form) {
+            const redirectInput = document.createElement('input');
+            redirectInput.type = 'hidden';
+            redirectInput.name = 'redirect_to_checkout';
+            redirectInput.value = 'true';
+            form.appendChild(redirectInput);
+        }
+    }
+});
+</script>

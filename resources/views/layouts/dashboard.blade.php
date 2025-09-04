@@ -63,27 +63,6 @@
                     <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold text-sm">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
-                    @if(isset($pricingItems) && $pricingItems->count() > 0)
-                        <form method="POST" action="{{ route('dashboard.add-to-cart') }}" class="mr-2">
-                            @csrf
-                            <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->first()->id }}">
-                            <button type="submit" class="border-0 bg-brand-primary text-white px-3 py-1.5 rounded-lg cursor-pointer font-semibold text-xs no-underline inline-flex items-center gap-2 transition-all duration-200 hover:bg-blue-600 hover:-translate-y-0.5" title="Add test product to cart">Add test product</button>
-                        </form>
-                        @if($pricingItems->count() > 1)
-                            <form method="POST" action="{{ route('dashboard.add-to-cart') }}" class="mr-2">
-                                @csrf
-                                <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->skip(1)->first()->id }}">
-                                <button type="submit" class="border-0 bg-brand-primary text-white px-3 py-1.5 rounded-lg cursor-pointer font-semibold text-xs no-underline inline-flex items-center gap-2 transition-all duration-200 hover:bg-blue-600 hover:-translate-y-0.5" title="Add second test product">Add test product 2</button>
-                            </form>
-                        @else
-                            {{-- duplicate first as a second test button when only one product exists --}}
-                            <form method="POST" action="{{ route('dashboard.add-to-cart') }}" class="mr-2">
-                                @csrf
-                                <input type="hidden" name="pricing_item_id" value="{{ $pricingItems->first()->id }}">
-                                <button type="submit" class="border-0 bg-brand-primary text-white px-3 py-1.5 rounded-lg cursor-pointer font-semibold text-xs no-underline inline-flex items-center gap-2 transition-all duration-200 hover:bg-blue-600 hover:-translate-y-0.5" title="Add test product duplicate">Add test product 2</button>
-                            </form>
-                        @endif
-                    @endif
                     <a href="{{ route('logout') }}" class="border-0 bg-brand-primary text-white px-3 py-1.5 rounded-lg cursor-pointer font-semibold text-xs no-underline inline-flex items-center gap-2 transition-all duration-200 hover:bg-blue-600 hover:-translate-y-0.5"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Logout
