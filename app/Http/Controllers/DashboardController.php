@@ -71,9 +71,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $userPurchases = Purchase::where('user_id', $user->id)->with('pricingItem')->get();
-        $pricingItems = PricingItem::with('category')->get();
         
-        return view('dashboard.transactions-page', compact('userPurchases', 'user', 'pricingItems'));
+        return view('dashboard.transactions-page', compact('userPurchases', 'user'));
     }
 
     /**
@@ -83,7 +82,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $projects = Project::where('user_id', $user->id)->latest()->get();
-        $pricingItems = PricingItem::with('category')->get();
         
         $activeStatuses = ['new', 'pending', 'in_progress', 'completed'];
         $finalizedStatuses = ['cancelled', 'finalized'];
@@ -103,7 +101,7 @@ class DashboardController extends Controller
             'finalized' => $finalized->count(),
         ];
         
-        return view('dashboard.profile-page', compact('user', 'active', 'finalized', 'counts', 'pricingItems'));
+        return view('dashboard.profile-page', compact('user', 'active', 'finalized', 'counts'));
     }
 
     /**
@@ -146,7 +144,7 @@ class DashboardController extends Controller
         // Also set the old session format for backward compatibility
         session(['selected_plan_for_payment' => $pricingItemId]);
 
-        return redirect()->back()->with('success', 'Item added to cart successfully!');
+        return redirect()->route('dashboard')->with('success', 'Item added to cart successfully!');
     }
 
     /**
