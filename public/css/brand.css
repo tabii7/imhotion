@@ -496,8 +496,8 @@ nav .nav-link:active {
   /* slightly lighter background and set the requested border color */
   background-color: rgba(255,255,255,0.06); /* ~10% lighter */
   border: 1px solid #7fa7e1;
-  /* normal full border around card; no top stripe */
-  padding: 0.5rem; /* reduce padding on all sides for tighter look */
+  /* normal full border around card; add left inset so content isn't flush */
+  padding: 0.5rem 0.5rem calc(0.5rem + 10px) 15px; /* add ~10px extra at bottom */
   min-height: 420px;
   max-width: 360px;
   display: flex;
@@ -602,6 +602,13 @@ nav .nav-link:active {
   text-align: left;
 }
 
+/* Ensure inner lists / small meta lines are offset from left border */
+.grid-3 .pricing-card .feature-list { margin-left: 0.75rem; }
+.grid-3 .pricing-card .meta-left { margin-left: 0.2rem; }
+
+/* Make middle pack's small top-right price semibold (600) not bold */
+.grid-3 > .pricing-card:nth-child(2) .price-total { font-weight: 600; }
+
 /* Make one special box slightly narrower and taller when needed */
 .pricing-card.tall-narrow {
   max-width: 320px;
@@ -678,7 +685,7 @@ nav .nav-link:active {
 
 /* Tighten addons (first two boxes) spacing: make left/right/bottom match top */
 .addons-grid .pricing-card {
-  padding: 0.5rem !important; /* equal padding on all sides */
+  padding: 0.5rem 0.5rem calc(0.5rem + 10px) 0.5rem !important; /* add extra bottom space */
   min-height: 120px !important; /* reduce tallness so bottom space matches top */
   display: flex;
   flex-direction: column;
