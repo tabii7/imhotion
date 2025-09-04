@@ -129,22 +129,27 @@
             @foreach($category->items as $item)
               @php
                 $totalPrice = $item->price * (strpos($item->title, '5') !== false ? 5 : (strpos($item->title, '10') !== false ? 10 : 20));
+                preg_match('/\d+/', $item->title, $__m);
+                $__days = $__m[0] ?? null;
               @endphp
               <div class="pricing-card">
                 <!-- Price badge -->
-                <div class="text-center mb-4">
+                <div class="mb-2">
                   <div class="price-total">
                     €{{ number_format($totalPrice, 0) }}
                   </div>
                 </div>
 
-                <h3 class="text-3xl font-bold mb-2 text-center">{{ $item->title }}</h3>
-                <p class="text-center mb-4 subtitle">
+                <h3 class="text-3xl font-bold mb-1">{{ $item->title }}</h3>
+                @if($__days)
+                  <div class="meta-left">{{ $__days }} days</div>
+                @endif
+                <p class="mb-2 subtitle">
                   €{{ number_format($item->price, 0) }}/day
                 </p>
 
                 @if($item->duration_years)
-                  <p class="text-center mb-6" style="color: #6b7280; font-size: 0.875rem;">
+                  <p class="mb-4" style="color: #6b7280; font-size: 0.875rem;">
                     Valid for {{ $item->duration_years }} {{ $item->duration_years == 1 ? 'year' : 'years' }}
                   </p>
                 @endif
@@ -228,8 +233,8 @@
           <div class="grid-2">
             @foreach($category->items as $item)
               <div class="pricing-card">
-                <h3 class="text-2xl font-bold mb-4">{{ $item->title }}</h3>
-                <div class="mb-6">
+                <h3 class="text-2xl font-bold mb-2">{{ $item->title }}</h3>
+                <div class="mb-4">
                   <a href="/register?plan={{ $item->id }}" class="pricing-badge">
                     <span class="font-bold">€{{ number_format($item->price, 0) }}</span>
                     <span style="font-size: 0.875rem; margin-left: 0.25rem;">/{{ str_replace('per_', '', $item->price_unit) }}</span>

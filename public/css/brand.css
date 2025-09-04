@@ -494,14 +494,16 @@ nav .nav-link:active {
 /* Specific tweaks for 'Our Packs' cards */
 .grid-3 .pricing-card {
   /* slightly lighter background and set the requested border color */
-  background-color: rgba(255,255,255,0.04); /* 10% lighter feel depending on theme */
+  background-color: rgba(255,255,255,0.06); /* ~10% lighter */
   border: 1px solid #7fa7e1;
-  padding: 0.9rem 0.9rem 1.6rem 0.9rem; /* a bit taller but narrower padding */
+  border-top: none; /* use the ::before stripe to avoid double-line */
+  padding: 0.9rem 0.9rem 1.2rem 0.9rem; /* slightly tighter vertical spacing */
   min-height: 420px;
-  max-width: 360px; /* make this card less wide */
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 }
 
 /* subtle top stripe for each pricing card */
@@ -511,24 +513,64 @@ nav .nav-link:active {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px; /* slightly larger so it visually overlaps the card border */
   background: linear-gradient(90deg, #7fa7e1 0%, #7fa7e1 100%);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.05) inset;
+}
+
+/* Match styling for grid-2 (addons) cards: smaller padding, thin stripe, and border color */
+.grid-2 .pricing-card {
+  background-color: rgba(255,255,255,0.06); /* slightly lighter ~10% */
+  border: 1px solid #7fa7e1;
+  border-top: none;
+  padding: 0.7rem 0.9rem 0.9rem 0.9rem;
+  min-height: 200px;
+  position: relative;
+}
+
+.grid-2 .pricing-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #7fa7e1;
   border-top-left-radius: 1.5rem;
   border-top-right-radius: 1.5rem;
 }
 
-/* Align the pack title and the price to the right */
-.grid-3 .pricing-card h3,
-.grid-3 .pricing-card p.text-center {
-  text-align: right;
+/* Make the addons badge arrow darker and consistent */
+.grid-2 .pricing-badge .arrow,
+.grid-2 .btn-purchase .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+/* Align pack content to the left and tighten spacing */
+.grid-3 .pricing-card h3,
+.grid-3 .pricing-card p {
+  text-align: left;
+}
+
+/* Reduce spacing between title / day-price / validity for a tighter layout */
+.grid-3 .pricing-card h3 { margin-bottom: 0.25rem; }
+.grid-3 .pricing-card p { margin-bottom: 0.5rem; }
 
 /* Price total badge at top-right */
 .price-total {
   background: transparent;
   color: #7fa7e1;
   border-radius: 999px;
-  padding: 10px 12px; /* 10px padding top/right as requested */
+  padding: 10px 14px; /* slightly larger horizontal padding */
   display: inline-block;
   font-size: 0.95rem;
   position: absolute;
@@ -541,12 +583,45 @@ nav .nav-link:active {
 /* Positioning container for price total - ensure relative positioning */
 .grid-3 .pricing-card { position: relative; }
 
-/* Make the CTA button less wide and place it at the bottom right */
+/* Make the CTA button larger and place it at the bottom right */
 .grid-3 .btn-purchase {
   width: auto;
   align-self: flex-end;
-  padding: 0.55rem 1.1rem;
+  padding: 0.65rem 1.5rem; /* taller and wider */
+  min-width: 180px; /* roughly +30px compared to previous */
   border-radius: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Meta right alignment (small label like '5 days' or '3 days') */
+.meta-right {
+  color: var(--subtitle-color);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  text-align: right;
+}
+
+/* Left aligned small meta for the packs as requested */
+.meta-left {
+  color: var(--subtitle-color);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  text-align: left;
+}
+
+/* Make one special box slightly narrower and taller when needed */
+.pricing-card.tall-narrow {
+  max-width: 320px;
+  min-height: 520px;
+  padding-top: 2.5rem; /* give space for top-right badge */
+}
+
+/* Ensure the arrow SVG inside darker circular arrow is white */
+.pricing-badge .arrow svg, .grid-2 .pricing-badge .arrow svg, .grid-2 .btn-purchase .arrow svg {
+  stroke: currentColor;
+  color: white;
 }
 
 /* Circular arrow for the hero badge style in darker color */
@@ -591,6 +666,21 @@ nav .nav-link:active {
   justify-content: center;
   margin-left: 0.5rem;
 }
+
+/* Style the arrow inside purchase buttons: white chevron inside colored circular bg */
+.btn-purchase .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.75rem;
+}
+
+.btn-purchase .arrow svg { stroke: white; color: white; }
 
 [data-theme="light"] .pricing-badge .arrow {
   background-color: white;
