@@ -2,7 +2,8 @@
 :root {
   --brand-primary: #0066ff;
   --brand-primary-200: #99c2ff;
-  --brand-bg: #f2f7ff;
+  /* Remove default blue-ish page background; pages will use the tiled image on homepage or transparent backgrounds elsewhere */
+  --brand-bg: transparent;
   --brand-dark: #001f4c;
   --font-sans: 'BrittiSans', system-ui, -apple-system, sans-serif;
 }
@@ -85,18 +86,20 @@ html, body {
    Implementation: a fixed pseudo-element behind the page that layers
    the tile twice and offsets the second layer vertically by 40px.
    This creates a diagonal feel while ensuring no white gaps. */
-body::before {
+/* Homepage-only tiled background: two repeated layers,
+   second layer offset vertically by 40px to create a diagonal effect.
+   This is scoped to `.home` so it applies only on the homepage. */
+.home::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* two layers: base grid and an offset grid shifted down 40px */
+  /* Use the site's provided tiled background, not vertical. Repeat to tile fully and offset second layer for diagonal look. */
   background-image: url('/images/background.png'), url('/images/background.png');
   background-repeat: repeat, repeat;
-  background-position: 0 0, 30px 40px;
+  background-position: 0 0, 0 40px;
   background-size: auto, auto;
-  /* make sure it renders crisply */
   image-rendering: auto;
 }
 
@@ -125,8 +128,8 @@ body::before {
 
 /* Header Styles */
 .header {
-  /* Remove the strong blue bar at the top so header matches the page background */
-  background: transparent;
+  /* Force the header to be fully transparent so the tiled background shows through */
+  background: transparent !important;
   padding: 0;
   position: relative;
   z-index: 10;

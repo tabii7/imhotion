@@ -13,27 +13,14 @@
         <link rel="icon" type="image/jpeg" sizes="32x32" href="{{ asset('images/imhotion.jpg') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/imhotion.jpg') }}">
 
-        <!-- Brand CSS with fonts and styling -->
-        <link rel="stylesheet" href="{{ asset('css/brand.css') }}">
-        <!-- Background image for public site pages -->
-        <style>
-            /* Use the provided background.png for public-facing pages */
-            body {
-                background-image: url('{{ asset('images/background.png') }}');
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-            }
-            /* Ensure the main wrapper covers full height so background fills viewport */
-            .site-wrapper { min-height: 100vh; }
-        </style>
+    <!-- Brand CSS with fonts and styling -->
+    <link rel="stylesheet" href="{{ asset('css/brand.css') }}">
 
         <!-- Alpine.js for mobile menu -->
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body>
-        <div style="min-height: 100vh;">
+    <body class="{{ request()->is('/') ? 'home' : '' }}">
+        <div class="site-wrapper" style="min-height: 100vh;">
             @auth
                 @include('layouts.navigation')
             @endauth
