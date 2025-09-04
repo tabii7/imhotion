@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Imhotion') }}</title>
-        
+
         <!-- Favicon and App Icons -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -15,7 +15,20 @@
 
         <!-- Brand CSS with fonts and styling -->
         <link rel="stylesheet" href="{{ asset('css/brand.css') }}">
-        
+        <!-- Background image for public site pages -->
+        <style>
+            /* Use the provided background.png for public-facing pages */
+            body {
+                background-image: url('{{ asset('images/background.png') }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }
+            /* Ensure the main wrapper covers full height so background fills viewport */
+            .site-wrapper { min-height: 100vh; }
+        </style>
+
         <!-- Alpine.js for mobile menu -->
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
