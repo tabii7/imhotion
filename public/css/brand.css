@@ -676,6 +676,24 @@ nav .nav-link:active {
 .latest-grid .pricing-card h3 { margin-bottom: 0.25rem; }
 .latest-grid .pricing-card .feature-list { margin-bottom: 0.5rem; }
 
+/* Tighten addons (first two boxes) spacing: make left/right/bottom match top */
+.addons-grid .pricing-card {
+  padding: 0.5rem !important; /* equal padding on all sides */
+  min-height: 120px !important; /* reduce tallness so bottom space matches top */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.addons-grid .pricing-card h3 {
+  margin-bottom: 0.35rem !important; /* reduce gap under title */
+}
+.addons-grid .pricing-card .mb-4 {
+  margin-bottom: 0.35rem !important; /* reduce gap under badge */
+}
+.addons-grid .pricing-badge {
+  margin: 0 auto; /* keep badge centered */
+}
+
 /* Style the arrow inside purchase buttons: white chevron inside colored circular bg */
 .btn-purchase .arrow {
   background-color: #33527a;
