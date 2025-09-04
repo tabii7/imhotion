@@ -207,7 +207,7 @@
 
                 <!-- CTA Button -->
                 <div class="text-center">
-                  <a href="/register?plan={{ $item->id }}" class="btn-purchase">
+                  <a href="/register?plan={{ $item->id }}" class="btn-purchase" @if($loop->first) style="margin-top:30px; width:auto; min-width:160px;" @endif>
                     <span>Get {{ $item->title }}</span>
                     <div class="arrow" style="margin-left: 0.75rem;">
                       <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
