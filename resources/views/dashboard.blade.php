@@ -6,7 +6,7 @@
 @section('content')
 
     <!-- Client Area -->
-    <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-white">
+    <div class="rounded-xl p-5 text-white">
         <div class="text-white font-sans">
                             <!-- Stats Grid -->
             <div class="grid grid-cols-3 gap-3 mx-auto mb-5 max-w-lg">

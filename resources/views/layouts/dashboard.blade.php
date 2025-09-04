@@ -36,10 +36,6 @@
                         Services
                     </a>
                 </div>
-
-                <!-- Sidebar Cart -->
-                @include('components.sidebar-cart')
-
                 <div class="mb-8">
                     <div class="text-xs text-blue-300 font-bold uppercase tracking-wider mb-3 px-3">Account</div>
                     <a href="{{ route('dashboard.transactions') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-lg no-underline text-sidebar-text transition-all duration-300 mb-1.5 font-medium border border-transparent hover:bg-sidebar-hover hover:text-white hover:border-blue-300/30 hover:translate-x-1 {{ request()->routeIs('dashboard.transactions') ? 'bg-sidebar-active text-white border-blue-300 shadow-lg shadow-brand-dark/30' : '' }}">

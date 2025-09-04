@@ -137,7 +137,7 @@
                       </button>
                     </form>
                   @else
-                    <a href="/register?plan={{ $item->id }}" class="pricing-badge">
+                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
                       <span class="text-lg font-semibold">€{{ number_format($item->price, 0) }}</span>
                       <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
                       <div class="arrow">
@@ -145,7 +145,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                       </div>
-                    </a>
+                    </button>
                   @endauth
                 </div>
               </div>
@@ -260,14 +260,14 @@
                       </button>
                     </form>
                   @else
-                    <a href="/register?plan={{ $item->id }}" class="btn-purchase">
+                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="btn-purchase">
                       <span>Get {{ $item->title }}</span>
                       <div class="arrow">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                       </div>
-                    </a>
+                    </button>
                   @endauth
                 </div>
               </div>
@@ -304,7 +304,7 @@
                       </button>
                     </form>
                   @else
-                    <a href="/register?plan={{ $item->id }}" class="pricing-badge">
+                    <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')" class="pricing-badge">
                       <span class="font-semibold">€{{ number_format($item->price, 0) }}</span>
                       <span class="text-sm ml-1">/{{ str_replace('per_', '', $item->price_unit) }}</span>
                       <div class="arrow">
@@ -312,7 +312,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                       </div>
-                    </a>
+                    </button>
                   @endauth
                 </div>
               </div>

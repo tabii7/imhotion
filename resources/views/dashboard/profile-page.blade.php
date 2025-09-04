@@ -5,8 +5,6 @@
 
 @section('content')
     <!-- Mini Cart Component -->
-    @include('components.mini-cart')
-
     <!-- Profile Section -->
     <div style="background: #0a1428; border-radius: 12px; padding: 20px; color: #ffffff;">
         <div class="profile-section">

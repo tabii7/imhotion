@@ -19,10 +19,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Cart API routes for seamless functionality
-Route::prefix('cart')->group(function () {
-    Route::post('/add', [CartController::class, 'addToCart'])->name('api.cart.add');
-    Route::post('/update-qty', [CartController::class, 'updateCartQty'])->name('api.cart.update-qty');
-    Route::post('/remove', [CartController::class, 'removeFromCart'])->name('api.cart.remove');
-    Route::get('/get', [CartController::class, 'getCart'])->name('api.cart.get');
-});

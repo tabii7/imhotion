@@ -3,7 +3,7 @@
     // Defensive defaults to avoid fatal errors when variables are missing
     $pricingItems = $pricingItems ?? collect();
 @endphp
-<div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-white">
+<div style="background: #0a1428; border-radius: 12px; padding: 20px; color: #ffffff;">
     <div class="services-section">
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Available Services
@@ -15,9 +15,9 @@
                     {{ $categoryName }}
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     @foreach($items as $item)
-                        <div class="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-5 transition-all duration-300 hover:bg-white/10"
+                        <div style="background: #001f4c; border: 1px solid #7fa7e1; border-radius: 12px; padding: 20px; transition: all 0.3s ease;"
                              onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0, 31, 76, 0.4)'"
                              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
 
@@ -41,8 +41,8 @@
                                     </div>
                                 </div>
 
-                                <button onclick="addToCart({{ $item->id }})"
-                                        class="bg-brand-primary hover:bg-brand-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105">
+                                <button onclick="addToCart({{ $item->id }}, '{{ $item->title }}', {{ $item->price }}, '{{ $item->category->description ?? '' }}')"
+                                        class="bg-brand-primary hover:bg-brand-primary/90 text-white px-5 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
                                     Add to Cart
                                 </button>
                             </div>
@@ -77,3 +77,9 @@
     }
 }
 </style>
+
+<script>
+// This function is now defined in floating-cart.blade.php
+
+// All cart functions are now in floating-cart.blade.php
+</script>
