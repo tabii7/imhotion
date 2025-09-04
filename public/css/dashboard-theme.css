@@ -125,7 +125,7 @@ div[style*="d1fae5"], div.alert-success, .notify-success {
 /* 3. specific description/text that should be darker (#33527a) */
 .mini-cart-component .title-desc,
 .mini-cart-component .line-breakdown {
-  color: #33527a !important;
+  color: #eff1f5 !important;
   font-weight: 400 !important;
 }
 
