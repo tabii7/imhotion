@@ -60,7 +60,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $pricingItems = PricingItem::with('category')->get();
-        
+
         return view('dashboard.services-page', compact('pricingItems', 'user'));
     }
 
@@ -71,7 +71,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $userPurchases = Purchase::where('user_id', $user->id)->with('pricingItem')->get();
-        
+
         return view('dashboard.transactions-page', compact('userPurchases', 'user'));
     }
 
@@ -82,7 +82,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $projects = Project::where('user_id', $user->id)->latest()->get();
-        
+
         $activeStatuses = ['new', 'pending', 'in_progress', 'completed'];
         $finalizedStatuses = ['cancelled', 'finalized'];
 
@@ -100,7 +100,7 @@ class DashboardController extends Controller
             'active' => $active->count(),
             'finalized' => $finalized->count(),
         ];
-        
+
         return view('dashboard.profile-page', compact('user', 'active', 'finalized', 'counts'));
     }
 

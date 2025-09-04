@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="/css/brand.css" rel="stylesheet">
+    <link href="/css/dashboard-theme.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         :root {

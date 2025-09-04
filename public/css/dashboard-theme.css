@@ -1,0 +1,100 @@
+/* Dashboard design overrides - dark theme defaults and color tweaks */
+:root {
+  --bg-dark: #071226;         /* page background */
+  --panel-dark: #071826;      /* panel / card background */
+  --muted-dark: #9fb6d6;
+  --text-dark: #e6eef8;
+  --panel-border-dark: rgba(127,167,225,0.12);
+}
+
+/* Global dark background */
+body {
+  background: linear-gradient(180deg, #071226 0%, #091b2a 100%) !important;
+  color: var(--text-dark) !important;
+}
+
+/* Panels and content */
+.main-content, .main-body, .panel, .mini-cart-component, .sidebar {
+  background: var(--panel-dark) !important;
+  color: var(--text-dark) !important;
+  border-color: var(--panel-border-dark) !important;
+}
+
+/* Sidebar tweaks */
+.sidebar {
+  background: #071224 !important;
+  color: #9fb6d6 !important;
+}
+.nav-link, .nav-group-title { color: #9fb6d6 !important; }
+.nav-link.active { box-shadow: 0 4px 18px rgba(0,0,0,0.6) !important; }
+
+/* 1 - top header color and text */
+.main-header {
+  background: #7FA7E1 !important;
+  border-bottom-color: rgba(127,167,225,0.15) !important;
+}
+.main-header h1,
+.main-header .user-menu span {
+  color: #ffffff !important;
+}
+.user-avatar {
+  background: #0a1428 !important;
+  color: #ffffff !important;
+}
+
+/* 2 - add-to-cart / success notification */
+div[style*="d1fae5"], div.alert-success, .notify-success {
+  background: #7FA7E1 !important;
+  border: 1px solid #0a1428 !important;
+  color: #0a1428 !important;
+}
+
+/* 3 - mini-cart reversed look: light blue card with gold border */
+.mini-cart-component {
+  background: #7FA7E1 !important;
+  border: 1px solid #b8860b !important; /* gold-ish border */
+  color: #0a1428 !important;
+  box-shadow: 0 6px 24px rgba(10,20,40,0.35) !important;
+}
+.mini-cart-component .mini-cart-title,
+.mini-cart-component .title-main,
+.mini-cart-component .line-total,
+.mini-cart-component .summary-row,
+.mini-cart-component .vat-note {
+  color: #0a1428 !important;
+}
+.mini-cart-component .btn {
+  background: #0a1428 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+.mini-cart-component .delete-btn {
+  border-color: rgba(10,20,40,0.06) !important;
+  color: #0a1428 !important;
+}
+
+/* 4 - remove thin horizontal lines and adjust spacing */
+.mini-cart-component,
+.cart-summary,
+.cart-header { border-bottom: none !important; box-shadow: none !important; }
+.mini-cart-container { margin-top: 25px !important; margin-bottom:25px !important; }
+.main-body hr, .mini-cart-container hr { display:none !important; }
+
+/* 5 - hide quick-order button (keep in DOM) */
+.cart-buy-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+
+/* 7 - header small buttons dark */
+.main-header .btn, .main-header .btn.btn-sm {
+  background: #0a1428 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.03) !important;
+}
+.main-header .btn:hover { background: #071122 !important; transform:none; }
+
+/* Utility tweaks for contrast */
+.title-desc, .qty-value, .col.unit { color: #143145 !important; }
+
+/* Ensure images/icons remain visible */
+.payment-icons img { filter: brightness(1.05) contrast(0.95); }
+
+/* End of dashboard theme overrides */
