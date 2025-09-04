@@ -13,8 +13,8 @@
         <link rel="icon" type="image/jpeg" sizes="32x32" href="{{ asset('images/imhotion.jpg') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/imhotion.jpg') }}">
 
-    <!-- Brand CSS with fonts and styling -->
-    <link rel="stylesheet" href="{{ asset('css/brand.css') }}">
+    <!-- Tailwind CSS -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <!-- Alpine.js for mobile menu -->
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

@@ -36,6 +36,11 @@ Route::post('/dashboard/add-to-cart', [DashboardController::class, 'addToCart'])
 Route::post('/dashboard/update-cart-qty', [DashboardController::class, 'updateCartQty'])->middleware('auth')->name('dashboard.update-cart-qty');
 Route::post('/dashboard/remove-from-cart', [DashboardController::class, 'removeFromCart'])->middleware('auth')->name('dashboard.remove-from-cart');
 
+// Cart routes for home page (work for both authenticated and guest users)
+Route::post('/add-to-cart', [DashboardController::class, 'addToCart'])->name('add-to-cart');
+Route::post('/update-cart-qty', [DashboardController::class, 'updateCartQty'])->name('update-cart-qty');
+Route::post('/remove-from-cart', [DashboardController::class, 'removeFromCart'])->name('remove-from-cart');
+
 // Separate dashboard section routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

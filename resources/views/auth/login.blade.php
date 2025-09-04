@@ -1,27 +1,25 @@
 <x-guest-layout>
-    <div class="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
             <div class="text-center">
-                <img class="mx-auto h-16 w-auto" src="{{ asset('images/imhotion-blue.png') }}" alt="Imhotion">
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900" style="font-family: var(--font-sans)">
+                <img class="mx-auto h-16 w-auto" src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion">
+                <h2 class="mt-6 text-center text-3xl font-semibold text-white">
                     Sign in to your account
                 </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
+                <p class="mt-2 text-center text-sm text-gray-300">
                     Or
-                    <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500">
+                    <a href="{{ route('register') }}" class="font-medium text-brand-primary-200 hover:text-brand-primary-200">
                         create a new account
                     </a>
                 </p>
             </div>
-        </div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl py-8 px-6 shadow-2xl">
                 @if($errors->any())
-                    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    <div class="mb-6 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
                         <ul class="list-disc list-inside">
                             @foreach($errors->all() as $error)
-                                <li style="font-family: var(--font-sans)">{{ $error }}</li>
+                                <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -35,27 +33,25 @@
 
                     <!-- Email Address -->
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700" style="font-family: var(--font-sans)">
+                        <label for="email" class="block text-sm font-medium text-white">
                             Email address
                         </label>
                         <div class="mt-1">
                             <input id="email" name="email" type="email" autocomplete="email" required 
                                    value="{{ old('email') }}" autofocus
-                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   style="font-family: var(--font-sans)">
+                                   class="appearance-none block w-full px-3 py-3 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white/10 text-white sm:text-sm">
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
                     <!-- Password -->
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700" style="font-family: var(--font-sans)">
+                        <label for="password" class="block text-sm font-medium text-white">
                             Password
                         </label>
                         <div class="mt-1">
                             <input id="password" name="password" type="password" autocomplete="current-password" required
-                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                   style="font-family: var(--font-sans)">
+                                   class="appearance-none block w-full px-3 py-3 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white/10 text-white sm:text-sm">
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                     </div>
@@ -64,15 +60,15 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <input id="remember_me" name="remember" type="checkbox" 
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember_me" class="ml-2 block text-sm text-gray-900" style="font-family: var(--font-sans)">
+                                   class="h-4 w-4 text-brand-primary focus:ring-brand-primary border-white/20 rounded bg-white/10">
+                            <label for="remember_me" class="ml-2 block text-sm text-white">
                                 Remember me
                             </label>
                         </div>
 
                         @if (Route::has('password.request'))
                             <div class="text-sm">
-                                <a href="{{ route('password.request') }}" class="font-medium text-blue-600 hover:text-blue-500">
+                                <a href="{{ route('password.request') }}" class="font-medium text-brand-primary-200 hover:text-brand-primary-200">
                                     Forgot your password?
                                 </a>
                             </div>
@@ -81,24 +77,23 @@
 
                     <div>
                         <button type="submit" 
-                                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                style="font-family: var(--font-sans); background-color: var(--brand-primary);">
+                                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-300">
                             Sign in
                         </button>
                     </div>
                 </form>
-                <div class="mt-4">
+                <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-200"></div>
+                            <div class="w-full border-t border-white/20"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-gray-500">Or sign in with</span>
+                            <span class="px-2 bg-transparent text-gray-300">Or sign in with</span>
                         </div>
                     </div>
 
-                    <div class="mt-4 grid grid-cols-1 gap-3">
-                        <a href="{{ route('social.redirect', ['provider' => 'google']) }}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <div class="mt-4">
+                        <a href="{{ route('social.redirect', ['provider' => 'google']) }}" class="w-full inline-flex justify-center py-3 px-4 border border-white/20 rounded-lg shadow-sm bg-white/10 text-sm font-medium text-white hover:bg-white/20 transition-colors duration-300">
                             <img src="{{ asset('images/google-g-64.png') }}" alt="Google" class="h-5 w-5 mr-3"> Sign in with Google
                         </a>
                     </div>

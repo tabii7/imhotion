@@ -144,7 +144,13 @@ class DashboardController extends Controller
         // Also set the old session format for backward compatibility
         session(['selected_plan_for_payment' => $pricingItemId]);
 
-        return redirect()->route('dashboard')->with('success', 'Item added to cart successfully!');
+        // Redirect back to the referring page or dashboard
+        $redirectTo = $request->header('referer') ?: route('dashboard');
+        if (str_contains($redirectTo, '/dashboard')) {
+            return redirect()->route('dashboard')->with('success', 'Item added to cart successfully!');
+        } else {
+            return redirect()->route('home')->with('success', 'Item added to cart successfully!');
+        }
     }
 
     /**
@@ -268,6 +274,12 @@ class DashboardController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Item removed from cart.');
+        // Redirect back to the referring page or dashboard
+        $redirectTo = $request->header('referer') ?: route('dashboard');
+        if (str_contains($redirectTo, '/dashboard')) {
+            return redirect()->route('dashboard')->with('success', 'Item removed from cart.');
+        } else {
+            return redirect()->route('home')->with('success', 'Item removed from cart.');
+        }
     }
 }

@@ -112,7 +112,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->sortable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('full_name')->label('Full name')->searchable()->sortable(),
+                TextColumn::make('name')->label('Name')->searchable()->sortable(),
                 TextColumn::make('email')->copyable()->copyMessage('Email copied')->searchable()->sortable(),
                 TextColumn::make('role')->badge()->sortable(),
                 TextColumn::make('phone')->searchable()->toggleable(isToggledHiddenByDefault: true),

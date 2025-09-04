@@ -1,3 +1,94 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom font faces */
+@font-face {
+  font-family: 'BrittiSans';
+  src: url('/fonts/BrittiSansRegular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrittiSans';
+  src: url('/fonts/BrittiSansMedium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrittiSans';
+  src: url('/fonts/BrittiSansSemibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrittiSans';
+  src: url('/fonts/BrittiSansSemibold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Homepage background pattern */
+.home::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url('/images/background.png'), url('/images/background.png');
+  background-repeat: repeat, repeat;
+  background-position: 0 0, 0 40px;
+  background-size: auto, auto;
+  image-rendering: auto;
+}
+
+body.home {
+  background-image: url('/images/background.png');
+  background-repeat: repeat;
+  background-position: 0 0;
+  background-attachment: fixed;
+  background-size: auto;
+}
+
+/* Ensure transparency for background to show through */
+html, body, .site-wrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Keep background image on homepage */
+body.home, html.home {
+  background-image: url('/images/background.png') !important;
+  background-repeat: repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Custom components */
+@layer components {
+  .pricing-badge {
+    @apply bg-white text-brand-dark rounded-full px-3 py-1 inline-flex items-center font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  
+  .pricing-badge .arrow {
+    @apply bg-brand-dark text-white w-9 h-9 rounded-full flex items-center justify-center ml-2;
+  }
+  
+  .btn-purchase {
+    @apply bg-white text-brand-dark rounded-full px-4 py-2 inline-flex items-center font-semibold w-full justify-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg border-none cursor-pointer;
+  }
+  
+  .btn-purchase .arrow {
+    @apply bg-brand-dark text-white w-8 h-8 rounded-full inline-flex items-center justify-center ml-3;
+  }
+  
+  .price-total {
+    @apply bg-transparent text-brand-primary-200 rounded-full px-4 py-2 inline-block text-sm absolute right-4 top-4 z-10 border-2 border-brand-primary-200;
+  }
+}
