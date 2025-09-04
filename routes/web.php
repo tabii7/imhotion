@@ -41,12 +41,16 @@ Route::post('/add-to-cart', [DashboardController::class, 'addToCart'])->name('ad
 Route::post('/update-cart-qty', [DashboardController::class, 'updateCartQty'])->name('update-cart-qty');
 Route::post('/remove-from-cart', [DashboardController::class, 'removeFromCart'])->name('remove-from-cart');
 
+
 // Separate dashboard section routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/services', [DashboardController::class, 'services'])->name('dashboard.services');
     Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
     Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
+    
+    // Project file download
+    Route::post('/projects/{project}/download', [DashboardController::class, 'downloadFiles'])->name('projects.download');
 });
 
 // Add missing profile.edit route to fix navigation dropdown

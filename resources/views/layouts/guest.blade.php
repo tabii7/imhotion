@@ -16,7 +16,7 @@
         <!-- Alpine.js for mobile menu -->
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="font-sans bg-transparent">
+    <body class="font-sans bg-transparent home">
         <!-- Header Navigation -->
         <header class="bg-transparent h-16 flex items-center justify-center px-4 max-w-7xl mx-auto font-sans relative" x-data="{ mobileOpen: false }">
             <div class="w-full flex justify-between items-center relative">
@@ -110,6 +110,9 @@
         <main class="min-h-[calc(100vh-150px)]">
             {{ $slot }}
         </main>
+
+        <!-- Floating Cart Button -->
+        @include('components.floating-cart')
 
         <!-- Footer -->
         <footer class="bg-transparent text-white py-8 mt-16">

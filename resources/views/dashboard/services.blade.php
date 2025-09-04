@@ -3,7 +3,7 @@
     // Defensive defaults to avoid fatal errors when variables are missing
     $pricingItems = $pricingItems ?? collect();
 @endphp
-<div style="background: #0a1428; border-radius: 12px; padding: 20px; color: #ffffff;">
+<div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-white">
     <div class="services-section">
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Available Services
@@ -15,9 +15,9 @@
                     {{ $categoryName }}
                 </h3>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     @foreach($items as $item)
-                        <div style="background: #001f4c; border: 1px solid #7fa7e1; border-radius: 12px; padding: 20px; transition: all 0.3s ease;"
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-5 transition-all duration-300 hover:bg-white/10"
                              onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0, 31, 76, 0.4)'"
                              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
 
@@ -41,16 +41,10 @@
                                     </div>
                                 </div>
 
-                                <form method="POST" action="{{ route('dashboard.add-to-cart') }}" style="margin: 0;">
-                                    @csrf
-                                    <input type="hidden" name="pricing_item_id" value="{{ $item->id }}">
-                                    <button type="submit"
-                                            style="background: #3366cc; color: #ffffff; padding: 12px 20px; border: 1px solid #7fa7e1; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-                                            onmouseover="this.style.opacity='0.9'; this.style.transform='scale(1.05)'"
-                                            onmouseout="this.style.opacity='1'; this.style.transform='scale(1)'">
-                                        Add to Cart
-                                    </button>
-                                </form>
+                                <button onclick="addToCart({{ $item->id }})"
+                                        class="bg-brand-primary hover:bg-brand-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105">
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
                     @endforeach

@@ -9,11 +9,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="home text-white font-sans">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-70 bg-sidebar-bg text-sidebar-text fixed h-screen left-0 top-0 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300" id="sidebar">
-            <div class="p-6 border-b border-slate-700">
+        <aside class="w-70 text-sidebar-text fixed h-screen left-0 top-0 z-50 lg:translate-x-0 -translate-x-full transition-transform duration-300" id="sidebar">
+            <div class="p-6 border-slate-700">
                 <a href="/" class="flex items-center gap-3 text-white no-underline">
                     <img src="/images/imhotion-blue.png" alt="Imhotion" class="w-8 h-8">
                     <span class="text-lg font-bold">Imhotion</span>
@@ -37,6 +37,9 @@
                     </a>
                 </div>
 
+                <!-- Sidebar Cart -->
+                @include('components.sidebar-cart')
+
                 <div class="mb-8">
                     <div class="text-xs text-blue-300 font-bold uppercase tracking-wider mb-3 px-3">Account</div>
                     <a href="{{ route('dashboard.transactions') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-lg no-underline text-sidebar-text transition-all duration-300 mb-1.5 font-medium border border-transparent hover:bg-sidebar-hover hover:text-white hover:border-blue-300/30 hover:translate-x-1 {{ request()->routeIs('dashboard.transactions') ? 'bg-sidebar-active text-white border-blue-300 shadow-lg shadow-brand-dark/30' : '' }}">
@@ -56,11 +59,11 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 lg:ml-70 bg-slate-50">
-            <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
-                <h1 class="m-0 text-2xl font-bold text-slate-900">@yield('page-title', 'Dashboard')</h1>
+        <main class="flex-1 lg:ml-70 bg-transparent">
+            <header class="bg-transparent border-slate-700/50 px-8 py-4 flex items-center justify-between">
+                <h1 class="m-0 text-2xl font-bold text-white">@yield('page-title', 'Dashboard')</h1>
                 <div class="flex items-center gap-4">
-                    <span class="text-slate-700">{{ Auth::user()->name }}</span>
+                    <span class="text-sidebar-text">{{ Auth::user()->name }}</span>
                     <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold text-sm">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
@@ -102,6 +105,12 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="bg-red-100 border border-red-500 text-red-800 px-4 py-3 rounded-lg mb-6">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 @yield('content')
             </div>
         </main>
@@ -113,6 +122,9 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
     </button>
+
+    <!-- Floating Cart Button -->
+    @include('components.floating-cart')
 
     @yield('scripts')
 </body>

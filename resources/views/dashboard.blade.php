@@ -4,13 +4,11 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-    <!-- Mini Cart Component -->
-    @include('components.mini-cart')
 
     <!-- Client Area -->
-    <div class="bg-sidebar-bg rounded-xl p-5 text-white">
+    <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-white">
         <div class="text-white font-sans">
-            <!-- Stats Grid -->
+                            <!-- Stats Grid -->
             <div class="grid grid-cols-3 gap-3 mx-auto mb-5 max-w-lg">
                 <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
                     <div class="text-white text-xs font-medium mb-2 tracking-wide">
@@ -19,17 +17,17 @@
                     <div class="text-white text-sm font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-blue-900/50 hover:bg-blue-800/50">
                         {{ $counts['active'] ?? 0 }}
                     </div>
-                </div>
+                                </div>
                 
                 <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
                     <div class="text-white text-xs font-medium mb-2 tracking-wide">
                         Finalized
-                    </div>
+                                </div>
                     <div class="text-white text-sm font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-slate-700 hover:bg-slate-600">
                         {{ $counts['finalized'] ?? 0 }}
-                    </div>
-                </div>
-                
+                                </div>
+                            </div>
+
                 <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
                     <div class="text-white text-xs font-medium mb-2 tracking-wide">
                         Balance
@@ -38,64 +36,47 @@
                         {{ $counts['balance'] ?? 0 }} days
                     </div>
                 </div>
-            </div>
+                                        </div>
 
-            <!-- Section Title -->
-            <h2 class="text-white text-xl font-semibold mb-6 tracking-wide">
-                Your Projects
-            </h2>
+            <!-- Active Projects Section -->
+            <div class="mb-8">
+                <h2 class="text-white text-xl font-semibold mb-6 tracking-wide">
+                    Active Projects
+                </h2>
 
-            <!-- Projects List -->
-            <div class="space-y-3">
-                @forelse($active ?? [] as $project)
-                    <div class="bg-sidebar-active border border-blue-300 rounded-2xl p-1.5 mb-3 flex items-center min-h-[65px] transition-all duration-200 cursor-pointer hover:bg-blue-900/30 hover:scale-105">
-                        <!-- Project Number -->
-                        <div class="w-12 h-8 bg-blue-600 text-white border border-blue-300 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0 mr-5">
-                            {{ $project->id }}
+                <div class="space-y-3">
+                    @forelse($active ?? [] as $project)
+                        @include('dashboard.project-item', ['project' => $project, 'section' => 'active'])
+                    @empty
+                        <div class="text-center py-8">
+                            <div class="text-sidebar-text text-lg mb-2">There are currently no active projects.</div>
+                                        </div>
+                    @endforelse
+                                        </div>
+                                    </div>
+
+            <!-- Finalized Projects Section -->
+            <div class="mb-8">
+                <h2 class="text-white text-xl font-semibold mb-6 tracking-wide">
+                    Finalized Projects
+                </h2>
+
+                <div class="space-y-3">
+                    @forelse($finalized ?? [] as $project)
+                        @include('dashboard.project-item', ['project' => $project, 'section' => 'finalized'])
+                                @empty
+                        <div class="text-center py-8">
+                            <div class="text-sidebar-text text-lg mb-2">There are currently no finalized projects.</div>
                         </div>
-                        
-                        <!-- Project Info -->
-                        <div class="flex-1 min-w-0">
-                            <div class="text-white text-base font-semibold mb-1 leading-tight">
-                                {{ $project->title ?? 'Project ' . $project->id }}
-                            </div>
-                            <div class="text-sidebar-text text-sm font-normal leading-tight">
-                                {{ $project->topic ?? 'No topic specified' }}
-                            </div>
-                        </div>
-                        
-                        <!-- Delivery Date -->
-                        <div class="text-white text-sm font-medium mx-6 whitespace-nowrap flex-shrink-0">
-                            {{ $project->delivery_date ? \Carbon\Carbon::parse($project->delivery_date)->format('M d, Y') : 'TBD' }}
-                        </div>
-                        
-                        <!-- Actions -->
-                        <div class="flex gap-2.5 flex-shrink-0">
-                            <button onclick="openProjectModal({{ $project->id }})" 
-                                    class="bg-brand-primary text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors duration-200">
-                                View
-                            </button>
-                            @if($project->status !== 'finalized')
-                                <button onclick="markAsFinalized({{ $project->id }})" 
-                                        class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors duration-200">
-                                    Finalize
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-8">
-                        <div class="text-sidebar-text text-lg mb-2">No projects yet</div>
-                        <div class="text-sidebar-text text-sm">Your projects will appear here once they're created.</div>
-                    </div>
-                @endforelse
+                                @endforelse
+                </div>
             </div>
         </div>
-    </div>
+                            </div>
 
     <!-- Project Modal -->
     <div id="projectModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-semibold text-gray-900">Project Details</h3>
@@ -109,10 +90,10 @@
             <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                 <div id="projectModalContent">
                     <!-- Content will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
+                                            </div>
+                                            </div>
+                                            </div>
+                                        </div>
 
     <!-- File Lightbox -->
     <div id="fileLightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
@@ -124,60 +105,145 @@
             </button>
             <div id="lightboxContent" class="bg-white rounded-lg overflow-hidden">
                 <!-- Content will be loaded here -->
-            </div>
-        </div>
-    </div>
+                            </div>
+                        </div>
+                    </div>
 @endsection
 
 @section('scripts')
-<script>
+    <script>
     function openProjectModal(projectId) {
-        // Fetch project details and populate modal
-        fetch(`/api/projects/${projectId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('projectModalContent').innerHTML = `
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Project Title</label>
-                            <div class="text-gray-900">${data.title || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Topic</label>
-                            <div class="text-gray-900">${data.topic || 'No topic specified'}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <div class="text-gray-900">${data.status || 'Active'}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
-                            <div class="text-gray-900">${data.delivery_date ? new Date(data.delivery_date).toLocaleDateString() : 'TBD'}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Days Used</label>
-                            <div class="text-gray-900">${data.days_used || 0} days</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Day Budget</label>
-                            <div class="text-gray-900">${data.day_budget || 'Not set'}</div>
+        // Get project data from the page (since we already have it loaded)
+        const projectElement = document.querySelector(`[data-project-id="${projectId}"]`);
+        if (!projectElement) {
+            console.error('Project element not found');
+                    return;
+                }
+
+        const projectData = {
+            id: projectId,
+            title: projectElement.dataset.projectTitle,
+            topic: projectElement.dataset.projectTopic,
+            status: projectElement.dataset.projectStatus,
+            delivery_date: projectElement.dataset.projectDeliveryDate,
+            days_used: projectElement.dataset.projectDaysUsed,
+            day_budget: projectElement.dataset.projectDayBudget,
+            notes: projectElement.dataset.projectNotes,
+            start_date: projectElement.dataset.projectStartDate,
+            end_date: projectElement.dataset.projectEndDate,
+            progress: projectElement.dataset.projectProgress
+        };
+
+        document.getElementById('projectModalContent').innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Project Title</label>
+                        <div class="text-gray-900 font-medium">${projectData.title || 'N/A'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                        <div class="text-gray-900">${projectData.topic || 'No topic specified'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <div class="text-gray-900">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(projectData.status)}">
+                                ${getStatusLabel(projectData.status)}
+                            </span>
                         </div>
                     </div>
-                `;
-                document.getElementById('projectModal').classList.remove('hidden');
-                document.getElementById('projectModal').classList.add('flex');
-            })
-            .catch(error => {
-                console.error('Error fetching project details:', error);
-                document.getElementById('projectModalContent').innerHTML = '<div class="text-red-600">Error loading project details.</div>';
-                document.getElementById('projectModal').classList.remove('hidden');
-                document.getElementById('projectModal').classList.add('flex');
-            });
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Progress</label>
+                        <div class="text-gray-900">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${projectData.progress || 0}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600">${projectData.progress || 0}%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <div class="text-gray-900">${projectData.start_date ? new Date(projectData.start_date).toLocaleDateString() : 'Not set'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <div class="text-gray-900">${projectData.end_date ? new Date(projectData.end_date).toLocaleDateString() : 'Not set'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
+                        <div class="text-gray-900">${projectData.delivery_date ? new Date(projectData.delivery_date).toLocaleDateString() : 'TBD'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Days Used</label>
+                        <div class="text-gray-900">${projectData.days_used || 0} days</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Day Budget</label>
+                        <div class="text-gray-900">${projectData.day_budget ? '€' + projectData.day_budget : 'Not set'}</div>
+                    </div>
+                </div>
+            </div>
+            
+            ${projectData.notes ? `
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">${projectData.notes}</div>
+                </div>
+            ` : ''}
+        `;
+        
+        document.getElementById('projectModal').classList.remove('hidden');
+        document.getElementById('projectModal').classList.add('flex');
+    }
+
+    function getStatusLabel(status) {
+        const labels = {
+            'pending': 'Pending',
+            'in_progress': 'In Progress',
+            'completed': 'Completed',
+            'on_hold': 'On Hold',
+            'finalized': 'Finalized',
+            'cancelled': 'Cancelled'
+        };
+        return labels[status] || status;
+    }
+
+    function getStatusColor(status) {
+        const colors = {
+            'pending': 'bg-gray-100 text-gray-800',
+            'in_progress': 'bg-yellow-100 text-yellow-800',
+            'completed': 'bg-green-100 text-green-800',
+            'on_hold': 'bg-orange-100 text-orange-800',
+            'finalized': 'bg-blue-100 text-blue-800',
+            'cancelled': 'bg-red-100 text-red-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-800';
     }
 
     function closeProjectModal() {
         document.getElementById('projectModal').classList.add('hidden');
         document.getElementById('projectModal').classList.remove('flex');
+    }
+
+    function downloadFiles(projectId) {
+        // Create a form to download project files
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/projects/${projectId}/download`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
     }
 
     function markAsFinalized(projectId) {
@@ -196,8 +262,8 @@
                 } else {
                     alert('Error finalizing project: ' + (data.message || 'Unknown error'));
                 }
-            })
-            .catch(error => {
+                })
+                .catch(error => {
                 console.error('Error:', error);
                 alert('Error finalizing project');
             });
@@ -223,7 +289,7 @@
         document.getElementById('fileLightbox').classList.add('flex');
     }
 
-    function closeLightbox() {
+        function closeLightbox() {
         document.getElementById('fileLightbox').classList.add('hidden');
         document.getElementById('fileLightbox').classList.remove('flex');
     }
@@ -239,14 +305,14 @@
     });
 
     // Close modals with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
             if (!document.getElementById('fileLightbox').classList.contains('hidden')) {
-                closeLightbox();
+                    closeLightbox();
             } else if (!document.getElementById('projectModal').classList.contains('hidden')) {
-                closeProjectModal();
+                    closeProjectModal();
             }
         }
     });
-</script>
+    </script>
 @endsection

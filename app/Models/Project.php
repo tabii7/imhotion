@@ -20,6 +20,7 @@ class Project extends Model
         'end_date',
         'delivery_date',
         'day_budget',
+        'total_days',
         'days_used',
         'weekend_days',
         'notes',
@@ -37,6 +38,7 @@ class Project extends Model
         'delivery_date' => 'date',
         'due_date'      => 'date',
         'completed_at'  => 'date',
+        'total_days'    => 'integer',
         'days_used'     => 'integer',
         'weekend_days'  => 'integer',
     ];

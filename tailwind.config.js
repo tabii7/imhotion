@@ -26,6 +26,13 @@ export default {
                     active: '#001f4c',
                     hover: 'rgba(127, 167, 225, 0.1)',
                 },
+                dashboard: {
+                    bg: '#f8fafc',
+                    panel: '#ffffff',
+                    muted: '#64748b',
+                    text: '#0f172a',
+                    line: '#e2e8f0',
+                },
                 pricing: {
                     bg: 'linear-gradient(135deg, #001f4c 0%, #0d1b3e 100%)',
                     text: 'white',

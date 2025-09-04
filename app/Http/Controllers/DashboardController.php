@@ -8,6 +8,7 @@ use App\Models\PricingItem;
 use App\Models\Purchase;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -20,13 +21,8 @@ class DashboardController extends Controller
         $pricingItems = PricingItem::with('category')->get();
         $userPurchases = Purchase::where('user_id', $user->id)->with('pricingItem')->get();
 
-        // Add client area data
-        $projects = Project::where('user_id', $user->id)
-            ->latest()
-            ->get();
-
-                // Get current user's projects with proper categorization
-        $activeStatuses = ['new', 'pending', 'in_progress', 'completed'];
+        // Get current user's projects with proper categorization
+        $activeStatuses = ['pending', 'in_progress', 'completed', 'on_hold'];
         $finalizedStatuses = ['cancelled', 'finalized'];
 
         $active = Project::where('user_id', Auth::id())
@@ -41,7 +37,7 @@ class DashboardController extends Controller
 
         // Calculate days balance: sum of purchased days minus used days
         $purchasedDays = $user->purchases()->where('status', 'paid')->sum('days');
-        $usedDays = Project::where('user_id', Auth::id())->sum('used_days');
+        $usedDays = Project::where('user_id', Auth::id())->sum('days_used');
 
         // Calculate counts for stats
         $counts = [
@@ -102,6 +98,61 @@ class DashboardController extends Controller
         ];
 
         return view('dashboard.profile-page', compact('user', 'active', 'finalized', 'counts'));
+    }
+
+    /**
+     * Download project files
+     */
+    public function downloadFiles(Project $project)
+    {
+        // Check if user owns this project
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to project files.');
+        }
+
+        // Get project documents (only visible ones)
+        $documents = $project->documents()->where('is_hidden', false)->get();
+        
+        if ($documents->isEmpty()) {
+            return redirect()->back()->with('error', 'No files available for download.');
+        }
+
+        // If only one file, download directly
+        if ($documents->count() === 1) {
+            $document = $documents->first();
+            $filePath = storage_path('app/public/' . $document->path);
+            
+            if (!file_exists($filePath)) {
+                return redirect()->back()->with('error', 'File not found.');
+            }
+            
+            return response()->download($filePath, $document->filename);
+        }
+
+        // Multiple files - create zip
+        $zip = new \ZipArchive();
+        $zipFileName = 'project_' . $project->id . '_files.zip';
+        $zipPath = storage_path('app/temp/' . $zipFileName);
+        
+        // Ensure temp directory exists
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+        
+        if ($zip->open($zipPath, \ZipArchive::CREATE) !== TRUE) {
+            return redirect()->back()->with('error', 'Cannot create zip file.');
+        }
+        
+        foreach ($documents as $document) {
+            $filePath = storage_path('app/public/' . $document->path);
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, $document->filename);
+            }
+        }
+        
+        $zip->close();
+        
+        return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
     }
 
     /**

@@ -3,11 +3,8 @@
     $userPurchases = $userPurchases ?? collect();
 @endphp
 
-<!-- Mini Cart Component -->
-@include('components.mini-cart')
-
-<!-- Transactions Section with Dark Blue Theme -->
-<div style="background: #0a1428; border-radius: 12px; padding: 20px; color: #ffffff;">
+<!-- Transactions Section with Transparent Theme -->
+<div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-white">
     <div class="transactions-section">
         <h2 style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 25px; font-family: var(--font-sans)">
             Transaction History

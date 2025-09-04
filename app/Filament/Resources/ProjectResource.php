@@ -70,6 +70,14 @@ class ProjectResource extends Resource
                         ->displayFormat('d-m-Y')
                         ->nullable(),
 
+                    TextInput::make('total_days')
+                        ->label('Total days')
+                        ->numeric()
+                        ->default(0)
+                        ->minValue(0)
+                        ->suffix('days')
+                        ->required(),
+
                     TextInput::make('days_used')
                         ->label('Days used')
                         ->numeric()
@@ -172,17 +180,19 @@ class ProjectResource extends Resource
                     })
                     ->wrap(),
 
-                TextColumn::make('days_used')
+                TextColumn::make('days_breakdown')
                     ->label('Days')
-                    ->sortable()
+                    ->state(function (Project $record): string {
+                        $total = $record->total_days ?? 0;
+                        $used = $record->days_used ?? 0;
+                        $weekend = $record->weekend_days ?? 0;
+                        $remaining = $total - $used;
+                        
+                        return "{$used}/{$total} used" . ($weekend > 0 ? " +{$weekend} weekend" : '') . ($remaining > 0 ? " ({$remaining} left)" : '');
+                    })
+                    ->sortable(false)
                     ->alignCenter()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('weekend_days')
-                    ->label('Weekend')
-                    ->sortable()
-                    ->alignCenter()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 // Docs count (white square, BLACK number; 0 by default)
                 TextColumn::make('documents_count')

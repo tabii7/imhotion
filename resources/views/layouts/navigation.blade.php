@@ -99,3 +99,6 @@
         </div>
     </div>
 </nav>
+
+<!-- Floating Cart Button -->
+@include('components.floating-cart')
