@@ -97,9 +97,9 @@
           </div>
 
           <div class="grid-2">
-            @foreach($category->items as $item)
-              <div class="pricing-card">
-                <h3 class="text-2xl font-bold mb-4 text-center">{{ $item->title }}</h3>
+                  <p class="text-center mb-4 subtitle">
+                    €{{ number_format($item->price, 0) }} /day
+                  </p>
                 <div class="text-center mb-6">
                   <a href="/register?plan={{ $item->id }}" class="pricing-badge">
                     <span class="text-lg font-bold">€{{ number_format($item->price, 0) }}</span>
@@ -231,6 +231,7 @@
           </div>
 
           <div class="grid-2">
+            <div class="grid-2 addons-grid">
             @foreach($category->items as $item)
               <div class="pricing-card">
                 <h3 class="text-2xl font-bold mb-2">{{ $item->title }}</h3>

@@ -497,7 +497,7 @@ nav .nav-link:active {
   background-color: rgba(255,255,255,0.06); /* ~10% lighter */
   border: 1px solid #7fa7e1;
   /* normal full border around card; no top stripe */
-  padding: 0.9rem 0.9rem 1.2rem 0.9rem; /* slightly tighter vertical spacing */
+  padding: 0.5rem; /* reduce padding on all sides for tighter look */
   min-height: 420px;
   max-width: 360px;
   display: flex;
@@ -512,9 +512,9 @@ nav .nav-link:active {
 /* Match styling for grid-2 (addons) cards: smaller padding, thin stripe, and border color */
 .grid-2 .pricing-card {
   background-color: rgba(255,255,255,0.06); /* slightly lighter ~10% */
-  border: 1px solid #7fa7e1;
-  padding: 0.7rem 0.9rem 0.9rem 0.9rem;
-  min-height: 200px;
+  border: 2px dashed #7fa7e1; /* dashed border for addons */
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  min-height: 170px;
   position: relative;
 }
 
@@ -558,6 +558,19 @@ nav .nav-link:active {
   border: 2px solid #7fa7e1;
 }
 
+/* top-right small badges styling for the 3 packs */
+.grid-3 > .pricing-card:nth-child(1) .price-total,
+.grid-3 > .pricing-card:nth-child(3) .price-total {
+  background: rgba(255,255,255,0.02);
+  color: #eff1f5;
+  border-color: rgba(255,255,255,0.06);
+}
+.grid-3 > .pricing-card:nth-child(2) .price-total {
+  background: #7fa7e1;
+  color: #33527a;
+  border-color: #7fa7e1;
+}
+
 /* Positioning container for price total - ensure relative positioning */
 .grid-3 .pricing-card { position: relative; }
 
@@ -565,8 +578,8 @@ nav .nav-link:active {
 .grid-3 .btn-purchase {
   width: auto;
   align-self: flex-end;
-  padding: 0.65rem 1.5rem; /* taller and wider */
-  min-width: 180px; /* roughly +30px compared to previous */
+  padding: 0.7rem 1.6rem; /* slightly wider */
+  min-width: 220px; /* increase width as requested */
   border-radius: 1.5rem;
   display: inline-flex;
   align-items: center;
@@ -644,6 +657,24 @@ nav .nav-link:active {
   justify-content: center;
   margin-left: 0.5rem;
 }
+
+.addons-grid .btn-purchase {
+  min-width: 220px;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Tighter vertical spacing between pack title / price / valid */
+.grid-3 .pricing-card h3 { margin-bottom: 0.15rem; }
+.grid-3 .pricing-card p.subtitle { margin-top: 0.15rem; margin-bottom: 0.15rem; }
+
+/* Latest 4-boxes helper (if present) - center names/prices, reduce paddings and dashed border */
+.latest-grid .pricing-card {
+  text-align: center;
+  padding: 0.6rem;
+  border: 2px dashed #7fa7e1;
+}
+.latest-grid .pricing-card h3 { margin-bottom: 0.25rem; }
+.latest-grid .pricing-card .feature-list { margin-bottom: 0.5rem; }
 
 /* Style the arrow inside purchase buttons: white chevron inside colored circular bg */
 .btn-purchase .arrow {
