@@ -45,7 +45,7 @@ class ProjectDocumentController extends Controller
     public function upload(Request $request, Project $project)
     {
         $request->validate([
-            'files.*' => ['file'],
+            'files.*' => ['file', 'max:5120'], // max 5MB per file
         ]);
 
         $saved = [];
@@ -56,16 +56,27 @@ class ProjectDocumentController extends Controller
                     continue;
                 }
 
-                $original   = $file->getClientOriginalName();
-                $baseName   = pathinfo($original, PATHINFO_FILENAME);
-                $ext        = strtolower(pathinfo($original, PATHINFO_EXTENSION));
-                $dir        = "project-docs/{$project->id}";
-                $storedName = now()->format('YmdHis') . '_' . $original;
+                $original = $file->getClientOriginalName();
+                $baseName = pathinfo($original, PATHINFO_FILENAME);
+                $ext = strtolower(pathinfo($original, PATHINFO_EXTENSION));
+
+                // Whitelist extensions
+                $allowed = ['jpg','jpeg','png','gif','webp','pdf','zip','mp4','mov','ogg'];
+                if (!in_array($ext, $allowed, true)) {
+                    // skip files with disallowed extensions
+                    \Log::warning('Upload blocked due to disallowed extension', ['file' => $original, 'ext' => $ext]);
+                    continue;
+                }
+
+                // Sanitize base name and build stored name
+                $safeBase = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', mb_substr($baseName, 0, 120));
+                $dir = "project-docs/{$project->id}";
+                $storedName = now()->format('YmdHis') . '_' . $safeBase . '.' . $ext;
 
                 $path = Storage::disk('public')->putFileAs($dir, $file, $storedName);
 
                 $doc = $project->documents()->create([
-                    'name'     => $baseName,
+                    'name'     => $safeBase,
                     'filename' => $original,
                     'path'     => $path,
                     'size'     => $file->getSize(),
