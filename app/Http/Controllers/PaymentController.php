@@ -244,6 +244,12 @@ class PaymentController extends Controller
     {
         $paymentId = $request->input('id');
 
+        // Optional: verify webhook signature if secret is configured
+        if (!$this->verifyWebhookSignature($request)) {
+            \Log::warning('Mollie webhook signature verification failed.');
+            return response('Forbidden', 403);
+        }
+
         try {
             // Get payment details from Mollie
             $payment = Mollie::api()->payments->get($paymentId);
@@ -253,41 +259,55 @@ class PaymentController extends Controller
                 $purchase = Purchase::find($purchaseId);
 
                 if ($purchase) {
-                    if ($payment->isPaid()) {
-                                                $purchase->update([
-                                                    'status' => 'completed',
-                                                    'payment_data' => $this->paymentToArray($payment),
-                                                    'paid_at' => now(),
-                                                ]);
+                    // Validate payment amount/currency against stored purchase record
+                    $paymentAmount = isset($payment->amount->value) ? (float) $payment->amount->value : null;
+                    $paymentCurrency = $payment->amount->currency ?? null;
+                    $purchaseAmount = (float) $purchase->amount;
+                    $purchaseCurrency = $purchase->currency ?? null;
 
-                                                // Idempotent credit via webhook as well
-                                                try {
-                                                    $purchase->refresh();
-                                                    if (empty($purchase->credited)) {
-                                                        DB::beginTransaction();
-                                                        try {
-                                                            $user = User::where('id', $purchase->user_id)->lockForUpdate()->first();
-                                                            if ($user) {
-                                                                $credit = (int) ($purchase->days ?? 0);
-                                                                if (array_key_exists('balance_days', $user->getAttributes())) {
-                                                                    $user->balance_days = ($user->balance_days ?? 0) + $credit;
-                                                                } else {
-                                                                    $user->days_balance = ($user->days_balance ?? 0) + $credit;
-                                                                }
-                                                                $user->save();
-                                                                $purchase->update(['credited' => 1]);
-                                                            } else {
-                                                                \Log::warning('Webhook crediting: user not found for purchase ' . $purchase->id);
-                                                            }
-                                                            DB::commit();
-                                                        } catch (\Exception $ex) {
-                                                            DB::rollBack();
-                                                            \Log::error('Webhook crediting failed for purchase '.$purchase->id.': '.$ex->getMessage());
-                                                        }
-                                                    }
-                                                } catch (\Exception $e) {
-                                                    \Log::error('Webhook post-processing error for purchase '.$purchase->id.': '.$e->getMessage());
-                                                }
+                    if ($paymentAmount !== null && ($paymentAmount !== $purchaseAmount || $paymentCurrency !== $purchaseCurrency)) {
+                        \Log::warning('Mollie webhook: payment amount/currency mismatch for purchase '.$purchase->id, [
+                            'payment' => ['amount' => $paymentAmount, 'currency' => $paymentCurrency],
+                            'purchase' => ['amount' => $purchaseAmount, 'currency' => $purchaseCurrency],
+                        ]);
+                        return response('Bad Request', 400);
+                    }
+
+                    if ($payment->isPaid()) {
+                        $purchase->update([
+                            'status' => 'completed',
+                            'payment_data' => $this->paymentToArray($payment),
+                            'paid_at' => now(),
+                        ]);
+
+                        // Idempotent credit via webhook as well
+                        try {
+                            $purchase->refresh();
+                            if (empty($purchase->credited)) {
+                                DB::beginTransaction();
+                                try {
+                                    $user = User::where('id', $purchase->user_id)->lockForUpdate()->first();
+                                    if ($user) {
+                                        $credit = (int) ($purchase->days ?? 0);
+                                        if (array_key_exists('balance_days', $user->getAttributes())) {
+                                            $user->balance_days = ($user->balance_days ?? 0) + $credit;
+                                        } else {
+                                            $user->days_balance = ($user->days_balance ?? 0) + $credit;
+                                        }
+                                        $user->save();
+                                        $purchase->update(['credited' => 1]);
+                                    } else {
+                                        \Log::warning('Webhook crediting: user not found for purchase ' . $purchase->id);
+                                    }
+                                    DB::commit();
+                                } catch (\Exception $ex) {
+                                    DB::rollBack();
+                                    \Log::error('Webhook crediting failed for purchase '.$purchase->id.': '.$ex->getMessage());
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('Webhook post-processing error for purchase '.$purchase->id.': '.$e->getMessage());
+                        }
                     } elseif ($payment->isFailed()) {
                         $purchase->update(['status' => 'failed']);
                     }
@@ -298,6 +318,34 @@ class PaymentController extends Controller
         }
 
         return response('OK', 200);
+    }
+
+    /**
+     * Verify webhook request signature if MOLLIE_WEBHOOK_SECRET is set.
+     * Expects header 'X-Mollie-Signature' containing hex HMAC-SHA256 of raw body.
+     */
+    private function verifyWebhookSignature(Request $request): bool
+    {
+        $secret = env('MOLLIE_WEBHOOK_SECRET', null);
+        if (empty($secret)) {
+            // No secret configured -> skip verification
+            return true;
+        }
+
+        $header = $request->header('X-Mollie-Signature') ?: $request->header('X-Signature');
+        if (empty($header)) {
+            return false;
+        }
+
+        try {
+            $body = $request->getContent();
+            $calculated = hash_hmac('sha256', $body, $secret);
+            // Compare in constant time
+            return hash_equals($calculated, $header);
+        } catch (\Throwable $e) {
+            \Log::error('Webhook signature verification error: ' . $e->getMessage());
+            return false;
+        }
     }
 
     /**
