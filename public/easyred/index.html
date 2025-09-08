@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Easyred — Full-Stack & Creative Development</title>
+  <link rel="stylesheet" href="/easyred/build/assets/app.css" />
+  <style>
+    :root{--orange:#A64512;--ink:#1A1A1A;--bg:#F7F7F8;--line:#E9EAEE}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,Inter,Poppins,Arial,sans-serif}
+    .wrap{max-width:1200px;margin:0 auto;padding:32px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
+    .logo{font-weight:800;font-size:28px;letter-spacing:.2px}
+    .logo .easy{color:var(--orange)} .logo .red{color:var(--ink)}
+    .hero{padding:56px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .hero h1{margin:0 0 8px;font-size:36px}
+    .hero p{margin:0 0 24px;opacity:.8}
+    .btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:10px;padding:10px 16px;text-decoration:none;transition:transform .15s ease}
+    .btn:hover{transform:translateY(-1px);background:var(--orange)}
+    .table{margin:36px 0;border:1px solid var(--line);border-radius:12px;overflow:auto;background:#fff}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+    th{font-weight:700}
+    tr:hover td{background:#F3F4F6}
+    .badge{font-size:10px;background:var(--orange);color:#fff;padding:4px 8px;border-radius:999px;margin-left:8px}
+    footer{padding:28px 0;color:#555}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><span class="easy">easy</span><span class="red">red.</span></div>
+      <nav><a class="btn" href="#packages">Buy Days</a></nav>
+    </header>
+
+    <section class="hero">
+      <h1>Full-Stack & Creative Development — by the day</h1>
+      <p>Since 1993. Laravel & Filament, Hosting, Design, 3D & Film. Project management is included in every package.</p>
+      <a class="btn" href="#packages">See Packages</a>
+    </section>
+
+    <section id="packages">
+      <h2 style="margin:32px 0 12px">Packages & Prices</h2>
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th>Package</th><th>Day rate</th><th>1 Day</th><th>5 Days</th><th>10 Days</th><th>20 Days</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Full-Stack Development <span class="badge">BEST VALUE</span></td>
+              <td>€1,050/day</td><td>€1,050</td><td>€4,725 (−10%)</td><td>€8,925 (−15%)</td><td>€16,800 (−20%)</td>
+              <td><a class="btn" href="#">Buy Days</a></td>
+            </tr>
+            <tr><td>Backend API Specialist</td><td>€950/day</td><td>€950</td><td>€4,275</td><td>€8,075</td><td>€15,200</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+            <tr><td>Frontend & UX Specialist</td><td>€900/day</td><td>€900</td><td>€4,050</td><td>€7,650</td><td>€14,400</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+            <tr><td>DevOps & Hosting</td><td>€1,000/day</td><td>€1,000</td><td>€4,500</td><td>€8,500</td><td>€16,000</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+            <tr><td>AI & Automation Engineer</td><td>€1,200/day</td><td>€1,200</td><td>€5,400</td><td>€10,200</td><td>€19,200</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+            <tr><td>3D / Unreal Developer</td><td>€1,300/day</td><td>€1,300</td><td>€5,850</td><td>€11,050</td><td>€20,800</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+            <tr><td>Film & Media Production</td><td>€1,400/day</td><td>€1,400</td><td>€6,300</td><td>€11,900</td><td>€22,400</td><td><a class="btn" href="#">Buy Days</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:#555">All projects include <strong>Project Management</strong>. Half-day add-ons are available after login.</p>
+    </section>
+
+    <footer>
+      © Easyred, 1993–present
+    </footer>
+  </div>
+
+  <script type="module" src="/easyred/build/assets/app.js"></script>
+</body>
+</html>
