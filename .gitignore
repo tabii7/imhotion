@@ -11830,3 +11830,12 @@ Thumbs.db
 /.env.*
 /.idea
 /.vscode
+/node_modules
+/vendor
+/storage
+/bootstrap/cache
+/public/storage
+/.env
+/.env.*
+/.idea
+/.vscode
