@@ -7,18 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        // Use raw ALTER TABLE to change column nullability. This avoids attempting to drop non-existent FK names.
-        if (Schema::hasTable('purchases') && Schema::hasColumn('purchases', 'pricing_item_id')) {
-            // Make nullable
-            \Illuminate\Support\Facades\DB::statement('ALTER TABLE `purchases` MODIFY `pricing_item_id` BIGINT UNSIGNED NULL');
+        // SQLite doesn't support MODIFY, so we'll skip this migration for SQLite
+        // The column is already nullable in the table creation, so this should be fine
+        if (config('database.default') !== 'sqlite') {
+            if (Schema::hasTable('purchases') && Schema::hasColumn('purchases', 'pricing_item_id')) {
+                // Make nullable
+                \Illuminate\Support\Facades\DB::statement('ALTER TABLE `purchases` MODIFY `pricing_item_id` BIGINT UNSIGNED NULL');
+            }
         }
     }
 
     public function down()
     {
-        if (Schema::hasTable('purchases') && Schema::hasColumn('purchases', 'pricing_item_id')) {
-            // Revert to NOT NULL
-            \Illuminate\Support\Facades\DB::statement('ALTER TABLE `purchases` MODIFY `pricing_item_id` BIGINT UNSIGNED NOT NULL');
+        if (config('database.default') !== 'sqlite') {
+            if (Schema::hasTable('purchases') && Schema::hasColumn('purchases', 'pricing_item_id')) {
+                // Revert to NOT NULL
+                \Illuminate\Support\Facades\DB::statement('ALTER TABLE `purchases` MODIFY `pricing_item_id` BIGINT UNSIGNED NOT NULL');
+            }
         }
     }
 };

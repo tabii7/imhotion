@@ -23,8 +23,20 @@ class User extends Authenticatable implements FilamentUser
         'country',
         'phone',
         'role',
-    'balance_days',
-    'days_balance',
+        'balance_days',
+        'days_balance',
+        'specialization',
+        'specialization_id',
+        'skills',
+        'experience_level',
+        'is_available',
+        'working_hours',
+        'notes',
+        'permissions',
+        'portfolio_url',
+        'linkedin_url',
+        'github_url',
+        'bio',
     ];
 
     protected $hidden = [
@@ -37,6 +49,10 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
         'balance_days' => 'integer',
         'days_balance' => 'integer',
+        'is_available' => 'boolean',
+        'working_hours' => 'array',
+        'permissions' => 'array',
+        'skills' => 'array',
     ];
 
     // Backwards-compatible accessor/mutator: alias days_balance to balance_days
@@ -55,15 +71,6 @@ class User extends Authenticatable implements FilamentUser
         }
     }
 
-    public function canAccessPanel(Panel $panel): bool
-    {
-        // allow if admin role OR exact admin email
-        if (strcasecmp($this->email, 'admin@imhotion.com') === 0) {
-            return true;
-        }
-        return $this->role === 'admin';
-    }
-
     public function purchases()
     {
         return $this->hasMany(Purchase::class);
@@ -72,5 +79,76 @@ class User extends Authenticatable implements FilamentUser
     public function projects()
     {
         return $this->hasMany(Project::class);
+    }
+
+    // Role-based methods
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isAdministrator(): bool
+    {
+        return $this->role === 'administrator';
+    }
+
+    public function isDeveloper(): bool
+    {
+        return $this->role === 'developer';
+    }
+
+    public function isClient(): bool
+    {
+        return $this->role === 'client';
+    }
+
+    // Developer-specific relationships
+    public function assignedProjects()
+    {
+        return $this->hasMany(Project::class, 'assigned_developer_id');
+    }
+
+    public function managedProjects()
+    {
+        return $this->hasMany(Project::class, 'assigned_administrator_id');
+    }
+
+    // Specialization relationship
+    public function specialization()
+    {
+        return $this->belongsTo(Specialization::class);
+    }
+
+    // Team relationships
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['role', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    public function ledTeams()
+    {
+        return $this->hasMany(Team::class, 'team_lead_id');
+    }
+
+    public function isTeamLead(): bool
+    {
+        return $this->ledTeams()->exists();
+    }
+
+    public function isTeamMember(Team $team): bool
+    {
+        return $this->teams()->where('team_id', $team->id)->exists();
+    }
+
+    // Check if user can access admin panel
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Allow admin role OR administrator role OR exact admin email
+        if (strcasecmp($this->email, 'admin@imhotion.com') === 0) {
+            return true;
+        }
+        return $this->isAdmin() || $this->isAdministrator();
     }
 }

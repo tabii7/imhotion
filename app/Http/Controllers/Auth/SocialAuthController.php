@@ -66,6 +66,14 @@ class SocialAuthController extends Controller
             $user->save();
 
             Auth::login($user, remember: true);
+            
+            // Redirect based on user role
+            if ($user->isAdministrator() || $user->isAdmin()) {
+                return redirect()->intended('/administrator/dashboard');
+            } elseif ($user->isDeveloper()) {
+                return redirect()->intended('/developer/dashboard');
+            }
+            
             return redirect()->intended('/dashboard');
         }
 
@@ -79,6 +87,13 @@ class SocialAuthController extends Controller
         ]);
 
         Auth::login($user, remember: true);
+
+        // Redirect based on user role
+        if ($user->isAdministrator() || $user->isAdmin()) {
+            return redirect()->intended('/administrator/dashboard');
+        } elseif ($user->isDeveloper()) {
+            return redirect()->intended('/developer/dashboard');
+        }
 
         return redirect()->intended('/dashboard');
     }

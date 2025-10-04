@@ -2,7 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom font faces */
+/* Imhotion Brand CSS - Based on Brand Guidelines */
+:root {
+  --brand-primary: #0066ff;
+  --brand-primary-200: #99c2ff;
+  /* Remove default blue-ish page background; pages will use the tiled image on homepage or transparent backgrounds elsewhere */
+  --brand-bg: transparent;
+  --brand-dark: #001f4c;
+  --font-sans: 'BrittiSans', system-ui, -apple-system, sans-serif;
+}
+
+/* Theme Variables */
+:root {
+  --pricing-bg: linear-gradient(135deg, #001f4c 0%, #0d1b3e 100%);
+  --pricing-text: white;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(153, 194, 255, 0.2);
+  --card-hover-border: rgba(153, 194, 255, 0.4);
+  --card-shadow: rgba(0, 102, 255, 0.1);
+  --subtitle-color: #94a3b8;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --pricing-bg: linear-gradient(135deg, #f2f7ff 0%, #ffffff 100%);
+  --pricing-text: #1f2937;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(0, 102, 255, 0.2);
+  --card-hover-border: rgba(0, 102, 255, 0.4);
+  --card-shadow: rgba(0, 102, 255, 0.15);
+  --subtitle-color: #6b7280;
+}
+
+/* Font Loading */
 @font-face {
   font-family: 'BrittiSans';
   src: url('/fonts/BrittiSansRegular.ttf') format('truetype');
@@ -29,66 +61,941 @@
 
 @font-face {
   font-family: 'BrittiSans';
+  /* Avoid using a heavier bold file — map 700 to the semibold file so bold never becomes too heavy */
   src: url('/fonts/BrittiSansSemibold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
-/* Homepage background pattern */
+/* Base Styling */
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  /* Use full viewport height to avoid small white gaps at the bottom */
+  min-height: 100dvh;
+  background-color: var(--brand-bg);
+}
+
+/* Ensure html/body fill viewport so background covers fully */
+html, body {
+  height: 100%;
+}
+
+/* Ensure page root has no opaque background that would hide the tiled image */
+html, body {
+  background: transparent !important;
+}
+
+/* Make any declared "bold" classes use semibold instead so bold is never too heavy */
+.font-bold { font-weight: 600 !important; }
+
+/* Repeating tiled background with a slight diagonal/offset effect.
+   Implementation: a fixed pseudo-element behind the page that layers
+   the tile twice and offsets the second layer vertically by 40px.
+   This creates a diagonal feel while ensuring no white gaps. */
+/* Homepage-only tiled background: two repeated layers,
+   second layer offset vertically by 40px to create a diagonal effect.
+   This is scoped to `.home` so it applies only on the homepage. */
 .home::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url('/images/background.png'), url('/images/background.png');
+  /* Use the site's provided tiled background, not vertical. Repeat to tile fully and offset second layer for diagonal look. */
+  background-image: url('/public/images/background.png'), url('/public/images/background.png');
   background-repeat: repeat, repeat;
   background-position: 0 0, 0 40px;
   background-size: auto, auto;
   image-rendering: auto;
 }
 
+/* Fallback: some browsers or stacking contexts can hide a pseudo-element with z-index:-1.
+   Place the tiled image directly on the body when on the homepage as a robust fallback. */
 body.home {
-  background-image: url('/images/background.png');
+  background-image: url('/public/images/background.png');
   background-repeat: repeat;
   background-position: 0 0;
   background-attachment: fixed;
   background-size: auto;
 }
 
-/* Ensure transparency for background to show through */
+/* Theme Toggle */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Header Styles */
+.header {
+  /* Force the header to be fully transparent so the tiled background shows through */
+  background: transparent !important;
+  padding: 0;
+  position: relative;
+  z-index: 10;
+  height: 50px;
+  overflow: visible;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  /* slightly increased horizontal padding to better match v0 spacing */
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+}
+
+.header-content-with-logo {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+}
+
+.logo-image {
+  height: 35px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Hero Logo */
+.hero-logo {
+  margin-bottom: 2rem;
+}
+
+.hero-logo-image {
+  height: 6rem;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  /* Use a softer color so links match the v0 look when header is not a solid blue */
+  color: #0f172a !important;
+  transition: color 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.nav-links a:hover {
+  color: #99c2ff !important;
+}
+
+.nav-links a:visited {
+  color: white !important;
+}
+
+.nav-links a:active {
+  color: white !important;
+}
+
+/* Mobile hamburger menu */
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* Show sandwich menu on desktop in header top-right as requested */
+.header-content-with-logo .mobile-menu-btn {
+  display: block;
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  /* keep mobile menu consistent with page background */
+  background: transparent;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+  z-index: 20;
+}
+
+/* Force page-level backgrounds to be fully transparent so the tiled homepage background shows through.
+   This overrides inline styles or view-level CSS variables that may set a light blue background. */
 html, body, .site-wrapper {
   background: transparent !important;
   background-color: transparent !important;
+  background-image: none !important;
 }
 
-/* Keep background image on homepage */
-body.home, html.home {
-  background-image: url('/images/background.png') !important;
-  background-repeat: repeat !important;
-  background-attachment: fixed !important;
+/* Keep the homepage pseudo-element tiled background intact (z-index below content). */
+.home {
+  background: transparent !important;
 }
 
-/* Custom components */
-@layer components {
-  .pricing-badge {
-    @apply bg-white text-brand-dark rounded-full px-3 py-1 inline-flex items-center font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg;
+/* Strong overrides to remove any residual light-blue backgrounds applied elsewhere.
+   Targets common wrappers and specific sections that used the light blue color. */
+body.home, html.home, .site-wrapper, main, .container, #pricing, .pricing-dark, .pricing-light, .pricing-bg, .pricing-bg * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Also override any elements that might be using the CSS variable directly. */
+*[style*="--brand-bg"], *[style*="background: var(--brand-bg)"], [style*="background: var(--brand-bg)"] {
+  background: transparent !important;
+}
+
+/* Some blade templates set inline body styles (guest/compiled views). Override them with highest specificity. */
+html > body[style], body[style] {
+  background: transparent !important;
+}
+
+/* Ensure the main wrapper is transparent so the background shows through */
+.site-wrapper { background: transparent; }
+
+.mobile-menu.active {
+  display: flex;
+}
+
+.mobile-menu a {
+  color: white !important;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  padding: 0.5rem 0;
+  text-align: center;
+}
+
+/* Top Navigation for authenticated users */
+.top-nav {
+  background: transparent;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.top-nav-center {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.top-nav a {
+  color: #0f172a !important;
+  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  font-family: var(--font-sans);
+}
+
+.top-nav a:hover {
+  color: #99c2ff !important;
+}
+
+.top-nav a:visited {
+  color: white !important;
+}
+
+.top-nav a:active {
+  color: white !important;
+}
+
+.top-nav .active {
+  color: #99c2ff !important;
+}
+
+/* Navigation specific styles */
+nav .nav-link {
+  font-size: 1.125rem !important;
+  padding: 0 !important;
+  line-height: 1.25rem !important;
+  color: white !important;
+  font-family: var(--font-sans) !important;
+}
+
+nav .nav-link:hover {
+  color: #99c2ff !important;
+}
+
+nav .nav-link:visited {
+  color: white !important;
+}
+
+nav .nav-link:active {
+  color: white !important;
+}
+
+/* Footer styles */
+.footer {
+  background: transparent !important; /* fully transparent to show tiled background */
+  color: white;
+  padding: 2rem 0;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+  background: transparent !important;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.footer-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #99c2ff;
+}
+
+.footer-copyright {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* Mobile navigation */
+@media (max-width: 768px) {
+  .header-content,
+  .header-content-with-logo,
+  .nav-container {
+    justify-content: space-between;
   }
-  
-  .pricing-badge .arrow {
-    @apply bg-brand-dark text-white w-9 h-9 rounded-full flex items-center justify-center ml-2;
+
+  .nav-links {
+    display: none;
   }
-  
-  .btn-purchase {
-    @apply bg-white text-brand-dark rounded-full px-4 py-2 inline-flex items-center font-semibold w-full justify-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg border-none cursor-pointer;
+
+  .mobile-menu-btn {
+    display: block;
+    order: 3;
   }
-  
-  .btn-purchase .arrow {
-    @apply bg-brand-dark text-white w-8 h-8 rounded-full inline-flex items-center justify-center ml-3;
+
+  .top-nav-center {
+    display: none;
   }
-  
-  .price-total {
-    @apply bg-transparent text-brand-primary-200 rounded-full px-4 py-2 inline-block text-sm absolute right-4 top-4 z-10 border-2 border-brand-primary-200;
+
+  .top-nav {
+    justify-content: space-between;
+  }
+
+  .nav-container .logo {
+    order: 2;
+  }
+
+  .nav-container .nav-links {
+    order: 1;
+  }
+
+  .mobile-menu {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    background: rgba(0, 31, 76, 0.95);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    z-index: 20;
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  .mobile-menu a {
+    color: white !important;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .mobile-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Hero Section */
+.hero {
+  background: transparent;
+  /* slightly reduced vertical padding to better match the v0 spacing */
+  padding: 4.5rem 0;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  /* don't use hard bold weight; prefer semibold */
+  font-weight: 600;
+  color: #0b1220;
+  margin-bottom: 1.25rem;
+}
+
+.hero p {
+  font-size: 1.125rem;
+  color: #475569;
+  margin-bottom: 1.5rem;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Pricing Section */
+.pricing-dark {
+  background: var(--pricing-bg);
+  color: var(--pricing-text);
+  padding: 4rem 0;
+  transition: all 0.5s ease;
+}
+
+.pricing-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1.5rem;
+  padding: 0.5rem; /* tighter padding to reduce space between content and borders */
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.pricing-card:hover {
+  border-color: var(--card-hover-border);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px var(--card-shadow);
+}
+
+/* Specific tweaks for 'Our Packs' cards */
+.grid-3 .pricing-card {
+  /* slightly lighter background and set the requested border color */
+  background-color: rgba(255,255,255,0.06); /* ~10% lighter */
+  border: 1px solid #7fa7e1;
+  /* normal full border around card; add left inset so content isn't flush */
+  padding: 0.6rem; /* more even, tighter padding */
+  min-height: 420px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* subtle top stripe for each pricing card */
+.grid-3 .pricing-card::before { display: none !important; }
+
+/* Match styling for grid-2 (addons) cards: smaller padding, thin stripe, and border color */
+.grid-2 .pricing-card {
+  background-color: rgba(255,255,255,0.06); /* slightly lighter ~10% */
+  border: 2px dashed #7fa7e1; /* dashed border for addons */
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  min-height: 170px;
+  position: relative;
+}
+
+.grid-2 .pricing-card::before { display: none !important; }
+
+/* Make the addons badge arrow darker and consistent */
+.grid-2 .pricing-badge .arrow,
+.grid-2 .btn-purchase .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Align pack content to the left and tighten spacing */
+.grid-3 .pricing-card h3,
+.grid-3 .pricing-card p {
+  text-align: left;
+}
+
+/* Reduce spacing between title / day-price / validity for a tighter layout */
+.grid-3 .pricing-card h3 { margin-bottom: 0.25rem; }
+.grid-3 .pricing-card p { margin-bottom: 0.5rem; }
+
+/* Price total badge at top-right */
+.price-total {
+  background: transparent;
+  color: #7fa7e1;
+  border-radius: 999px;
+  padding: 10px 14px; /* slightly larger horizontal padding */
+  display: inline-block;
+  font-size: 0.95rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 6;
+  border: 2px solid #7fa7e1;
+}
+
+/* top-right small badges styling for the 3 packs */
+.grid-3 > .pricing-card:nth-child(1) .price-total,
+.grid-3 > .pricing-card:nth-child(3) .price-total {
+  background: rgba(255,255,255,0.02);
+  color: #eff1f5;
+  border-color: rgba(255,255,255,0.06);
+}
+.grid-3 > .pricing-card:nth-child(2) .price-total {
+  background: #7fa7e1;
+  color: #33527a;
+  border-color: #7fa7e1;
+}
+
+/* Reduce padding specifically for the top two grid-3 cards (user requested less padding)
+   and center their content so title and CTA sit visually centered within the box. */
+.grid-3 > .pricing-card:nth-child(1),
+.grid-3 > .pricing-card:nth-child(2) {
+  padding: 0.35rem 0.6rem 0.6rem 0.6rem;
+  min-height: 380px; /* slightly shorter visual height to compensate for tighter padding */
+  align-items: center; /* center content horizontally */
+  text-align: center;
+}
+
+.grid-3 > .pricing-card:nth-child(1) .btn-purchase,
+.grid-3 > .pricing-card:nth-child(2) .btn-purchase {
+  align-self: center; /* center CTA button */
+  min-width: 160px; /* slightly narrower so it fits better with reduced padding */
+}
+
+/* Positioning container for price total - ensure relative positioning */
+.grid-3 .pricing-card { position: relative; }
+
+/* Make the CTA button larger and place it at the bottom right */
+.grid-3 .btn-purchase {
+  width: auto;
+  align-self: flex-end;
+  padding: 0.7rem 1.6rem; /* slightly wider */
+  min-width: 220px; /* increase width as requested */
+  border-radius: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Add a bit more vertical space between the title/price area and the CTA button */
+.grid-3 .pricing-card .btn-purchase {
+  margin-top: 1.1rem;
+}
+
+/* Add 15px additional spacing specifically for the first pack (Extended Day) between title/price and CTA */
+.grid-3 > .pricing-card:nth-child(1) .btn-purchase {
+  margin-top: calc(1.1rem + 15px) !important;
+}
+
+/* Strong override for first card's CTA to prevent other rules from stretching it and to enforce spacing */
+.grid-3 > .pricing-card:nth-child(1) .text-center .btn-purchase {
+  margin-top: calc(1.1rem + 15px) !important;
+  width: auto !important;
+  min-width: 160px !important;
+  align-self: center !important;
+  display: inline-flex !important;
+}
+
+/* Meta right alignment (small label like '5 days' or '3 days') */
+.meta-right {
+  color: var(--subtitle-color);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  text-align: right;
+}
+
+/* Left aligned small meta for the packs as requested */
+.meta-left {
+  color: var(--subtitle-color);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  text-align: left;
+}
+
+/* Ensure inner lists / small meta lines are offset from left border */
+.grid-3 .pricing-card .feature-list { margin-left: 0.75rem; }
+.grid-3 .pricing-card .meta-left { margin-left: 0.2rem; }
+
+/* Make middle pack's small top-right price semibold (600) not bold */
+.grid-3 > .pricing-card:nth-child(2) .price-total { font-weight: 600; }
+
+/* Make one special box slightly narrower and taller when needed */
+.pricing-card.tall-narrow {
+  max-width: 320px;
+  min-height: 520px;
+  padding-top: 2.5rem; /* give space for top-right badge */
+}
+
+/* Ensure the arrow SVG inside darker circular arrow is white */
+.pricing-badge .arrow svg, .grid-2 .pricing-badge .arrow svg, .grid-2 .btn-purchase .arrow svg {
+  stroke: currentColor;
+  color: white;
+}
+
+/* Circular arrow for the hero badge style in darker color */
+.grid-3 .pricing-badge .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  box-shadow: none;
+}
+
+.pricing-badge {
+  background-color: white;
+  color: var(--brand-dark);
+  border-radius: 2rem;
+  padding: 0.25rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .pricing-badge {
+  background-color: var(--brand-primary);
+  color: white;
+}
+
+.pricing-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-badge .arrow {
+  background-color: #33527a; /* darker circle */
+  color: white;
+  width: 2.25rem; /* slightly larger */
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
+.addons-grid .btn-purchase {
+  min-width: 220px;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Tighter vertical spacing between pack title / price / valid */
+.grid-3 .pricing-card h3 { margin-bottom: 0.15rem; }
+.grid-3 .pricing-card p.subtitle { margin-top: 0.15rem; margin-bottom: 0.15rem; }
+
+/* Latest 4-boxes helper (if present) - center names/prices, reduce paddings and dashed border */
+.latest-grid .pricing-card {
+  text-align: center;
+  padding: 0.6rem;
+  border: 2px dashed #7fa7e1;
+}
+.latest-grid .pricing-card h3 { margin-bottom: 0.25rem; }
+.latest-grid .pricing-card .feature-list { margin-bottom: 0.5rem; }
+
+/* Tighten addons (first two boxes) spacing: make left/right/bottom match top */
+.addons-grid .pricing-card {
+  padding: 0.4rem 0.6rem 0.6rem 0.6rem !important; /* tighter, more even padding */
+  min-height: 110px !important; /* slightly shorter to match reduced padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* center vertically */
+  align-items: center; /* center horizontally */
+}
+.addons-grid .pricing-card h3 {
+  margin-bottom: 0.25rem !important; /* reduce gap under title */
+}
+.addons-grid .pricing-card .mb-4 {
+  margin-bottom: 0.25rem !important; /* reduce gap under badge */
+}
+.addons-grid .pricing-badge {
+  margin: 0 auto; /* keep badge centered */
+}
+
+/* Ensure purchase buttons in addons are centered and not full width */
+.addons-grid .btn-purchase {
+  width: auto !important;
+  min-width: 140px !important;
+  align-self: center !important;
+}
+
+/* Ensure addons buttons have a little space from the title/badge above */
+.addons-grid .pricing-card .btn-purchase {
+  margin-top: 0.7rem !important;
+}
+
+/* Style the arrow inside purchase buttons: white chevron inside colored circular bg */
+.btn-purchase .arrow {
+  background-color: #33527a;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.75rem;
+}
+
+.btn-purchase .arrow svg { stroke: white; color: white; }
+
+[data-theme="light"] .pricing-badge .arrow {
+  background-color: white;
+  color: var(--brand-primary);
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.feature-list .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.feature-list .check {
+  color: #10b981;
+}
+
+.feature-list .cross {
+  color: #6b7280;
+}
+
+.feature-list .disabled {
+  color: #6b7280;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: var(--brand-primary);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0052cc;
+}
+
+.btn-outline {
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background-color: var(--brand-primary);
+  color: white;
+}
+
+/* Purchase buttons */
+.btn-purchase {
+  background: white;
+  color: var(--brand-dark);
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: none;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+[data-theme="light"] .btn-purchase {
+  background: var(--brand-primary);
+  color: white;
+}
+
+.btn-purchase:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Grid Layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Add 15px spacing above price badge for grid-2 cards to lift the badge */
+.grid-2 .pricing-badge {
+  margin-top: 15px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+/* Text Utilities */
+.text-center { text-align: center; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.text-4xl { font-size: 2.25rem; }
+.text-5xl { font-size: 3rem; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mb-12 { margin-bottom: 3rem; }
+.mb-16 { margin-bottom: 4rem; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+.py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+
+/* Subtitle color that adapts to theme */
+.subtitle {
+  color: var(--subtitle-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pricing-card {
+    padding: 1.5rem;
+  }
+
+  .theme-toggle {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }

@@ -7,6 +7,11 @@ use App\Http\Controllers\Admin\ProjectDocumentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdministratorController;
+use App\Http\Controllers\DeveloperController;
+use App\Http\Controllers\ProjectRequirementController;
+use App\Http\Controllers\Admin\DeveloperManagementController;
+use App\Http\Controllers\TeamController;
 use App\Models\Project;
 use App\Models\PricingCategory;
 
@@ -135,34 +140,36 @@ Route::name('filament.admin.')
 | GET  /login  -> renders simple-login if exists, else Breeze auth.login
 | POST /login  -> authenticates then redirects to /client
 */
-Route::middleware('guest')->group(function () {
-    Route::get('/login', function () {
-        if (view()->exists('auth.simple-login')) {
-            return view('auth.simple-login');
-        }
-        if (view()->exists('auth.login')) {
-            return view('auth.login');
-        }
-        abort(500, 'Login view missing (auth.simple-login or auth.login).');
-    })->name('login');
+/*
+// Route::middleware('guest')->group(function () {
+//     Route::get('/login', function () {
+//         if (view()->exists('auth.simple-login')) {
+//             return view('auth.simple-login');
+//         }
+//         if (view()->exists('auth.login')) {
+//             return view('auth.login');
+//         }
+//         abort(500, 'Login view missing (auth.simple-login or auth.login).');
+//     })->name('login');
 
-    // Redirect legacy/mistyped /login/admin to the admin login page
-    Route::get('/login/admin', function () {
-        return redirect('/admin/login');
-    });
+//     // Redirect legacy/mistyped /login/admin to the admin login page
+//     Route::get('/login/admin', function () {
+//         return redirect('/admin/login');
+//     });
 
-    Route::post('/login', function (Request $request) {
-        $creds = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-        if (Auth::attempt($creds, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended('/client');
-        }
-        return back()->withErrors(['email' => 'Invalid credentials'])->onlyInput('email');
-    })->name('login.post');
-});
+//     Route::post('/login', function (Request $request) {
+//         $creds = $request->validate([
+//             'email' => 'required|email',
+//             'password' => 'required',
+//         ]);
+//         if (Auth::attempt($creds, $request->boolean('remember'))) {
+//             $request->session()->regenerate();
+//             return redirect()->intended('/client');
+//         }
+//         return back()->withErrors(['email' => 'Invalid credentials'])->onlyInput('email');
+//     })->name('login.post');
+// });
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -261,3 +268,92 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('social.redirect');
     Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('social.callback');
 });
+
+// Enhanced Service-Based Platform Routes
+
+// Administrator Routes
+Route::middleware(['auth'])->prefix('administrator')->name('administrator.')->group(function () {
+    Route::get('/dashboard', [AdministratorController::class, 'dashboard'])->name('dashboard');
+    Route::get('/projects', [AdministratorController::class, 'projects'])->name('projects');
+    Route::get('/projects/{project}', [AdministratorController::class, 'showProject'])->name('projects.show');
+    Route::post('/projects/{project}/assign-developer', [AdministratorController::class, 'assignDeveloper'])->name('projects.assign-developer');
+    Route::post('/projects/{project}/update-status', [AdministratorController::class, 'updateProjectStatus'])->name('projects.update-status');
+    Route::post('/requirements/{requirement}/review', [AdministratorController::class, 'reviewRequirement'])->name('requirements.review');
+    Route::get('/developers', [AdministratorController::class, 'developers'])->name('developers');
+    Route::get('/reports', [AdministratorController::class, 'reports'])->name('reports');
+});
+
+// Developer Routes
+Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(function () {
+    Route::get('/dashboard', [DeveloperController::class, 'dashboard'])->name('dashboard');
+    Route::get('/projects', [DeveloperController::class, 'projects'])->name('projects');
+    Route::get('/projects/{project}', [DeveloperController::class, 'showProject'])->name('projects.show');
+    Route::post('/projects/{project}/update-status', [DeveloperController::class, 'updateProjectStatus'])->name('projects.update-status');
+    Route::post('/projects/{project}/log-time', [DeveloperController::class, 'logTime'])->name('projects.log-time');
+    Route::post('/projects/{project}/upload-document', [DeveloperController::class, 'uploadDocument'])->name('projects.upload-document');
+    Route::get('/time-logs', [DeveloperController::class, 'timeLogs'])->name('time-logs');
+    Route::post('/update-availability', [DeveloperController::class, 'updateAvailability'])->name('update-availability');
+    Route::get('/profile', [DeveloperController::class, 'profile'])->name('profile');
+    Route::post('/profile', [DeveloperController::class, 'updateProfile'])->name('profile.update');
+});
+
+// Project Requirements Routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/projects/{project}/requirements', [ProjectRequirementController::class, 'store'])->name('requirements.store');
+    Route::get('/requirements/{requirement}', [ProjectRequirementController::class, 'show'])->name('requirements.show');
+    Route::put('/requirements/{requirement}', [ProjectRequirementController::class, 'update'])->name('requirements.update');
+    Route::delete('/requirements/{requirement}', [ProjectRequirementController::class, 'destroy'])->name('requirements.destroy');
+});
+
+// Team Routes (Public)
+Route::prefix('team')->name('team.')->group(function () {
+    Route::get('/', [TeamController::class, 'index'])->name('index');
+    Route::get('/register', [TeamController::class, 'showRegistration'])->name('register');
+    Route::post('/register', [TeamController::class, 'register'])->name('register.store');
+    Route::get('/search', [TeamController::class, 'search'])->name('search');
+    // Moved to end of file to avoid conflicts with auth routes
+});
+
+// Admin Developer Management Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/developers', [DeveloperManagementController::class, 'index'])->name('developers.index');
+    Route::get('/developers/create', [DeveloperManagementController::class, 'create'])->name('developers.create');
+    Route::post('/developers', [DeveloperManagementController::class, 'store'])->name('developers.store');
+    Route::get('/developers/{developer}', [DeveloperManagementController::class, 'show'])->name('developers.show');
+    Route::get('/developers/{developer}/edit', [DeveloperManagementController::class, 'edit'])->name('developers.edit');
+    Route::put('/developers/{developer}', [DeveloperManagementController::class, 'update'])->name('developers.update');
+    Route::delete('/developers/{developer}', [DeveloperManagementController::class, 'destroy'])->name('developers.destroy');
+    Route::post('/developers/{developer}/toggle-availability', [DeveloperManagementController::class, 'toggleAvailability'])->name('developers.toggle-availability');
+});
+
+// Enhanced Administration Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\Admin\ReportsController::class, 'dashboard'])->name('dashboard');
+    
+    // Team Management
+    Route::resource('teams', App\Http\Controllers\Admin\TeamManagementController::class);
+    Route::post('/teams/{team}/add-member', [App\Http\Controllers\Admin\TeamManagementController::class, 'addMember'])->name('teams.add-member');
+    Route::delete('/teams/{team}/remove-member/{user}', [App\Http\Controllers\Admin\TeamManagementController::class, 'removeMember'])->name('teams.remove-member');
+    Route::post('/teams/{team}/assign-project', [App\Http\Controllers\Admin\TeamManagementController::class, 'assignProject'])->name('teams.assign-project');
+    Route::delete('/teams/{team}/unassign-project/{project}', [App\Http\Controllers\Admin\TeamManagementController::class, 'unassignProject'])->name('teams.unassign-project');
+    
+    // Project Management
+    Route::get('/projects', [App\Http\Controllers\Admin\ProjectManagementController::class, 'index'])->name('projects.index');
+    Route::get('/projects/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'show'])->name('projects.show');
+    Route::post('/projects/{project}/assign-team', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignTeam'])->name('projects.assign-team');
+    Route::delete('/projects/{project}/unassign-team/{team}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'unassignTeam'])->name('projects.unassign-team');
+    Route::post('/projects/{project}/assign-developer', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignDeveloper'])->name('projects.assign-developer');
+    Route::post('/projects/{project}/update-status', [App\Http\Controllers\Admin\ProjectManagementController::class, 'updateStatus'])->name('projects.update-status');
+    Route::get('/projects/{project}/progress-data', [App\Http\Controllers\Admin\ProjectManagementController::class, 'getProgressData'])->name('projects.progress-data');
+    
+    // Reports
+    Route::resource('reports', App\Http\Controllers\Admin\ReportsController::class);
+    Route::post('/reports/{report}/generate', [App\Http\Controllers\Admin\ReportsController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/{report}/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
+});
+
+// Catch-all route for specializations (temporarily disabled to fix auth routes)
+// Route::get('/{specialization}', [TeamController::class, 'show'])
+//     ->where('specialization', '^(?!login|register|logout|dashboard|admin|team|developer|administrator|client|api|payment|auth|forgot-password|reset-password|verify-email|confirm-password|email|livewire|storage|up|__debug|__proj|__session|pricing|requirements|projects|developers|purchases|settings|users|pricing-categories).*')
+//     ->name('specialization');

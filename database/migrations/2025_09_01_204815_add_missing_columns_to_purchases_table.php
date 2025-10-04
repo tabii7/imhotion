@@ -39,7 +39,8 @@ return new class extends Migration
                     $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
                 }
             } catch (\Exception $e) {
-                // ignore
+                // Foreign key might already exist, ignore the error
+                \Log::info('Foreign key user_id might already exist: ' . $e->getMessage());
             }
 
             // Clean up any invalid pricing_item_id values (0 or non-existent) before adding FK

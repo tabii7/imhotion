@@ -108,7 +108,7 @@
 
         <!-- Main Content -->
         <main class="min-h-[calc(100vh-150px)]">
-            {{ $slot }}
+            @yield('content')
         </main>
 
         <!-- Floating Cart Button -->

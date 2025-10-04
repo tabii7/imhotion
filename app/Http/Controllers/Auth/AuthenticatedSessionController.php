@@ -34,6 +34,14 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('dashboard')->with('redirect_to_checkout', true);
         }
 
+        // Redirect based on user role
+        $user = Auth::user();
+        if ($user->isAdministrator() || $user->isAdmin()) {
+            return redirect()->intended(route('administrator.dashboard', absolute: false));
+        } elseif ($user->isDeveloper()) {
+            return redirect()->intended(route('developer.dashboard', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

@@ -55,7 +55,6 @@ class BaseSeed extends Seeder
             Project::firstOrCreate([
                 'user_id' => $c->id,
                 'name'    => 'Brand Identity Redesign',
-                'title'   => 'Brand Identity Redesign',
             ], [
                 'topic'        => 'Design System',
                 'status'       => 'completed',
@@ -66,7 +65,6 @@ class BaseSeed extends Seeder
             Project::firstOrCreate([
                 'user_id' => $c->id,
                 'name'    => 'E-commerce Platform',
-                'title'   => 'E-commerce Platform',
             ], [
                 'topic'        => 'Web Development',
                 'status'       => 'in_progress',
