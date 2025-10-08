@@ -2,49 +2,92 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use Filament\Widgets\Widget;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Purchase;
+use App\Models\Team;
 use Illuminate\Support\Facades\DB;
 
-class KpisWidget extends Widget
+class KpisWidget extends BaseWidget
 {
-    protected static string $view = 'filament.widgets.kpis-widget';
-
-    public array $kpis = [];
-
-    public function mount(): void
+    protected function getStats(): array
     {
-        // Safe queries: check model/table existence to avoid fatal errors
-        $totalRevenue = 0;
-        $newClients = 0;
-        $activeProjects = 0;
-        $openInvoices = 0;
+        // Get total users
+        $totalUsers = User::count();
+        
+        // Get new users this month
+        $newUsersThisMonth = User::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+        
+        // Get active projects
+        $activeProjects = Project::whereIn('status', ['in_progress', 'pending', 'editing'])->count();
+        
+        // Get completed projects this month
+        $completedThisMonth = Project::where('status', 'completed')
+            ->whereMonth('updated_at', now()->month)
+            ->whereYear('updated_at', now()->year)
+            ->count();
+        
+        // Get total revenue from purchases
+        $totalRevenue = Purchase::where('status', 'paid')->sum('amount');
+        
+        // Get revenue this month
+        $revenueThisMonth = Purchase::where('status', 'paid')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('amount');
+        
+        // Get total teams
+        $totalTeams = Team::count();
+        
+        // Get available developers
+        $availableDevelopers = User::where('role', 'developer')
+            ->where('is_available', true)
+            ->count();
 
-        try {
-            if (class_exists(\App\Models\Invoice::class)) {
-                $totalRevenue = (float) \App\Models\Invoice::query()->whereYear('created_at', now()->year)->sum('total');
-                $openInvoices = (int) \App\Models\Invoice::query()->where('status', 'unpaid')->count();
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        try {
-            if (class_exists(\App\Models\User::class)) {
-                $newClients = (int) \App\Models\User::query()->where('created_at', '>=', now()->subDays(30))->count();
-            }
-        } catch (\Throwable $e) {}
-
-        try {
-            if (class_exists(\App\Models\Project::class)) {
-                $activeProjects = (int) \App\Models\Project::query()->where('status', 'in_progress')->count();
-            }
-        } catch (\Throwable $e) {}
-
-        $this->kpis = [
-            'total_revenue' => $totalRevenue,
-            'new_clients' => $newClients,
-            'active_projects' => $activeProjects,
-            'open_invoices' => $openInvoices,
+        return [
+            Stat::make('Total Users', $totalUsers)
+                ->description('All registered users')
+                ->descriptionIcon('heroicon-m-users')
+                ->color('primary'),
+                
+            Stat::make('New Users This Month', $newUsersThisMonth)
+                ->description('New registrations')
+                ->descriptionIcon('heroicon-m-user-plus')
+                ->color('success'),
+                
+            Stat::make('Active Projects', $activeProjects)
+                ->description('Currently in progress')
+                ->descriptionIcon('heroicon-m-folder-open')
+                ->color('warning'),
+                
+            Stat::make('Completed This Month', $completedThisMonth)
+                ->description('Projects finished')
+                ->descriptionIcon('heroicon-m-check-circle')
+                ->color('success'),
+                
+            Stat::make('Total Revenue', '€' . number_format($totalRevenue, 2))
+                ->description('All time earnings')
+                ->descriptionIcon('heroicon-m-currency-euro')
+                ->color('primary'),
+                
+            Stat::make('Revenue This Month', '€' . number_format($revenueThisMonth, 2))
+                ->description('Current month earnings')
+                ->descriptionIcon('heroicon-m-chart-bar')
+                ->color('success'),
+                
+            Stat::make('Total Teams', $totalTeams)
+                ->description('Active teams')
+                ->descriptionIcon('heroicon-m-user-group')
+                ->color('info'),
+                
+            Stat::make('Available Developers', $availableDevelopers)
+                ->description('Ready to work')
+                ->descriptionIcon('heroicon-m-code-bracket')
+                ->color('warning'),
         ];
     }
 }

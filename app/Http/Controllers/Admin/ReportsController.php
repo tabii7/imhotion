@@ -101,7 +101,7 @@ class ReportsController extends Controller
     {
         // Get comprehensive dashboard data
         $stats = $this->getDashboardStats();
-        $recentProjects = Project::with(['user', 'assignedDeveloper', 'teams'])
+        $recentProjects = Project::with(['user', 'assignedDeveloper'])
             ->latest()
             ->limit(10)
             ->get();
@@ -156,18 +156,19 @@ class ReportsController extends Controller
             $query->where('created_at', '<=', $filters['date_to']);
         }
 
-        if (isset($filters['team_id'])) {
-            $query->whereHas('teams', function ($q) use ($filters) {
-                $q->where('teams.id', $filters['team_id']);
-            });
-        }
+        // Team filter removed - teams relationship not implemented
+        // if (isset($filters['team_id'])) {
+        //     $query->whereHas('teams', function ($q) use ($filters) {
+        //         $q->where('teams.id', $filters['team_id']);
+        //     });
+        // }
 
-        $projects = $query->with(['user', 'assignedDeveloper', 'teams'])->get();
+        $projects = $query->with(['user', 'assignedDeveloper'])->get();
 
         return [
             'total_projects' => $projects->count(),
             'by_status' => $projects->groupBy('status')->map->count(),
-            'by_team' => $projects->flatMap->teams->groupBy('name')->map->count(),
+            // 'by_team' => $projects->flatMap->teams->groupBy('name')->map->count(), // Teams relationship not implemented
             'completion_rate' => $projects->where('status', 'completed')->count() / max($projects->count(), 1) * 100,
             'average_duration' => $projects->whereNotNull('completed_at')->avg(function ($project) {
                 return $project->created_at->diffInDays($project->completed_at);
@@ -177,22 +178,25 @@ class ReportsController extends Controller
 
     private function generateTeamPerformanceReport(array $filters): array
     {
-        $teams = Team::with(['members', 'projects'])->get();
+        // Teams relationship not implemented - return empty array
+        return [];
+        
+        // $teams = Team::with(['members', 'projects'])->get();
 
-        return $teams->map(function ($team) {
-            $completedProjects = $team->projects()->where('status', 'completed')->count();
-            $totalProjects = $team->projects()->count();
+        // return $teams->map(function ($team) {
+        //     $completedProjects = $team->projects()->where('status', 'completed')->count();
+        //     $totalProjects = $team->projects()->count();
             
-            return [
-                'team_id' => $team->id,
-                'team_name' => $team->name,
-                'member_count' => $team->members()->count(),
-                'total_projects' => $totalProjects,
-                'completed_projects' => $completedProjects,
-                'completion_rate' => $totalProjects > 0 ? ($completedProjects / $totalProjects) * 100 : 0,
-                'active_members' => $team->members()->where('is_available', true)->count(),
-            ];
-        })->toArray();
+        //     return [
+        //         'team_id' => $team->id,
+        //         'team_name' => $team->name,
+        //         'member_count' => $team->members()->count(),
+        //         'total_projects' => $totalProjects,
+        //         'completed_projects' => $completedProjects,
+        //         'completion_rate' => $totalProjects > 0 ? ($completedProjects / $totalProjects) * 100 : 0,
+        //         'active_members' => $team->members()->where('is_available', true)->count(),
+        //     ];
+        // })->toArray();
     }
 
     private function generateTimeTrackingReport(array $filters): array
@@ -210,10 +214,10 @@ class ReportsController extends Controller
         $timeLogs = $query->with(['user', 'project'])->get();
 
         return [
-            'total_hours' => $timeLogs->sum('hours'),
-            'by_user' => $timeLogs->groupBy('user.name')->map->sum('hours'),
-            'by_project' => $timeLogs->groupBy('project.title')->map->sum('hours'),
-            'average_daily_hours' => $timeLogs->groupBy('date')->map->sum('hours')->avg(),
+            'total_hours' => $timeLogs->sum('hours_spent'),
+            'by_user' => $timeLogs->groupBy('user.name')->map->sum('hours_spent'),
+            'by_project' => $timeLogs->groupBy('project.title')->map->sum('hours_spent'),
+            'average_daily_hours' => $timeLogs->groupBy('date')->map->sum('hours_spent')->avg(),
         ];
     }
 
@@ -224,13 +228,13 @@ class ReportsController extends Controller
         return [
             'total_budget' => $projects->sum('day_budget'),
             'used_budget' => $projects->sum(function ($project) {
-                return $project->timeLogs->sum('hours') * ($project->day_budget / 8);
+                return $project->timeLogs->sum('hours_spent') * ($project->day_budget / 8);
             }),
             'remaining_budget' => $projects->sum('day_budget') - $projects->sum(function ($project) {
-                return $project->timeLogs->sum('hours') * ($project->day_budget / 8);
+                return $project->timeLogs->sum('hours_spent') * ($project->day_budget / 8);
             }),
             'by_project' => $projects->map(function ($project) {
-                $used = $project->timeLogs->sum('hours') * ($project->day_budget / 8);
+                $used = $project->timeLogs->sum('hours_spent') * ($project->day_budget / 8);
                 return [
                     'project_id' => $project->id,
                     'project_title' => $project->title,
@@ -248,9 +252,9 @@ class ReportsController extends Controller
             'total_projects' => Project::count(),
             'active_projects' => Project::whereIn('status', ['in_progress', 'pending'])->count(),
             'completed_projects' => Project::where('status', 'completed')->count(),
-            'total_teams' => Team::count(),
+            'total_teams' => 0, // Teams relationship not implemented
             'active_developers' => User::where('role', 'developer')->where('is_available', true)->count(),
-            'total_hours_logged' => ProjectTimeLog::sum('hours'),
+            'total_hours_logged' => ProjectTimeLog::sum('hours_spent'),
             'overdue_projects' => Project::where('delivery_date', '<', now())
                 ->whereNotIn('status', ['completed', 'cancelled'])
                 ->count(),
@@ -259,16 +263,19 @@ class ReportsController extends Controller
 
     private function getTeamPerformanceData(): array
     {
-        return Team::with(['members', 'projects'])
-            ->get()
-            ->map(function ($team) {
-                return [
-                    'name' => $team->name,
-                    'member_count' => $team->members()->count(),
-                    'active_projects' => $team->projects()->whereIn('status', ['in_progress', 'pending'])->count(),
-                    'completed_projects' => $team->projects()->where('status', 'completed')->count(),
-                ];
-            });
+        // Teams relationship not implemented - return empty array
+        return [];
+        
+        // return Team::with(['members', 'projects'])
+        //     ->get()
+        //     ->map(function ($team) {
+        //         return [
+        //             'name' => $team->name,
+        //             'member_count' => $team->members()->count(),
+        //             'active_projects' => $team->projects()->whereIn('status', ['in_progress', 'pending'])->count(),
+        //             'completed_projects' => $team->projects()->where('status', 'completed')->count(),
+        //         ];
+        //     })->toArray();
     }
 
     private function getProjectStatusDistribution(): array
@@ -299,3 +306,5 @@ class ReportsController extends Controller
         return $months;
     }
 }
+
+

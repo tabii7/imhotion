@@ -13,7 +13,7 @@ class Project extends Model
 
     protected $fillable = [
         'user_id',
-        'title',
+        'name',
         'topic',
         'status',
         'start_date',
@@ -23,6 +23,7 @@ class Project extends Model
         'total_days',
         'days_used',
         'weekend_days',
+        'estimated_hours',
         'notes',
 
         // status meta
@@ -52,6 +53,7 @@ class Project extends Model
         'total_days'    => 'integer',
         'days_used'     => 'integer',
         'weekend_days'  => 'integer',
+        'estimated_hours' => 'decimal:2',
         'assigned_at'   => 'datetime',
         'started_at'    => 'datetime',
         'last_activity_at' => 'datetime',
@@ -93,13 +95,23 @@ class Project extends Model
         return $this->hasMany(ProjectTimeLog::class);
     }
 
-    // Team relationships
-    public function teams()
+    // New progress tracking relationships
+    public function progress()
     {
-        return $this->belongsToMany(Team::class, 'project_teams')
-            ->withPivot(['assigned_at'])
-            ->withTimestamps();
+        return $this->hasMany(ProjectProgress::class);
     }
+
+    public function files()
+    {
+        return $this->hasMany(ProjectFile::class);
+    }
+
+    public function timeTracking()
+    {
+        return $this->hasMany(TimeTracking::class);
+    }
+
+    // Team relationships
 
     // Helper methods
     public function assignDeveloper(User $developer)
@@ -121,5 +133,42 @@ class Project extends Model
     public function updateActivity()
     {
         $this->update(['last_activity_at' => now()]);
+    }
+
+    // Progress tracking helper methods
+    public function getTotalHoursWorkedAttribute(): float
+    {
+        return $this->progress()->sum('hours_worked') ?? 0;
+    }
+
+    public function getTotalHoursPurchasedAttribute(): float
+    {
+        return $this->user->purchases()->where('status', 'paid')->sum('days') * 8; // Assuming 8 hours per day
+    }
+
+    public function getHoursRemainingAttribute(): float
+    {
+        return max(0, $this->total_hours_purchased - $this->total_hours_worked);
+    }
+
+    public function getOverallProgressAttribute(): int
+    {
+        $latestProgress = $this->progress()->latest('work_date')->first();
+        return $latestProgress ? $latestProgress->progress_percentage : 0;
+    }
+
+    public function getRecentProgressAttribute()
+    {
+        return $this->progress()->latest('work_date')->limit(5)->get();
+    }
+
+    public function getTotalFilesAttribute(): int
+    {
+        return $this->files()->count();
+    }
+
+    public function getPublicFilesAttribute()
+    {
+        return $this->files()->where('is_public', true)->get();
     }
 }

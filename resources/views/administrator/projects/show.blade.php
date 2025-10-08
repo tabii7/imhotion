@@ -13,7 +13,7 @@
             <div class="space-y-6">
                 <div>
                     <label class="text-sm font-medium text-gray-300">Project Title</label>
-                    <p class="text-white text-lg font-semibold">{{ $project->title }}</p>
+                    <p class="text-white text-lg font-semibold">{{ $project->name }}</p>
                 </div>
                 
                 @if($project->topic)
@@ -213,6 +213,102 @@
                                     <span class="text-gray-400 text-sm">{{ $activity->created_at->format('M d, Y H:i') }}</span>
                                 </div>
                                 <p class="text-gray-300">{{ $activity->description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endif
+
+<!-- Project Documents -->
+@if($project->documents->count() > 0)
+    <div class="mb-8">
+        <div class="stats-card">
+            <h3 class="text-xl font-bold text-white mb-6">Project Documents</h3>
+            <div class="space-y-4">
+                @foreach($project->documents as $document)
+                    <div class="project-card">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <i class="fas fa-file text-purple-400 mr-3 flex-shrink-0"></i>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-white font-medium truncate">{{ $document->name }}</h4>
+                                    <div class="flex items-center text-sm text-gray-400 mt-1">
+                                        <span class="mr-4">{{ $document->mime_type }}</span>
+                                        <span class="mr-4">{{ $document->size ? number_format($document->size / 1024, 1) . ' KB' : 'Unknown size' }}</span>
+                                        <span>{{ $document->created_at->format('M d, Y H:i') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 flex-shrink-0">
+                                <span class="text-xs text-gray-400">
+                                    by {{ $document->uploadedBy->name ?? 'Unknown' }}
+                                </span>
+                                <a href="{{ route('administrator.project-documents.download', $document) }}" class="text-blue-400 hover:text-blue-300 transition-colors" title="Download">
+                                    <i class="fas fa-download text-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endif
+
+<!-- Recent Updates -->
+@if($recentUpdates->count() > 0)
+    <div class="mb-8">
+        <div class="stats-card">
+            <h3 class="text-xl font-bold text-white mb-6">Recent Updates</h3>
+            <div class="space-y-4">
+                @foreach($recentUpdates as $update)
+                    <div class="project-card">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-tasks text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-semibold">{{ $update->project_name }}</h4>
+                                    <p class="text-sm text-gray-400">{{ $update->created_at->format('M d, Y \a\t H:i') }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-medium rounded-full">
+                                    {{ ucfirst(str_replace('_', ' ', $update->status)) }}
+                                </span>
+                                @if($update->progress_percentage > 0)
+                                    <span class="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-medium rounded-full">
+                                        {{ $update->progress_percentage }}%
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-gray-300">{{ $update->description }}</p>
+                        </div>
+                        
+                        @if($update->tasks_completed && count($update->tasks_completed) > 0)
+                            <div class="mb-4">
+                                <h5 class="text-sm font-medium text-green-300 mb-2">Tasks Completed:</h5>
+                                <ul class="space-y-1">
+                                    @foreach($update->tasks_completed as $task)
+                                        <li class="flex items-center text-sm text-gray-300">
+                                            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                                            {{ $task }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-gray-500">
+                                {{ $update->created_at->diffForHumans() }}
                             </div>
                         </div>
                     </div>

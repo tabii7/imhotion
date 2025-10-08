@@ -8,35 +8,78 @@
     <!-- Client Area -->
     <div class="rounded-xl p-5 text-white">
         <div class="text-white font-sans">
-                            <!-- Stats Grid -->
-            <div class="grid grid-cols-3 gap-3 mx-auto mb-5 max-w-lg">
-                <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
+            <!-- Enhanced Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mx-auto mb-8 max-w-4xl">
+                <div class="bg-sidebar-active border border-blue-300 rounded-xl px-4 py-4 text-center min-h-[80px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
                     <div class="text-white text-xs font-medium mb-2 tracking-wide">
                         Active Projects
                     </div>
-                    <div class="text-white text-sm font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-blue-900/50 hover:bg-blue-800/50">
+                    <div class="text-white text-lg font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-blue-900/50 hover:bg-blue-800/50">
                         {{ $counts['active'] ?? 0 }}
                     </div>
-                                </div>
+                </div>
                 
-                <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
+                <div class="bg-sidebar-active border border-green-300 rounded-xl px-4 py-4 text-center min-h-[80px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-green-900/50">
                     <div class="text-white text-xs font-medium mb-2 tracking-wide">
-                        Finalized
-                                </div>
-                    <div class="text-white text-sm font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-slate-700 hover:bg-slate-600">
-                        {{ $counts['finalized'] ?? 0 }}
-                                </div>
-                            </div>
-
-                <div class="bg-sidebar-active border border-blue-300 rounded-xl px-3 py-4 text-center min-h-[70px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-blue-900/50">
-                    <div class="text-white text-xs font-medium mb-2 tracking-wide">
-                        Balance
+                        Hours Purchased
                     </div>
-                    <div class="text-white text-sm font-semibold px-3 py-1 border border-blue-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-blue-700 hover:bg-blue-600">
-                        {{ $counts['balance'] ?? 0 }} days
+                    <div class="text-white text-lg font-semibold px-3 py-1 border border-green-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-green-900/50 hover:bg-green-800/50">
+                        {{ number_format($counts['total_hours_purchased'] ?? 0, 1) }}h
                     </div>
                 </div>
-                                        </div>
+
+                <div class="bg-sidebar-active border border-yellow-300 rounded-xl px-4 py-4 text-center min-h-[80px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-yellow-900/50">
+                    <div class="text-white text-xs font-medium mb-2 tracking-wide">
+                        Hours Used
+                    </div>
+                    <div class="text-white text-lg font-semibold px-3 py-1 border border-yellow-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-yellow-900/50 hover:bg-yellow-800/50">
+                        {{ number_format($counts['total_hours_used'] ?? 0, 1) }}h
+                    </div>
+                </div>
+
+                <div class="bg-sidebar-active border border-purple-300 rounded-xl px-4 py-4 text-center min-h-[80px] flex flex-col justify-center transition-all duration-200 cursor-pointer hover:scale-105 hover:bg-purple-900/50">
+                    <div class="text-white text-xs font-medium mb-2 tracking-wide">
+                        Hours Remaining
+                    </div>
+                    <div class="text-white text-lg font-semibold px-3 py-1 border border-purple-300 rounded-xl inline-block min-w-[40px] transition-colors duration-200 bg-purple-900/50 hover:bg-purple-800/50">
+                        {{ number_format($counts['total_hours_remaining'] ?? 0, 1) }}h
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours Usage Chart -->
+            <div class="bg-sidebar-active border border-gray-300 rounded-xl p-6 mb-8">
+                <h3 class="text-white text-lg font-semibold mb-4">Hours Usage Overview</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 text-sm">Hours Used</span>
+                            <span class="text-blue-400 font-semibold">{{ number_format($counts['total_hours_used'] ?? 0, 1) }}h</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500" 
+                                 style="width: {{ ($counts['total_hours_purchased'] ?? 0) > 0 ? (($counts['total_hours_used'] ?? 0) / ($counts['total_hours_purchased'] ?? 1)) * 100 : 0 }}%"></div>
+                        </div>
+                        <p class="text-gray-400 text-xs mt-1">
+                            {{ ($counts['total_hours_purchased'] ?? 0) > 0 ? number_format((($counts['total_hours_used'] ?? 0) / ($counts['total_hours_purchased'] ?? 1)) * 100, 1) : 0 }}% of purchased hours used
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 text-sm">Hours Remaining</span>
+                            <span class="text-yellow-400 font-semibold">{{ number_format($counts['total_hours_remaining'] ?? 0, 1) }}h</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-yellow-500 to-amber-600 h-3 rounded-full transition-all duration-500" 
+                                 style="width: {{ ($counts['total_hours_purchased'] ?? 0) > 0 ? (($counts['total_hours_remaining'] ?? 0) / ($counts['total_hours_purchased'] ?? 1)) * 100 : 0 }}%"></div>
+                        </div>
+                        <p class="text-gray-400 text-xs mt-1">
+                            {{ ($counts['total_hours_remaining'] ?? 0) > 0 ? 'Hours available for new projects' : 'All hours have been used' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Active Projects Section -->
             <div class="mb-8">

@@ -23,7 +23,7 @@
     
     <div class="space-y-4">
         @forelse($developers as $developer)
-            <div class="project-card">
+            <div class="project-card" data-developer-id="{{ $developer->id }}">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between mb-3">
@@ -159,55 +159,65 @@
 
 <script>
 function viewDeveloper(developerId) {
-    // Load developer details
-    fetch(`/api/developers/${developerId}`)
-        .then(response => response.json())
-        .then(developer => {
-            document.getElementById('developerDetails').innerHTML = `
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                            ${developer.name.charAt(0)}
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold text-white">${developer.name}</h4>
-                            <p class="text-gray-400">${developer.email}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm font-medium text-gray-300">Experience Level</label>
-                            <p class="text-white">${developer.experience_level || 'Not specified'}</p>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium text-gray-300">Availability</label>
-                            <p class="text-white">${developer.is_available ? 'Available' : 'Unavailable'}</p>
-                        </div>
-                    </div>
-                    
-                    ${developer.bio ? `
-                        <div>
-                            <label class="text-sm font-medium text-gray-300">Bio</label>
-                            <p class="text-white">${developer.bio}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${developer.skills && developer.skills.length > 0 ? `
-                        <div>
-                            <label class="text-sm font-medium text-gray-300">Skills</label>
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                ${developer.skills.map(skill => `
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
-                                        ${skill}
-                                    </span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
+    // Find the developer data from the current page
+    const developerElement = document.querySelector(`[data-developer-id="${developerId}"]`);
+    if (!developerElement) {
+        alert('Developer not found');
+        return;
+    }
+    
+    // Extract developer data from the page
+    const name = developerElement.querySelector('.project-title').textContent;
+    const email = developerElement.querySelector('.fa-envelope').parentElement.textContent.trim();
+    const experienceLevel = developerElement.querySelector('.bg-blue-500').textContent;
+    const isAvailable = developerElement.querySelector('.status-in-progress') !== null;
+    const bio = developerElement.querySelector('.project-description')?.textContent || '';
+    const skills = Array.from(developerElement.querySelectorAll('.bg-gray-700.text-gray-300')).map(el => el.textContent);
+    
+    document.getElementById('developerDetails').innerHTML = `
+        <div class="space-y-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    ${name.charAt(0)}
                 </div>
-            `;
-        });
+                <div>
+                    <h4 class="text-xl font-bold text-white">${name}</h4>
+                    <p class="text-gray-400">${email}</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-300">Experience Level</label>
+                    <p class="text-white">${experienceLevel}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-300">Availability</label>
+                    <p class="text-white">${isAvailable ? 'Available' : 'Unavailable'}</p>
+                </div>
+            </div>
+            
+            ${bio ? `
+                <div>
+                    <label class="text-sm font-medium text-gray-300">Bio</label>
+                    <p class="text-white">${bio}</p>
+                </div>
+            ` : ''}
+            
+            ${skills.length > 0 ? `
+                <div>
+                    <label class="text-sm font-medium text-gray-300">Skills</label>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        ${skills.map(skill => `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                                ${skill}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
     
     // Show modal
     document.getElementById('developerModal').classList.remove('hidden');
@@ -218,22 +228,22 @@ function closeDeveloperModal() {
 }
 
 function toggleAvailability(developerId, newStatus) {
-    fetch(`/api/developers/${developerId}/toggle-availability`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ is_available: newStatus === 'true' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Failed to update availability');
-        }
-    });
+    // Create a form and submit it to the correct route
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/admin/developers/${developerId}/toggle-availability`;
+    
+    // Add CSRF token
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    form.appendChild(csrfToken);
+    
+    // Add to DOM, submit, and remove
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
 }
 </script>
 @endsection

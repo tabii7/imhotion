@@ -25,9 +25,10 @@
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                     @if($project->status === 'completed') bg-green-100 text-green-800
                     @elseif($project->status === 'in_progress') bg-blue-100 text-blue-800
-                    @elseif($project->status === 'pending') bg-yellow-100 text-yellow-800
+                    @elseif($project->status === 'finalized') bg-purple-100 text-purple-800
                     @elseif($project->status === 'on_hold') bg-gray-100 text-gray-800
-                    @else bg-red-100 text-red-800 @endif">
+                    @elseif($project->status === 'cancelled') bg-red-100 text-red-800
+                    @else bg-gray-100 text-gray-800 @endif">
                     {{ ucfirst(str_replace('_', ' ', $project->status)) }}
                 </span>
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
@@ -116,7 +117,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <a href="{{ route('project-documents.download', $document) }}" class="text-blue-600 hover:text-blue-500">
+                                <a href="{{ route('developer.project-documents.download', $document) }}" class="text-blue-600 hover:text-blue-500">
                                     <i class="fas fa-download"></i>
                                 </a>
                             </div>
@@ -227,10 +228,11 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                         <select id="projectStatus" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="pending" {{ $project->status === 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="in_progress" {{ $project->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="on_hold" {{ $project->status === 'on_hold' ? 'selected' : '' }}>On Hold</option>
                             <option value="completed" {{ $project->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="on_hold" {{ $project->status === 'on_hold' ? 'selected' : '' }}>On Hold</option>
+                            <option value="finalized" {{ $project->status === 'finalized' ? 'selected' : '' }}>Finalized</option>
+                            <option value="cancelled" {{ $project->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
                     <div class="mb-4">
@@ -290,19 +292,53 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
     
     fetch(`{{ route('developer.projects.update-status', $project) }}`, {
         method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            return response.text().then(text => {
+                console.error('Non-JSON response:', text);
+                throw new Error('Server returned non-JSON response');
+            });
+        }
+        
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
-            location.reload();
+            // Show success message in modal
+            const form = document.getElementById('statusForm');
+            form.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Success!</h3>
+                    <p class="text-gray-600 mb-6">Project updated successfully!</p>
+                    <button onclick="closeStatusModal(); location.reload();" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-check mr-2"></i>Continue
+                    </button>
+                </div>
+            `;
         } else {
-            alert('Error updating project status');
+            alert('Error updating project: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating project status');
+        console.error('Detailed error:', error);
+        alert('Error updating project: ' + error.message);
     });
 });
 
@@ -314,4 +350,6 @@ document.getElementById('statusModal').addEventListener('click', function(e) {
 });
 </script>
 @endsection
+
+
 

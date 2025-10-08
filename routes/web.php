@@ -1,4 +1,4 @@
-<?php
+       <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/services', [DashboardController::class, 'services'])->name('dashboard.services');
     Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
     Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
+    
+    // Client Progress Tracking Routes
+    Route::get('/progress', [App\Http\Controllers\Client\ProgressController::class, 'index'])->name('progress.index');
+    Route::get('/projects/{project}/progress', [App\Http\Controllers\Client\ProgressController::class, 'show'])->name('progress.show');
+    Route::get('/projects/{project}/files/{file}/download', [App\Http\Controllers\Client\ProgressController::class, 'downloadFile'])->name('progress.download');
 });
 
 // Add missing profile.edit route to fix navigation dropdown
@@ -184,19 +189,12 @@ Route::middleware('auth')->get('/client', [ClientController::class, 'index'])
 | Easy logout
 |--------------------------------------------------------------------------
 */
-Route::get('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/login');
-})->middleware('auth')->name('logout');
-
 Route::post('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return redirect('/login');
-})->middleware('auth')->name('logout.post');
+})->middleware('auth')->name('logout');
 
 // Temporary debug endpoint (token-protected) to inspect admin auth & resource availability
 Route::get('/admin/__debug_pricing', function (Request $request) {
@@ -278,9 +276,16 @@ Route::middleware(['auth'])->prefix('administrator')->name('administrator.')->gr
     Route::get('/projects/{project}', [AdministratorController::class, 'showProject'])->name('projects.show');
     Route::post('/projects/{project}/assign-developer', [AdministratorController::class, 'assignDeveloper'])->name('projects.assign-developer');
     Route::post('/projects/{project}/update-status', [AdministratorController::class, 'updateProjectStatus'])->name('projects.update-status');
+    Route::get('/project-documents/{document}/download', [AdministratorController::class, 'downloadDocument'])->name('project-documents.download');
     Route::post('/requirements/{requirement}/review', [AdministratorController::class, 'reviewRequirement'])->name('requirements.review');
     Route::get('/developers', [AdministratorController::class, 'developers'])->name('developers');
     Route::get('/reports', [AdministratorController::class, 'reports'])->name('reports');
+    
+    // Progress Tracking Routes
+    Route::get('/progress', [App\Http\Controllers\Administrator\ProgressController::class, 'index'])->name('progress.index');
+    Route::get('/projects/{project}/progress', [App\Http\Controllers\Administrator\ProgressController::class, 'show'])->name('progress.show');
+    Route::get('/projects/{project}/files/{file}/download', [App\Http\Controllers\Administrator\ProgressController::class, 'downloadFile'])->name('progress.download');
+    Route::get('/projects/{project}/progress/export', [App\Http\Controllers\Administrator\ProgressController::class, 'exportProgress'])->name('progress.export');
 });
 
 // Developer Routes
@@ -291,10 +296,21 @@ Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(func
     Route::post('/projects/{project}/update-status', [DeveloperController::class, 'updateProjectStatus'])->name('projects.update-status');
     Route::post('/projects/{project}/log-time', [DeveloperController::class, 'logTime'])->name('projects.log-time');
     Route::post('/projects/{project}/upload-document', [DeveloperController::class, 'uploadDocument'])->name('projects.upload-document');
+    Route::get('/project-documents/{document}/download', [DeveloperController::class, 'downloadDocument'])->name('project-documents.download');
     Route::get('/time-logs', [DeveloperController::class, 'timeLogs'])->name('time-logs');
     Route::post('/update-availability', [DeveloperController::class, 'updateAvailability'])->name('update-availability');
     Route::get('/profile', [DeveloperController::class, 'profile'])->name('profile');
     Route::post('/profile', [DeveloperController::class, 'updateProfile'])->name('profile.update');
+    
+    // Progress Tracking Routes
+    Route::get('/projects/{project}/progress', [App\Http\Controllers\Developer\ProgressController::class, 'index'])->name('progress.index');
+    Route::get('/projects/{project}/progress/create', [App\Http\Controllers\Developer\ProgressController::class, 'create'])->name('progress.create');
+    Route::post('/projects/{project}/progress', [App\Http\Controllers\Developer\ProgressController::class, 'store'])->name('progress.store');
+    Route::get('/projects/{project}/progress/{progress}', [App\Http\Controllers\Developer\ProgressController::class, 'show'])->name('progress.show');
+    Route::get('/projects/{project}/progress/{progress}/edit', [App\Http\Controllers\Developer\ProgressController::class, 'edit'])->name('progress.edit');
+    Route::put('/projects/{project}/progress/{progress}', [App\Http\Controllers\Developer\ProgressController::class, 'update'])->name('progress.update');
+    Route::delete('/projects/{project}/progress/{progress}', [App\Http\Controllers\Developer\ProgressController::class, 'destroy'])->name('progress.destroy');
+    Route::post('/projects/{project}/progress/upload', [App\Http\Controllers\Developer\ProgressController::class, 'uploadFile'])->name('progress.upload');
 });
 
 // Project Requirements Routes
@@ -331,27 +347,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Admin\ReportsController::class, 'dashboard'])->name('dashboard');
     
-    // Team Management
-    Route::resource('teams', App\Http\Controllers\Admin\TeamManagementController::class);
-    Route::post('/teams/{team}/add-member', [App\Http\Controllers\Admin\TeamManagementController::class, 'addMember'])->name('teams.add-member');
-    Route::delete('/teams/{team}/remove-member/{user}', [App\Http\Controllers\Admin\TeamManagementController::class, 'removeMember'])->name('teams.remove-member');
-    Route::post('/teams/{team}/assign-project', [App\Http\Controllers\Admin\TeamManagementController::class, 'assignProject'])->name('teams.assign-project');
-    Route::delete('/teams/{team}/unassign-project/{project}', [App\Http\Controllers\Admin\TeamManagementController::class, 'unassignProject'])->name('teams.unassign-project');
+    // Project Management (Admin Routes - enhanced with full access)
+    Route::get('/custom-projects', [App\Http\Controllers\Admin\ProjectManagementController::class, 'index'])->name('custom-projects.index');
+    Route::get('/custom-projects/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'show'])->name('custom-projects.show');
+    Route::post('/custom-projects/{project}/assign-developer', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignDeveloper'])->name('custom-projects.assign-developer');
+    Route::post('/custom-projects/{project}/update-status', [App\Http\Controllers\Admin\ProjectManagementController::class, 'updateStatus'])->name('custom-projects.update-status');
+    Route::get('/custom-projects/{project}/progress-data', [App\Http\Controllers\Admin\ProjectManagementController::class, 'getProgressData'])->name('custom-projects.progress-data');
+    Route::get('/custom-project-documents/{document}/download', [App\Http\Controllers\Admin\ProjectManagementController::class, 'downloadDocument'])->name('custom-project-documents.download');
     
-    // Project Management
-    Route::get('/projects', [App\Http\Controllers\Admin\ProjectManagementController::class, 'index'])->name('projects.index');
-    Route::get('/projects/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'show'])->name('projects.show');
-    Route::post('/projects/{project}/assign-team', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignTeam'])->name('projects.assign-team');
-    Route::delete('/projects/{project}/unassign-team/{team}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'unassignTeam'])->name('projects.unassign-team');
-    Route::post('/projects/{project}/assign-developer', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignDeveloper'])->name('projects.assign-developer');
-    Route::post('/projects/{project}/update-status', [App\Http\Controllers\Admin\ProjectManagementController::class, 'updateStatus'])->name('projects.update-status');
-    Route::get('/projects/{project}/progress-data', [App\Http\Controllers\Admin\ProjectManagementController::class, 'getProgressData'])->name('projects.progress-data');
+    // Project Reports
+    Route::get('/project-reports', [App\Http\Controllers\Admin\ProjectManagementController::class, 'reports'])->name('project-reports.index');
+    Route::get('/project-reports/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'projectReport'])->name('project-reports.show');
     
-    // Reports
-    Route::resource('reports', App\Http\Controllers\Admin\ReportsController::class);
-    Route::post('/reports/{report}/generate', [App\Http\Controllers\Admin\ReportsController::class, 'generate'])->name('reports.generate');
-    Route::get('/reports/{report}/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
+    // Reports (Custom Admin Routes - using different prefix to avoid conflict with Filament)
+    Route::resource('custom-reports', App\Http\Controllers\Admin\ReportsController::class);
+    Route::post('/custom-reports/{report}/generate', [App\Http\Controllers\Admin\ReportsController::class, 'generate'])->name('custom-reports.generate');
+    Route::get('/custom-reports/{report}/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('custom-reports.export');
 });
+
 
 // Catch-all route for specializations (temporarily disabled to fix auth routes)
 // Route::get('/{specialization}', [TeamController::class, 'show'])

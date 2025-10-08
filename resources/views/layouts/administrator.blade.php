@@ -315,12 +315,8 @@ body {
     border-radius: 8px;
     min-width: 200px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    display: none;
-}
-
-.user-menu-dropdown.show {
-    display: block;
+    z-index: 9999;
+    margin-top: 5px;
 }
 
 .user-menu-item {
@@ -607,12 +603,12 @@ body {
             </div>
             <div class="header-right">
                 <div class="user-menu">
-                    <button class="user-menu-btn" onclick="toggleUserMenu()">
+                    <button class="user-menu-btn" id="userMenuBtn">
                         <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">{{ substr(Auth::user()->name, 0, 1) }}</div>
                         <span>{{ Auth::user()->name }}</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
-                    <div class="user-menu-dropdown" id="userMenu">
+                    <div class="user-menu-dropdown" id="userMenu" style="display: none;">
                         <a href="#" class="user-menu-item">
                             <i class="fas fa-user"></i>
                             <span>Profile</span>
@@ -621,10 +617,13 @@ body {
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="#" class="user-menu-item">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="user-menu-item w-full text-left">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -662,18 +661,48 @@ function closeMobileSidebar() {
     overlay.classList.remove('show');
 }
 
+// Simple dropdown toggle function
 function toggleUserMenu() {
     const menu = document.getElementById('userMenu');
-    menu.classList.toggle('show');
+    console.log('Toggle clicked, current display:', menu.style.display);
+    
+    if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'block';
+        menu.style.opacity = '1';
+        menu.style.visibility = 'visible';
+        console.log('Showing dropdown');
+    } else {
+        menu.style.display = 'none';
+        console.log('Hiding dropdown');
+    }
 }
 
-// Close user menu when clicking outside
+// Close dropdown when clicking outside
 document.addEventListener('click', function(event) {
     const userMenu = document.getElementById('userMenu');
-    const userMenuBtn = event.target.closest('.user-menu-btn');
+    const userMenuBtn = document.getElementById('userMenuBtn');
     
-    if (!userMenuBtn && !userMenu.contains(event.target)) {
-        userMenu.classList.remove('show');
+    if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+        userMenu.style.display = 'none';
+    }
+});
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing user menu...');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenu = document.getElementById('userMenu');
+    
+    if (userMenuBtn && userMenu) {
+        console.log('Adding click listener to button');
+        userMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Button clicked');
+            toggleUserMenu();
+        });
+    } else {
+        console.log('Elements not found:', { userMenuBtn, userMenu });
     }
 });
 

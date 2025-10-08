@@ -1,0 +1,117 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+/* Custom Admin Sidebar Styling */
+.fi-sidebar {
+    @apply bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-700;
+}
+
+.fi-sidebar-nav {
+    @apply space-y-1;
+}
+
+.fi-sidebar-nav-item {
+    @apply mx-2 rounded-lg transition-all duration-200;
+}
+
+.fi-sidebar-nav-item:hover {
+    @apply bg-white/10 transform translate-x-1;
+}
+
+.fi-sidebar-nav-item-active {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg;
+}
+
+.fi-sidebar-nav-item-active:hover {
+    @apply bg-gradient-to-r from-blue-700 to-purple-700 transform translate-x-1;
+}
+
+.fi-sidebar-nav-group-label {
+    @apply text-slate-400 text-xs font-semibold uppercase tracking-wider px-3 py-2;
+}
+
+.fi-sidebar-nav-item-icon {
+    @apply text-slate-300;
+}
+
+.fi-sidebar-nav-item-active .fi-sidebar-nav-item-icon {
+    @apply text-white;
+}
+
+.fi-sidebar-nav-item-label {
+    @apply text-slate-200 font-medium;
+}
+
+.fi-sidebar-nav-item-active .fi-sidebar-nav-item-label {
+    @apply text-white font-semibold;
+}
+
+/* Dashboard Widget Styling */
+.fi-wi-stats-overview-stat {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300;
+}
+
+.fi-wi-stats-overview-stat-value {
+    @apply text-2xl font-bold;
+}
+
+.fi-wi-stats-overview-stat-description {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+/* Custom Brand Styling */
+.fi-brand {
+    @apply text-white font-bold text-xl;
+}
+
+.fi-brand-logo {
+    @apply h-8 w-8 rounded-lg;
+}
+
+/* Navigation Group Icons */
+.fi-sidebar-nav-group[data-group="Management"] .fi-sidebar-nav-group-label::before {
+    content: "⚙️";
+    margin-right: 8px;
+}
+
+.fi-sidebar-nav-group[data-group="Team"] .fi-sidebar-nav-group-label::before {
+    content: "👥";
+    margin-right: 8px;
+}
+
+.fi-sidebar-nav-group[data-group="Projects"] .fi-sidebar-nav-group-label::before {
+    content: "📁";
+    margin-right: 8px;
+}
+
+.fi-sidebar-nav-group[data-group="Analytics"] .fi-sidebar-nav-group-label::before {
+    content: "📊";
+    margin-right: 8px;
+}
+
+/* Sidebar Collapse Button */
+.fi-sidebar-collapse-btn {
+    @apply bg-slate-700 hover:bg-slate-600 text-white rounded-lg p-2 transition-colors duration-200;
+}
+
+/* User Menu in Sidebar */
+.fi-sidebar-user-menu {
+    @apply bg-slate-800 border-t border-slate-700;
+}
+
+/* Search in Sidebar */
+.fi-global-search {
+    @apply bg-slate-800 border border-slate-600;
+}
+
+.fi-global-search-input {
+    @apply bg-slate-800 text-white placeholder-slate-400;
+}
+
+/* Responsive Sidebar */
+@media (max-width: 768px) {
+    .fi-sidebar {
+        @apply bg-slate-900;
+    }
+}
+
+

@@ -83,6 +83,37 @@
                                 <div class="text-sm text-gray-300 line-clamp-2">{{ Str::limit($project->developer_notes, 150) }}</div>
                             </div>
                         @endif
+
+                        <!-- Recent Document Uploads -->
+                        @if($project->documents && $project->documents->count() > 0)
+                            <div>
+                                <div class="text-sm font-medium text-purple-300 mb-2">Recent Documents</div>
+                                <div class="space-y-1">
+                                    @foreach($project->documents as $index => $document)
+                                        <div class="flex items-center justify-between text-xs text-gray-300 hover:bg-gray-700/30 rounded-lg p-2 transition-colors {{ $index >= 3 ? 'hidden more-docs-' . $project->id : '' }}">
+                                            <div class="flex items-center flex-1 min-w-0">
+                                                <i class="fas fa-file text-purple-400 mr-2 flex-shrink-0"></i>
+                                                <span class="truncate">{{ $document->name }}</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2 flex-shrink-0">
+                                                <span class="text-gray-400">{{ $document->created_at->format('M d') }}</span>
+                                                <a href="{{ route('developer.project-documents.download', $document) }}" class="text-blue-400 hover:text-blue-300 transition-colors" title="Download">
+                                                    <i class="fas fa-download text-xs"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @if($project->documents->count() > 3)
+                                        <div class="text-xs text-center py-1">
+                                            <button onclick="toggleMoreDocuments({{ $project->id }})" class="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer" id="toggle-btn-{{ $project->id }}">
+                                                <span id="toggle-text-{{ $project->id }}">+{{ $project->documents->count() - 3 }} more documents</span>
+                                                <i class="fas fa-chevron-down ml-1" id="toggle-icon-{{ $project->id }}"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Progress Bar -->
@@ -158,20 +189,22 @@
         </div>
     @endif
 
+
 <!-- Update Status Modal -->
 <div id="statusModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-2xl max-w-md w-full">
+        <div class="bg-gray-800/95 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-2xl max-w-lg w-full">
             <div class="p-8">
-                <h3 class="text-2xl font-bold text-white mb-6">Update Project Status</h3>
-                <form id="statusForm">
+                <h3 class="text-2xl font-bold text-white mb-6">Update Project</h3>
+                <form id="statusForm" enctype="multipart/form-data">
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-white mb-3">Status</label>
                         <select id="projectStatus" class="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
-                            <option value="on_hold">On Hold</option>
                             <option value="completed">Completed</option>
+                            <option value="on_hold">On Hold</option>
+                            <option value="finalized">Finalized</option>
+                            <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
                     <div class="mb-6">
@@ -179,15 +212,22 @@
                         <input type="number" id="projectProgress" min="0" max="100" class="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-white mb-3">Notes</label>
-                        <textarea id="projectNotes" rows="3" class="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add any notes about the project..."></textarea>
+                        <label class="block text-sm font-medium text-white mb-3">Update Notes</label>
+                        <textarea id="projectNotes" rows="3" class="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Describe what you've worked on, challenges faced, or next steps..."></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-white mb-3">Upload Document (Optional)</label>
+                        <div class="relative">
+                            <input type="file" id="projectDocument" class="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+                            <div class="text-xs text-gray-400 mt-2">Max file size: 10MB. Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG, GIF</div>
+                        </div>
                     </div>
                     <div class="flex justify-end space-x-4">
                         <button type="button" onclick="closeStatusModal()" class="px-6 py-3 border border-gray-600/50 rounded-xl text-gray-300 hover:bg-gray-700/50 transition-all duration-200">
                             Cancel
                         </button>
                         <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
-                            Update Status
+                            Update Project
                         </button>
                     </div>
                 </form>
@@ -195,6 +235,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
 let currentProjectId = null;
@@ -209,6 +250,35 @@ function closeStatusModal() {
     currentProjectId = null;
 }
 
+function toggleMoreDocuments(projectId) {
+    const moreDocs = document.querySelectorAll('.more-docs-' + projectId);
+    const toggleText = document.getElementById('toggle-text-' + projectId);
+    const toggleIcon = document.getElementById('toggle-icon-' + projectId);
+    
+    const isHidden = moreDocs[0].classList.contains('hidden');
+    
+    moreDocs.forEach(doc => {
+        if (isHidden) {
+            doc.classList.remove('hidden');
+        } else {
+            doc.classList.add('hidden');
+        }
+    });
+    
+    if (isHidden) {
+        toggleText.textContent = 'Show less';
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-chevron-up');
+    } else {
+        const totalDocs = document.querySelectorAll('.more-docs-' + projectId).length + 3;
+        const moreCount = totalDocs - 3;
+        toggleText.textContent = '+' + moreCount + ' more documents';
+        toggleIcon.classList.remove('fa-chevron-up');
+        toggleIcon.classList.add('fa-chevron-down');
+    }
+}
+
+
 document.getElementById('statusForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -216,23 +286,84 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
     formData.append('status', document.getElementById('projectStatus').value);
     formData.append('progress', document.getElementById('projectProgress').value);
     formData.append('developer_notes', document.getElementById('projectNotes').value);
+    
+    // Add file if selected
+    const fileInput = document.getElementById('projectDocument');
+    if (fileInput.files.length > 0) {
+        formData.append('file', fileInput.files[0]);
+        formData.append('document_description', document.getElementById('projectNotes').value || 'Project update document');
+    }
+    
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    
+    // Debug: Log form data
+    console.log('Form data being sent:');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+    submitBtn.disabled = true;
     
     fetch(`/developer/projects/${currentProjectId}/update-status`, {
         method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            return response.text().then(text => {
+                console.error('Non-JSON response:', text);
+                throw new Error('Server returned non-JSON response');
+            });
+        }
+        
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
-            location.reload();
+            // Show success message in modal
+            const modal = document.getElementById('statusModal');
+            const form = document.getElementById('statusForm');
+            form.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Success!</h3>
+                    <p class="text-gray-300 mb-6">Project updated successfully!</p>
+                    <button onclick="closeStatusModal(); location.reload();" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-check mr-2"></i>Continue
+                    </button>
+                </div>
+            `;
         } else {
-            alert('Error updating project status');
+            alert('Error updating project: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating project status');
+        console.error('Detailed error:', error);
+        alert('Error updating project: ' + error.message);
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 });
 

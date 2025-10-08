@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Team extends Model
 {
@@ -24,42 +21,60 @@ class Team extends Model
         'specializations' => 'array',
     ];
 
-    public function teamLead(): BelongsTo
+    /**
+     * Get the team lead
+     */
+    public function teamLead()
     {
         return $this->belongsTo(User::class, 'team_lead_id');
     }
 
-    public function members(): BelongsToMany
+    /**
+     * Get team members
+     */
+    public function members()
     {
         return $this->belongsToMany(User::class, 'team_members')
-            ->withPivot(['role', 'joined_at'])
+            ->withPivot('role', 'joined_at')
             ->withTimestamps();
     }
 
-    public function projects(): BelongsToMany
+    /**
+     * Get team projects
+     */
+    public function projects()
     {
         return $this->belongsToMany(Project::class, 'project_teams')
-            ->withPivot(['assigned_at'])
+            ->withPivot('assigned_at')
             ->withTimestamps();
     }
 
-    public function activeMembers(): BelongsToMany
+    /**
+     * Scope for active teams
+     */
+    public function scopeActive($query)
     {
-        return $this->members()->wherePivot('role', '!=', 'inactive');
+        return $query->where('status', 'active');
     }
 
-    public function isActive(): bool
+    /**
+     * Get team performance metrics
+     */
+    public function getPerformanceMetrics()
     {
-        return $this->status === 'active';
-    }
-
-    public function getMemberCountAttribute(): int
-    {
-        return $this->members()->count();
-    }
-
-    public function getActiveProjectCountAttribute(): int
-    {
-        return $this->projects()->whereIn('status', ['in_progress', 'pending'])->count();
+        $totalProjects = $this->projects()->count();
+        $completedProjects = $this->projects()->whereIn('status', ['completed', 'finalized'])->count();
+        $activeProjects = $this->projects()->whereIn('status', ['in_progress', 'editing'])->count();
+        
+        $completionRate = $totalProjects > 0 ? round(($completedProjects / $totalProjects) * 100, 1) : 0;
+        
+        return [
+            'total_projects' => $totalProjects,
+            'completed_projects' => $completedProjects,
+            'active_projects' => $activeProjects,
+            'completion_rate' => $completionRate,
+        ];
     }
 }
+
+

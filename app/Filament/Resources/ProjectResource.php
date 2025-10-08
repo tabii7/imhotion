@@ -4,271 +4,325 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\Project;
+use App\Models\User;
+use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\FileUpload;
-
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\Action;
-
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationGroup = 'Team & Projects';
     protected static ?string $navigationLabel = 'Projects';
-    protected static ?int    $navigationSort  = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
-        return $form->schema([
-            Section::make('Project')
-                ->columns(2)
-                ->schema([
-                    TextInput::make('title')
-                        ->label('Project')
-                        ->required()
-                        ->maxLength(255),
+        return $form
+            ->schema([
+                Section::make('Project Information')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Project Name'),
 
-                    Select::make('user_id')
-                        ->label('Client')
-                        ->relationship('user', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->nullable(),
+                        Select::make('user_id')
+                            ->label('Client')
+                            ->options(User::where('role', 'client')->pluck('name', 'id'))
+                            ->required()
+                            ->searchable(),
 
-                    Select::make('status')
-                        ->label('Status')
-                        ->options([
-                            'pending'     => 'Pending',
-                            'in_progress' => 'In progress',
-                            'completed'   => 'Completed',
-                            'cancelled'   => 'Cancelled',
-                        ])
-                        ->default('pending')
-                        ->required(),
+                        Select::make('assigned_developer_id')
+                            ->label('Assigned Developer')
+                            ->options(User::where('role', 'developer')->pluck('name', 'id'))
+                            ->searchable()
+                            ->placeholder('Select a developer'),
 
-                    DatePicker::make('due_date')
-                        ->label('Due date')
-                        ->native(false)
-                        ->displayFormat('d-m-Y')
-                        ->nullable(),
+                        Select::make('assigned_administrator_id')
+                            ->label('Assigned Administrator')
+                            ->options(User::whereIn('role', ['admin', 'administrator'])->pluck('name', 'id'))
+                            ->searchable()
+                            ->placeholder('Select an administrator'),
 
-                    DatePicker::make('completed_at')
-                        ->label('Completed at')
-                        ->native(false)
-                        ->displayFormat('d-m-Y')
-                        ->nullable(),
+                        Textarea::make('topic')
+                            ->required()
+                            ->rows(4)
+                            ->label('Description'),
 
-                    TextInput::make('total_days')
-                        ->label('Total days')
-                        ->numeric()
-                        ->default(0)
-                        ->minValue(0)
-                        ->suffix('days')
-                        ->required(),
+                        Select::make('status')
+                            ->options([
+                                'in_progress' => 'In Progress',
+                                'completed' => 'Completed',
+                                'on_hold' => 'On Hold',
+                                'finalized' => 'Finalized',
+                                'canceled' => 'Cancelled',
+                            ])
+                            ->required()
+                            ->default('in_progress'),
 
-                    TextInput::make('days_used')
-                        ->label('Days used')
-                        ->numeric()
-                        ->default(0)
-                        ->minValue(0)
-                        ->suffix('days'),
+                        Select::make('priority')
+                            ->options([
+                                'low' => 'Low',
+                                'medium' => 'Medium',
+                                'high' => 'High',
+                            ])
+                            ->default('medium'),
 
-                    TextInput::make('weekend_days')
-                        ->label('Weekend days')
-                        ->numeric()
-                        ->default(0)
-                        ->minValue(0)
-                        ->suffix('days'),
+                        DatePicker::make('start_date')
+                            ->label('Start Date'),
 
-                    Textarea::make('pending_note')
-                        ->label('Pending note')
-                        ->rows(2)
-                        ->columnSpanFull(),
+                        DatePicker::make('end_date')
+                            ->label('End Date'),
 
-                    Textarea::make('cancel_reason')
-                        ->label('Cancel reason')
-                        ->rows(2)
-                        ->columnSpanFull(),
-                ]),
-        ]);
+                        TextInput::make('total_days')
+                            ->numeric()
+                            ->label('Total Days')
+                            ->default(0)
+                            ->required(),
+
+                        TextInput::make('estimated_hours')
+                            ->numeric()
+                            ->step(0.5)
+                            ->label('Estimated Hours')
+                            ->default(0)
+                            ->required()
+                            ->helperText('Enter the estimated hours for this project'),
+
+                        Textarea::make('notes')
+                            ->rows(3)
+                            ->label('Notes'),
+                    ])
+                    ->columns(2),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => Project::query()
-                ->with('user')
-                ->withCount('documents')
-            )
-            ->defaultSort('id', 'desc')
-
-            // Row click opens the popup (NOT Edit)
-            ->recordUrl(null)
-            ->recordAction('view')
-
             ->columns([
-                TextColumn::make('display_code')
-                    ->label('ID')
-                    ->state(fn (Project $record) => now()->format('y') . (string) $record->id)
-                    ->tooltip(fn (Project $record) => 'Internal ID: ' . $record->id)
-                    ->copyable()
-                    ->grow(false)
-                    // virtual column: not backed by a DB column, avoid database ORDER BY errors
-                    ->sortable(false),
-
-                TextColumn::make('title')
-                    ->label('Project')
-                    ->extraAttributes(['class' => 'underline cursor-pointer'])
+                TextColumn::make('name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold')
+                    ->description(fn (Project $record): string => $record->topic ?? 'No description'),
 
                 TextColumn::make('user.name')
                     ->label('Client')
-                    ->placeholder('—')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('assignedDeveloper.name')
+                    ->label('Developer')
+                    ->sortable()
+                    ->placeholder('Unassigned')
+                    ->color(fn ($state): string => $state ? 'success' : 'danger'),
 
                 TextColumn::make('status')
-                    ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'pending'     => 'Pending',
-                        'in_progress' => 'In progress',
-                        'completed'   => 'Completed',
-                        'cancelled'   => 'Cancelled',
-                        default       => ucfirst((string) $state),
-                    })
-                    ->color(fn (?string $state) => match ($state) {
-                        'pending'     => 'gray',
-                        'in_progress' => 'warning',
-                        'completed'   => 'success',
-                        'cancelled'   => 'danger',
-                        default       => 'gray',
-                    })
-                    ->grow(false),
-
-                TextColumn::make('status_info')
-                    ->label('When / Note')
-                    ->state(function (Project $record): string {
-                        $fmt = fn ($val) => $val
-                            ? ($val instanceof Carbon ? $val : Carbon::parse($val))->format('d-m-y')
-                            : null;
-
-                        $due  = $fmt($record->due_date ?? null);
-                        $done = $fmt($record->completed_at ?? null);
-
-                        return match ($record->status) {
-                            'in_progress', 'pending' => $due
-                                ? 'Delivery on ' . $due
-                                : (filled($record->pending_note) ? (string) $record->pending_note : '—'),
-                            'completed'   => $done ? 'Completed ' . $done : 'Completed —',
-                            'cancelled'   => filled($record->cancel_reason) ? (string) $record->cancel_reason : 'Cancelled',
-                            default       => $due ? 'Delivery on ' . $due : '—',
-                        };
-                    })
-                    ->wrap(),
-
-                TextColumn::make('days_breakdown')
-                    ->label('Days')
-                    ->state(function (Project $record): string {
-                        $total = $record->total_days ?? 0;
-                        $used = $record->days_used ?? 0;
-                        $weekend = $record->weekend_days ?? 0;
-                        $remaining = $total - $used;
-                        
-                        return "{$used}/{$total} used" . ($weekend > 0 ? " +{$weekend} weekend" : '') . ($remaining > 0 ? " ({$remaining} left)" : '');
-                    })
-                    ->sortable(false)
-                    ->alignCenter()
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                // Docs count (white square, BLACK number; 0 by default)
-                TextColumn::make('documents_count')
-                    ->label('Docs')
-                    ->sortable()
-                    ->alignCenter()
-                    ->getStateUsing(fn (Project $record) => (int) ($record->documents_count ?? 0))
-                    ->formatStateUsing(function (?int $state): string {
-                        $count = is_numeric($state) ? (int) $state : 0;
-                        return '<span style="display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:0.25rem;background:#ffffff;color:#000000;border:1px solid #e5e7eb;font-size:0.75rem;font-weight:700;">'
-                            . $count .
-                            '</span>';
-                    })
-                    ->html(),
-            ])
-
-            ->filters([])
-
-            ->actions([
-                // Row-click action -> details + upload
-                Action::make('view')
-                    ->label('')
-                    ->modalHeading(fn (Project $record) => 'Project: ' . $record->title)
-                    ->modalWidth('3xl')
-                    ->modalContent(fn (Project $record) => view('filament/projects/row-details', [
-                        'record' => $record->load('user', 'documents'),
-                    ]))
-                    ->form([
-                        FileUpload::make('new_documents')
-                            ->label('Add documents')
-                            ->multiple()
-                            ->downloadable()
-                            ->openable()
-                            ->storeFiles(false)
-                            ->helperText('Any file type. You can select multiple files.'),
-                    ])
-                    ->modalSubmitActionLabel('Upload')
-                    ->action(function (Project $record, array $data): void {
-                        if (!empty($data['new_documents']) && is_array($data['new_documents'])) {
-                            foreach ($data['new_documents'] as $file) {
-                                $original    = $file->getClientOriginalName(); // e.g. "specs.pdf"
-                                $baseName    = pathinfo($original, PATHINFO_FILENAME); // "specs"
-                                $dir         = "project-docs/{$record->id}";
-                                // store with a unique physical filename to avoid overwrites, keep original filename in DB:
-                                $storedName  = now()->format('YmdHis') . '_' . $original;
-                                $path        = Storage::disk('public')->putFileAs($dir, $file, $storedName);
-
-                                // DB row — NOTE: 'filename' is required by your schema
-                                $record->documents()->create([
-                                    'name'     => $baseName,             // display name (default = filename without extension)
-                                    'filename' => $original,             // original filename
-                                    'path'     => $path,                 // stored path
-                                    'size'     => $file->getSize(),      // bytes
-                                ]);
-                            }
-                        }
-
-                        // Refresh count
-                        $record->loadCount('documents');
+                    ->color(fn (string $state): string => match ($state) {
+                        'in_progress' => 'info',
+                        'completed' => 'success',
+                        'finalized' => 'success',
+                        'on_hold' => 'warning',
+                        'canceled' => 'danger',
+                        default => 'gray',
                     }),
 
-                \Filament\Tables\Actions\EditAction::make(),
-                \Filament\Tables\Actions\DeleteAction::make(),
-            ])
+                TextColumn::make('progress')
+                    ->label('Progress %')
+                    ->sortable()
+                    ->formatStateUsing(fn ($state): string => $state ? $state . '%' : '0%')
+                    ->color(fn ($state): string => match (true) {
+                        $state >= 100 => 'success',
+                        $state >= 75 => 'info',
+                        $state >= 50 => 'warning',
+                        default => 'danger',
+                    }),
 
+                TextColumn::make('estimated_hours')
+                    ->label('Est. Hours')
+                    ->sortable()
+                    ->formatStateUsing(fn ($state): string => $state ? $state . 'h' : 'Not set')
+                    ->color('info'),
+
+                TextColumn::make('documents_count')
+                    ->label('Documents')
+                    ->counts('documents')
+                    ->sortable()
+                    ->color('info'),
+
+                TextColumn::make('activities_count')
+                    ->label('Activities')
+                    ->counts('activities')
+                    ->sortable()
+                    ->color('primary'),
+
+                TextColumn::make('delivery_date')
+                    ->label('Deadline')
+                    ->date()
+                    ->sortable()
+                    ->color(fn ($state): string => $state && $state < now() ? 'danger' : 'gray'),
+
+                TextColumn::make('priority')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'high' => 'danger',
+                        'medium' => 'warning',
+                        'low' => 'success',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->options([
+                        'in_progress' => 'In Progress',
+                        'completed' => 'Completed',
+                        'on_hold' => 'On Hold',
+                        'finalized' => 'Finalized',
+                        'cancelled' => 'Cancelled',
+                    ]),
+
+                SelectFilter::make('assigned_developer_id')
+                    ->label('Developer')
+                    ->relationship('assignedDeveloper', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('priority')
+                    ->options([
+                        'high' => 'High',
+                        'medium' => 'Medium',
+                        'low' => 'Low',
+                    ]),
+
+                Tables\Filters\Filter::make('overdue')
+                    ->label('Overdue Projects')
+                    ->query(fn (Builder $query): Builder => $query->where('delivery_date', '<', now())
+                        ->whereNotIn('status', ['completed', 'cancelled', 'finalized'])),
+
+                Tables\Filters\Filter::make('has_documents')
+                    ->label('Has Documents')
+                    ->query(fn (Builder $query): Builder => $query->has('documents')),
+
+                Tables\Filters\Filter::make('no_developer')
+                    ->label('Unassigned Projects')
+                    ->query(fn (Builder $query): Builder => $query->whereNull('assigned_developer_id')),
+            ])
+            ->actions([
+                ViewAction::make()
+                    ->label('View Details')
+                    ->url(fn (Project $record): string => route('admin.custom-projects.show', $record)),
+                EditAction::make(),
+                Action::make('assign')
+                    ->label('Quick Assign')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('info')
+                    ->form([
+                        Select::make('assigned_developer_id')
+                            ->label('Assign Developer')
+                            ->options(User::where('role', 'developer')->pluck('name', 'id'))
+                            ->searchable()
+                            ->placeholder('Select a developer'),
+                        Select::make('assigned_administrator_id')
+                            ->label('Assign Administrator')
+                            ->options(User::whereIn('role', ['admin', 'administrator'])->pluck('name', 'id'))
+                            ->searchable()
+                            ->placeholder('Select an administrator'),
+                    ])
+                    ->action(function (Project $record, array $data): void {
+                        $record->update($data);
+                    }),
+                Action::make('view_documents')
+                    ->label('Documents')
+                    ->icon('heroicon-o-document')
+                    ->color('info')
+                    ->url(fn (Project $record): string => route('admin.custom-projects.show', $record) . '#documents'),
+                Action::make('view_activities')
+                    ->label('Activities')
+                    ->icon('heroicon-o-clock')
+                    ->color('primary')
+                    ->url(fn (Project $record): string => route('admin.custom-projects.show', $record) . '#activities'),
+                DeleteAction::make(),
+            ])
             ->bulkActions([
-                \Filament\Tables\Actions\DeleteBulkAction::make(),
-            ]);
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('assign_developer')
+                        ->label('Assign Developer')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('info')
+                        ->form([
+                            Select::make('assigned_developer_id')
+                                ->label('Assign Developer')
+                                ->options(User::where('role', 'developer')->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $records): void {
+                            $records->each(fn (Project $record) => $record->update($data));
+                        }),
+                    Tables\Actions\BulkAction::make('update_status')
+                        ->label('Update Status')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->form([
+                            Select::make('status')
+                                ->label('Status')
+                                ->options([
+                                    'in_progress' => 'In Progress',
+                                    'completed' => 'Completed',
+                                    'on_hold' => 'On Hold',
+                                    'finalized' => 'Finalized',
+                                    'cancelled' => 'Cancelled',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $records): void {
+                            $records->each(fn (Project $record) => $record->update($data));
+                        }),
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListProjects::route('/'),
+            'index' => Pages\ListProjects::route('/'),
             'create' => Pages\CreateProject::route('/create'),
-            'edit'   => Pages\EditProject::route('/{record}/edit'),
+            'view' => Pages\ViewProject::route('/{record}'),
+            'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }
 }

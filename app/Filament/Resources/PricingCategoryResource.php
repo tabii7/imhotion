@@ -14,7 +14,7 @@ class PricingCategoryResource extends Resource
     protected static ?string $model = PricingCategory::class;
     // Use an existing heroicon name to avoid SvgNotFound errors
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Catalog';
+    protected static ?string $navigationGroup = 'Business';
     protected static ?string $navigationLabel = 'Pricing';
 
     public static function form(Forms\Form $form): Forms\Form

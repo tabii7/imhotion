@@ -54,22 +54,64 @@ class AdministratorController extends Controller
 
     public function projects()
     {
-        $projects = Project::with(['user', 'assignedDeveloper', 'assignedAdministrator'])
-            ->latest()
-            ->paginate(20);
+        $projects = Project::with([
+            'user', 
+            'assignedDeveloper', 
+            'assignedAdministrator',
+            'requirements',
+            'documents' => function($query) {
+                $query->latest()->limit(5);
+            },
+            'activities' => function($query) {
+                $query->latest()->limit(10);
+            },
+            'timeLogs' => function($query) {
+                $query->latest()->limit(10);
+            }
+        ])
+        ->latest()
+        ->paginate(20);
 
-        return view('administrator.projects', compact('projects'));
+        $availableDevelopers = User::where('role', 'developer')
+            ->where('is_available', true)
+            ->select('id', 'name', 'email', 'experience_level')
+            ->get();
+
+        return view('administrator.projects', compact('projects', 'availableDevelopers'));
     }
 
     public function showProject(Project $project)
     {
-        $project->load(['user', 'assignedDeveloper', 'assignedAdministrator', 'requirements', 'activities', 'documents']);
+        $project->load([
+            'user', 
+            'assignedDeveloper', 
+            'assignedAdministrator', 
+            'requirements', 
+            'activities', 
+            'documents' => function($query) {
+                $query->with('uploadedBy')->latest()->limit(10);
+            },
+            'progress' => function($query) {
+                $query->latest()->limit(10);
+            }
+        ]);
         
         $availableDevelopers = User::where('role', 'developer')
             ->where('is_available', true)
             ->get();
 
-        return view('administrator.projects.show', compact('project', 'availableDevelopers'));
+        // Get recent updates from project progress
+        $recentUpdates = \App\Models\ProjectProgress::where('project_id', $project->id)
+            ->with('project:id,name')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(function($progress) {
+                $progress->project_name = $progress->project->name;
+                return $progress;
+            });
+
+        return view('administrator.projects.show', compact('project', 'availableDevelopers', 'recentUpdates'));
     }
 
     public function assignDeveloper(Request $request, Project $project)
@@ -164,6 +206,7 @@ class AdministratorController extends Controller
     {
         $developers = User::where('role', 'developer')
             ->with(['assignedProjects', 'managedProjects'])
+            ->withCount('assignedProjects')
             ->paginate(20);
 
         return view('administrator.developers', compact('developers'));
@@ -189,4 +232,31 @@ class AdministratorController extends Controller
 
         return view('administrator.reports', compact('reports'));
     }
+
+    public function downloadDocument(\App\Models\ProjectDocument $document)
+    {
+        // Administrators can download any project document
+        // Check if file exists in storage
+        if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($document->path)) {
+            abort(404, 'File not found.');
+        }
+
+        // Get the full file path
+        $filePath = storage_path('app/public/' . $document->path);
+        
+        // Ensure the file exists on disk
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found on disk.');
+        }
+
+        // Use the original filename for download, preserving the extension
+        $downloadName = $document->original_filename;
+        if (empty($downloadName)) {
+            // Fallback to the stored filename if original_filename is not available
+            $downloadName = $document->filename;
+        }
+
+        return response()->download($filePath, $downloadName);
+    }
+
 }

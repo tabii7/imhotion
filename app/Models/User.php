@@ -81,6 +81,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Project::class);
     }
 
+    public function assignedProjects()
+    {
+        return $this->hasMany(Project::class, 'assigned_developer_id');
+    }
+
     // Role-based methods
     public function isAdmin(): bool
     {
@@ -103,11 +108,6 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // Developer-specific relationships
-    public function assignedProjects()
-    {
-        return $this->hasMany(Project::class, 'assigned_developer_id');
-    }
-
     public function managedProjects()
     {
         return $this->hasMany(Project::class, 'assigned_administrator_id');
@@ -120,27 +120,6 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // Team relationships
-    public function teams()
-    {
-        return $this->belongsToMany(Team::class, 'team_members')
-            ->withPivot(['role', 'joined_at'])
-            ->withTimestamps();
-    }
-
-    public function ledTeams()
-    {
-        return $this->hasMany(Team::class, 'team_lead_id');
-    }
-
-    public function isTeamLead(): bool
-    {
-        return $this->ledTeams()->exists();
-    }
-
-    public function isTeamMember(Team $team): bool
-    {
-        return $this->teams()->where('team_id', $team->id)->exists();
-    }
 
     // Check if user can access admin panel
     public function canAccessPanel(Panel $panel): bool

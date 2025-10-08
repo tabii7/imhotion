@@ -27,11 +27,17 @@ class DashboardController extends Controller
 
         $active = Project::where('user_id', Auth::id())
             ->whereIn('status', $activeStatuses)
+            ->with(['assignedDeveloper', 'progress.developer', 'files' => function($query) {
+                $query->where('is_public', true);
+            }])
             ->orderBy('created_at', 'desc')
             ->get();
 
         $finalized = Project::where('user_id', Auth::id())
             ->whereIn('status', $finalizedStatuses)
+            ->with(['assignedDeveloper', 'progress.developer', 'files' => function($query) {
+                $query->where('is_public', true);
+            }])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -39,11 +45,19 @@ class DashboardController extends Controller
         $purchasedDays = $user->purchases()->where('status', 'paid')->sum('days');
         $usedDays = Project::where('user_id', Auth::id())->sum('days_used');
 
+        // Calculate hours tracking
+        $totalHoursPurchased = $purchasedDays * 8; // Assuming 8 hours per day
+        $totalHoursUsed = $active->sum('total_hours_worked') + $finalized->sum('total_hours_worked');
+        $totalHoursRemaining = max(0, $totalHoursPurchased - $totalHoursUsed);
+
         // Calculate counts for stats
         $counts = [
             'active' => $active->count(),
             'balance' => max(0, $purchasedDays - $usedDays), // Total purchased days - used days
             'finalized' => $finalized->count(),
+            'total_hours_purchased' => $totalHoursPurchased,
+            'total_hours_used' => $totalHoursUsed,
+            'total_hours_remaining' => $totalHoursRemaining,
         ];
 
     return view('dashboard', compact('pricingItems', 'userPurchases', 'user', 'active', 'finalized', 'counts'))->with('initialSection', $section);

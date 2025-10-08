@@ -59,7 +59,16 @@ class DeveloperController extends Controller
     public function projects()
     {
         $projects = Auth::user()->assignedProjects()
-            ->with(['user', 'assignedAdministrator'])
+            ->with([
+                'user', 
+                'assignedAdministrator', 
+                'documents' => function($query) {
+                    $query->latest()->limit(5);
+                },
+                'progress' => function($query) {
+                    $query->latest()->limit(10);
+                }
+            ])
             ->latest()
             ->paginate(20);
 
@@ -80,41 +89,159 @@ class DeveloperController extends Controller
 
     public function updateProjectStatus(Request $request, Project $project)
     {
-        // Ensure developer can only update their assigned projects
-        if ($project->assigned_developer_id !== Auth::id()) {
-            abort(403, 'You can only update your assigned projects.');
-        }
+        try {
+            // Debug logging
+            \Log::info('Update project status request received', [
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+                'has_file' => $request->hasFile('file')
+            ]);
+            
+            // Ensure developer can only update their assigned projects
+            if ($project->assigned_developer_id !== Auth::id()) {
+                abort(403, 'You can only update your assigned projects.');
+            }
 
-        $request->validate([
-            'status' => 'required|in:in_progress,completed,on_hold',
-            'progress' => 'nullable|integer|min:0|max:100',
-            'developer_notes' => 'nullable|string|max:1000',
-        ]);
+            $request->validate([
+                'status' => 'required|in:in_progress,completed,on_hold,finalized,cancelled',
+                'progress' => 'nullable|integer|min:0|max:100',
+                'developer_notes' => 'nullable|string|max:1000',
+                'file' => 'nullable|file|max:10240', // 10MB max
+                'document_description' => 'nullable|string|max:500',
+            ]);
+            
+            \Log::info('Validation passed, proceeding with update');
 
         $oldStatus = $project->status;
+            
+            // Update project
         $project->update([
             'status' => $request->status,
             'progress' => $request->progress ?? $project->progress,
             'developer_notes' => $request->developer_notes,
             'last_activity_at' => now(),
         ]);
+        
+        \Log::info('Project updated successfully', ['project_id' => $project->id, 'new_status' => $request->status]);
+
+            $document = null;
+            $progress = null;
+
+            // Handle file upload if provided
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('project-documents', $filename, 'public');
+
+            $document = ProjectDocument::create([
+                'project_id' => $project->id,
+                'name' => $request->document_description ?? $file->getClientOriginalName(),
+                'filename' => $filename,
+                'original_filename' => $file->getClientOriginalName(),
+                'path' => $path,
+                'size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'uploaded_by' => Auth::id(),
+            ]);
+            
+            \Log::info('Document created successfully', ['document_id' => $document->id, 'filename' => $filename]);
+        }
+
+            // Create a progress entry for this update
+            $tasksCompleted = [];
+            if ($request->developer_notes) {
+                $tasksCompleted[] = "Status update: {$request->status}";
+            }
+            if ($document) {
+                $tasksCompleted[] = "Document uploaded: {$document->name}";
+            }
+
+        $progress = \App\Models\ProjectProgress::create([
+            'project_id' => $project->id,
+            'developer_id' => Auth::id(),
+            'work_date' => now()->toDateString(),
+            'hours_worked' => 0, // Status updates don't count as hours
+            'description' => $request->developer_notes ?: "Project status updated to {$request->status}",
+            'progress_percentage' => $request->progress ?? 0,
+            'tasks_completed' => $tasksCompleted,
+            'challenges_faced' => [],
+            'next_steps' => [],
+            'status' => $request->status,
+        ]);
+        
+        \Log::info('Progress entry created successfully', ['progress_id' => $progress->id]);
 
         // Log activity
-        ProjectActivity::create([
-            'project_id' => $project->id,
-            'user_id' => Auth::id(),
-            'type' => 'status_update',
-            'description' => "Project status updated from {$oldStatus} to {$request->status}",
-            'metadata' => [
-                'old_status' => $oldStatus,
-                'new_status' => $request->status,
-                'progress' => $request->progress,
-                'notes' => $request->developer_notes,
-            ],
-            'performed_at' => now(),
+        $activityDescription = "Project status updated from {$oldStatus} to {$request->status}";
+        if ($document) {
+            $activityDescription .= " and document uploaded: {$document->name}";
+        }
+
+        \Log::info('Creating activity log', ['description' => $activityDescription]);
+
+        try {
+            ProjectActivity::create([
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'type' => 'status_update',
+                'description' => $activityDescription,
+                'metadata' => [
+                    'old_status' => $oldStatus,
+                    'new_status' => $request->status,
+                    'progress' => $request->progress,
+                    'notes' => $request->developer_notes,
+                    'document_id' => $document?->id,
+                    'progress_id' => $progress->id,
+                ],
+                'performed_at' => now(),
+            ]);
+
+            \Log::info('Activity log created successfully');
+        } catch (\Exception $e) {
+            \Log::error('Failed to create activity log: ' . $e->getMessage(), [
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Don't fail the entire request if activity logging fails
+        }
+
+        // Always return JSON response for this endpoint
+        \Log::info('About to check for AJAX request', [
+            'is_ajax' => $request->ajax(),
+            'wants_json' => $request->wantsJson(),
+            'header_x_requested_with' => $request->header('X-Requested-With'),
+            'header_accept' => $request->header('Accept'),
+            'content_type' => $request->header('Content-Type')
+        ]);
+        
+        \Log::info('Returning JSON response');
+        return response()->json([
+            'success' => true,
+            'message' => 'Project updated successfully.'
         ]);
 
-        return back()->with('success', 'Project status updated successfully.');
+    } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Project update error: ' . $e->getMessage(), [
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating project: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return back()->with('error', 'Error updating project: ' . $e->getMessage());
+        }
     }
 
     public function logTime(Request $request, Project $project)
@@ -179,10 +306,25 @@ class DeveloperController extends Controller
             'project_id' => $project->id,
             'name' => $request->description ?? $file->getClientOriginalName(),
             'filename' => $filename,
+            'original_filename' => $file->getClientOriginalName(),
             'path' => $path,
             'size' => $file->getSize(),
             'mime_type' => $file->getMimeType(),
             'uploaded_by' => Auth::id(),
+        ]);
+
+        // Create a progress entry for this document upload
+        $progress = \App\Models\ProjectProgress::create([
+            'project_id' => $project->id,
+            'developer_id' => Auth::id(),
+            'work_date' => now()->toDateString(),
+            'hours_worked' => 0, // Document upload doesn't count as hours
+            'description' => "Uploaded document: {$document->name}",
+            'progress_percentage' => 0,
+            'tasks_completed' => ["Document upload: {$document->name}"],
+            'challenges_faced' => [],
+            'next_steps' => [],
+            'status' => 'completed',
         ]);
 
         // Update project's last activity
@@ -196,13 +338,66 @@ class DeveloperController extends Controller
             'description' => "Uploaded document: {$document->name}",
             'metadata' => [
                 'document_id' => $document->id,
+                'progress_id' => $progress->id,
                 'filename' => $filename,
                 'size' => $file->getSize(),
             ],
             'performed_at' => now(),
         ]);
 
+        \Log::info('Activity log created successfully');
+
+        // Return JSON response for AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            \Log::info('Returning JSON response', ['success' => true]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Project updated successfully.',
+                'document' => [
+                    'id' => $document->id,
+                    'name' => $document->name,
+                    'size' => $document->size,
+                    'uploaded_at' => $document->created_at->format('M d, Y H:i'),
+                ],
+                'progress' => [
+                    'id' => $progress->id,
+                    'description' => $progress->description,
+                    'created_at' => $progress->created_at->format('M d, Y H:i'),
+                ]
+            ]);
+        }
+
         return back()->with('success', 'Document uploaded successfully.');
+    }
+
+    public function downloadDocument(ProjectDocument $document)
+    {
+        // Ensure developer can only download documents from their assigned projects
+        if ($document->project->assigned_developer_id !== Auth::id()) {
+            abort(403, 'You can only download documents from your assigned projects.');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->path)) {
+            abort(404, 'File not found.');
+        }
+
+        // Get the full file path
+        $filePath = storage_path('app/public/' . $document->path);
+        
+        // Ensure the file exists
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found on disk.');
+        }
+
+        // Use the original filename for download, preserving the extension
+        $downloadName = $document->original_filename;
+        if (empty($downloadName)) {
+            // Fallback to the stored filename if original_filename is not available
+            $downloadName = $document->filename;
+        }
+
+        return response()->download($filePath, $downloadName);
     }
 
     public function timeLogs()

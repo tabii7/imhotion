@@ -59,9 +59,48 @@
         <div class="text-white text-base font-semibold mb-1 leading-tight">
             {{ $project->title ?? 'Project Name' }} - {{ $project->topic ?? 'Topic' }}
         </div>
-        <div class="text-sidebar-text text-sm font-normal leading-tight">
+        <div class="text-sidebar-text text-sm font-normal leading-tight mb-2">
             {{ $deliveryText }}
         </div>
+        
+        <!-- Progress Information -->
+        <div class="flex items-center space-x-4 text-xs">
+            @if($project->assignedDeveloper)
+                <div class="flex items-center text-blue-300">
+                    <i class="fas fa-user mr-1"></i>
+                    <span>{{ $project->assignedDeveloper->name }}</span>
+                </div>
+            @endif
+            
+            <div class="flex items-center text-green-300">
+                <i class="fas fa-clock mr-1"></i>
+                <span>{{ number_format($project->total_hours_worked, 1) }}h used</span>
+            </div>
+            
+            @if($project->overall_progress > 0)
+                <div class="flex items-center text-yellow-300">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    <span>{{ $project->overall_progress }}% complete</span>
+                </div>
+            @endif
+            
+            @if($project->public_files->count() > 0)
+                <div class="flex items-center text-purple-300">
+                    <i class="fas fa-file-upload mr-1"></i>
+                    <span>{{ $project->public_files->count() }} files</span>
+                </div>
+            @endif
+        </div>
+        
+        <!-- Progress Bar -->
+        @if($project->overall_progress > 0)
+            <div class="mt-2">
+                <div class="w-full bg-gray-700 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500" 
+                         style="width: {{ $project->overall_progress }}%"></div>
+                </div>
+            </div>
+        @endif
     </div>
     
     <!-- Status Badge -->
@@ -71,23 +110,35 @@
         </span>
     </div>
     
-    <!-- Action Button -->
-    <div class="flex-shrink-0">
+    <!-- Action Buttons -->
+    <div class="flex-shrink-0 flex space-x-2">
         @if($section === 'finalized')
             @if($project->status === 'cancelled')
                 <button class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
                     Expired
                 </button>
             @else
+                <a href="{{ route('progress.show', $project) }}" 
+                   class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors duration-200">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    View Progress
+                </a>
                 <button onclick="downloadFiles({{ $project->id }})" 
                         class="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-200">
-                    Download Files
+                    <i class="fas fa-download mr-1"></i>
+                    Files
                 </button>
             @endif
         @else
+            <a href="{{ route('progress.show', $project) }}" 
+               class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors duration-200">
+                <i class="fas fa-chart-line mr-1"></i>
+                Progress
+            </a>
             <button onclick="downloadFiles({{ $project->id }})" 
                     class="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-200">
-                Download Files
+                <i class="fas fa-download mr-1"></i>
+                Files
             </button>
         @endif
     </div>

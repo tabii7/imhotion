@@ -39,6 +39,10 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT', env('APP_URL') . '/auth/google/callback'),
+        'credentials_path' => env('GOOGLE_CREDENTIALS_PATH', storage_path('app/google-credentials.json')),
+        'access_token' => env('GOOGLE_ACCESS_TOKEN'),
+        'refresh_token' => env('GOOGLE_REFRESH_TOKEN'),
+        'drive_folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
     ],
 
 ];

@@ -56,3 +56,6 @@ class ReportSubscription extends Model
         }
     }
 }
+
+
+

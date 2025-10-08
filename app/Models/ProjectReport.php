@@ -57,3 +57,6 @@ class ProjectReport extends Model
         return $query->whereNotNull('generated_at');
     }
 }
+
+
+
