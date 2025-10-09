@@ -14,13 +14,7 @@ class DeveloperManagementController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Auth::user()->isAdmin()) {
-                abort(403, 'Only admins can manage developers.');
-            }
-            return $next($request);
-        });
+        $this->middleware(\App\Http\Middleware\AdminAuth::class);
     }
 
     public function index()
@@ -47,7 +41,7 @@ class DeveloperManagementController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'specialization_id' => 'required|exists:specializations,id',
-            'skills' => 'nullable|string|max:1000',
+            'skills' => 'nullable|array',
             'experience_level' => 'required|in:junior,mid,senior',
             'is_available' => 'boolean',
             'working_hours' => 'nullable|array',
@@ -117,7 +111,7 @@ class DeveloperManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($developer->id)],
             'specialization_id' => 'required|exists:specializations,id',
-            'skills' => 'nullable|string|max:1000',
+            'skills' => 'nullable|array',
             'experience_level' => 'required|in:junior,mid,senior',
             'is_available' => 'boolean',
             'working_hours' => 'nullable|array',

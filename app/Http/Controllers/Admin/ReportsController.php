@@ -17,13 +17,7 @@ class ReportsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Auth::user()->isAdmin() && !Auth::user()->isAdministrator()) {
-                abort(403, 'Unauthorized access.');
-            }
-            return $next($request);
-        });
+        $this->middleware(\App\Http\Middleware\AdminAuth::class);
     }
 
     public function index()

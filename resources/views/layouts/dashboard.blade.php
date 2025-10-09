@@ -35,6 +35,12 @@
                         </svg>
                         Services
                     </a>
+                    <a href="{{ route('dashboard.projects') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-lg no-underline text-sidebar-text transition-all duration-300 mb-1.5 font-medium border border-transparent hover:bg-sidebar-hover hover:text-white hover:border-blue-300/30 hover:translate-x-1 {{ request()->routeIs('dashboard.projects*') ? 'bg-sidebar-active text-white border-blue-300 shadow-lg shadow-brand-dark/30' : '' }}">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5 flex-shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Projects
+                    </a>
                     <a href="{{ route('progress.index') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-lg no-underline text-sidebar-text transition-all duration-300 mb-1.5 font-medium border border-transparent hover:bg-sidebar-hover hover:text-white hover:border-blue-300/30 hover:translate-x-1 {{ request()->routeIs('progress.*') ? 'bg-sidebar-active text-white border-blue-300 shadow-lg shadow-brand-dark/30' : '' }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5 flex-shrink-0">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>

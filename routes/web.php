@@ -42,6 +42,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
     Route::get('/dashboard/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
     
+    // Client Projects Management
+    Route::get('/dashboard/projects', [DashboardController::class, 'projects'])->name('dashboard.projects');
+    Route::get('/dashboard/projects/create', [DashboardController::class, 'createProject'])->name('dashboard.projects.create');
+    Route::post('/dashboard/projects', [DashboardController::class, 'storeProject'])->name('dashboard.projects.store');
+    Route::get('/dashboard/projects/{project}', [DashboardController::class, 'showProject'])->name('dashboard.projects.show');
+    Route::get('/dashboard/projects/{project}/edit', [DashboardController::class, 'editProject'])->name('dashboard.projects.edit');
+    Route::put('/dashboard/projects/{project}', [DashboardController::class, 'updateProject'])->name('dashboard.projects.update');
+    Route::delete('/dashboard/projects/{project}', [DashboardController::class, 'destroyProject'])->name('dashboard.projects.destroy');
+    
     // Client Progress Tracking Routes
     Route::get('/progress', [App\Http\Controllers\Client\ProgressController::class, 'index'])->name('progress.index');
     Route::get('/projects/{project}/progress', [App\Http\Controllers\Client\ProgressController::class, 'show'])->name('progress.show');
@@ -330,8 +339,16 @@ Route::prefix('team')->name('team.')->group(function () {
     // Moved to end of file to avoid conflicts with auth routes
 });
 
+// Admin Login Routes (outside auth middleware)
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', function () {
+        return view('auth.login', ['admin' => true]);
+    })->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store'])->name('login.post');
+});
+
 // Admin Developer Management Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware([\App\Http\Middleware\AdminAuth::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/developers', [DeveloperManagementController::class, 'index'])->name('developers.index');
     Route::get('/developers/create', [DeveloperManagementController::class, 'create'])->name('developers.create');
     Route::post('/developers', [DeveloperManagementController::class, 'store'])->name('developers.store');
@@ -343,26 +360,51 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Enhanced Administration Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware([\App\Http\Middleware\AdminAuth::class])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Admin\ReportsController::class, 'dashboard'])->name('dashboard');
     
-    // Project Management (Admin Routes - enhanced with full access)
-    Route::get('/custom-projects', [App\Http\Controllers\Admin\ProjectManagementController::class, 'index'])->name('custom-projects.index');
-    Route::get('/custom-projects/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'show'])->name('custom-projects.show');
-    Route::post('/custom-projects/{project}/assign-developer', [App\Http\Controllers\Admin\ProjectManagementController::class, 'assignDeveloper'])->name('custom-projects.assign-developer');
-    Route::post('/custom-projects/{project}/update-status', [App\Http\Controllers\Admin\ProjectManagementController::class, 'updateStatus'])->name('custom-projects.update-status');
-    Route::get('/custom-projects/{project}/progress-data', [App\Http\Controllers\Admin\ProjectManagementController::class, 'getProgressData'])->name('custom-projects.progress-data');
-    Route::get('/custom-project-documents/{document}/download', [App\Http\Controllers\Admin\ProjectManagementController::class, 'downloadDocument'])->name('custom-project-documents.download');
+    // Users Management
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
+    Route::get('/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::patch('/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
     
-    // Project Reports
-    Route::get('/project-reports', [App\Http\Controllers\Admin\ProjectManagementController::class, 'reports'])->name('project-reports.index');
-    Route::get('/project-reports/{project}', [App\Http\Controllers\Admin\ProjectManagementController::class, 'projectReport'])->name('project-reports.show');
+    // Projects Management
+    Route::get('/projects', [App\Http\Controllers\Admin\ProjectController::class, 'index'])->name('projects');
+    Route::get('/projects/create', [App\Http\Controllers\Admin\ProjectController::class, 'create'])->name('projects.create');
+    Route::post('/projects', [App\Http\Controllers\Admin\ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}', [App\Http\Controllers\Admin\ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{project}/edit', [App\Http\Controllers\Admin\ProjectController::class, 'edit'])->name('projects.edit');
+    Route::put('/projects/{project}', [App\Http\Controllers\Admin\ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{project}', [App\Http\Controllers\Admin\ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::get('/projects/{project}/assign', [App\Http\Controllers\Admin\ProjectController::class, 'assignForm'])->name('projects.assign');
+    Route::put('/projects/{project}/assign', [App\Http\Controllers\Admin\ProjectController::class, 'assignDeveloper'])->name('projects.assign.store');
     
-    // Reports (Custom Admin Routes - using different prefix to avoid conflict with Filament)
-    Route::resource('custom-reports', App\Http\Controllers\Admin\ReportsController::class);
-    Route::post('/custom-reports/{report}/generate', [App\Http\Controllers\Admin\ReportsController::class, 'generate'])->name('custom-reports.generate');
-    Route::get('/custom-reports/{report}/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('custom-reports.export');
+    // Reports Management
+    Route::get('/reports', [App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports');
+    Route::get('/reports/create', [App\Http\Controllers\Admin\ReportsController::class, 'create'])->name('reports.create');
+    Route::post('/reports', [App\Http\Controllers\Admin\ReportsController::class, 'store'])->name('reports.store');
+    Route::get('/reports/{report}', [App\Http\Controllers\Admin\ReportsController::class, 'show'])->name('reports.show');
+    Route::get('/reports/{report}/edit', [App\Http\Controllers\Admin\ReportsController::class, 'edit'])->name('reports.edit');
+    Route::put('/reports/{report}', [App\Http\Controllers\Admin\ReportsController::class, 'update'])->name('reports.update');
+    Route::delete('/reports/{report}', [App\Http\Controllers\Admin\ReportsController::class, 'destroy'])->name('reports.destroy');
+    Route::post('/reports/{report}/generate', [App\Http\Controllers\Admin\ReportsController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/{report}/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
+    
+    // Settings Management
+    Route::get('/settings', function () {
+        return view('admin.settings');
+    })->name('settings');
+    
+    // Pricing Management
+    Route::get('/pricing', function () {
+        return view('admin.pricing');
+    })->name('pricing');
 });
 
 

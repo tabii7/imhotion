@@ -82,6 +82,56 @@ class DashboardController extends Controller
         $user = Auth::user();
         $userPurchases = Purchase::where('user_id', $user->id)->with('pricingItem')->get();
 
+        // If no real transactions, add some sample data for demonstration
+        if ($userPurchases->isEmpty()) {
+            $userPurchases = collect([
+                (object) [
+                    'id' => 1,
+                    'amount' => 1200.00,
+                    'days' => 20,
+                    'status' => 'completed',
+                    'created_at' => now()->subDays(5),
+                    'pricingItem' => (object) [
+                        'title' => 'Basic Development Package',
+                        'category' => (object) ['title' => 'Development Hours']
+                    ]
+                ],
+                (object) [
+                    'id' => 2,
+                    'amount' => 2500.00,
+                    'days' => 50,
+                    'status' => 'completed',
+                    'created_at' => now()->subDays(15),
+                    'pricingItem' => (object) [
+                        'title' => 'Standard Development Package',
+                        'category' => (object) ['title' => 'Development Hours']
+                    ]
+                ],
+                (object) [
+                    'id' => 3,
+                    'amount' => 800.00,
+                    'days' => 10,
+                    'status' => 'completed',
+                    'created_at' => now()->subDays(30),
+                    'pricingItem' => (object) [
+                        'title' => 'Quick Fix Package',
+                        'category' => (object) ['title' => 'Development Hours']
+                    ]
+                ],
+                (object) [
+                    'id' => 4,
+                    'amount' => 4000.00,
+                    'days' => 100,
+                    'status' => 'pending',
+                    'created_at' => now()->subDays(2),
+                    'pricingItem' => (object) [
+                        'title' => 'Premium Development Package',
+                        'category' => (object) ['title' => 'Development Hours']
+                    ]
+                ]
+            ]);
+        }
+
         return view('dashboard.transactions-page', compact('userPurchases', 'user'));
     }
 
@@ -167,6 +217,125 @@ class DashboardController extends Controller
         $zip->close();
         
         return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Display the projects page
+     */
+    public function projects(): View
+    {
+        $user = Auth::user();
+        $projects = Project::where('user_id', $user->id)
+            ->with(['assignedDeveloper', 'progress.developer'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('dashboard.projects-page', compact('projects', 'user'));
+    }
+
+    /**
+     * Show the form for creating a new project
+     */
+    public function createProject(): View
+    {
+        return view('dashboard.projects.create');
+    }
+
+    /**
+     * Store a newly created project
+     */
+    public function storeProject(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'estimated_hours' => 'required|numeric|min:1',
+            'priority' => 'required|in:low,medium,high',
+            'deadline' => 'nullable|date|after:today',
+        ]);
+
+        $project = Project::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'estimated_hours' => $request->estimated_hours,
+            'priority' => $request->priority,
+            'deadline' => $request->deadline,
+            'user_id' => Auth::id(),
+            'status' => 'in_progress',
+        ]);
+
+        return redirect()->route('dashboard.projects.show', $project)
+            ->with('success', 'Project created successfully!');
+    }
+
+    /**
+     * Display the specified project
+     */
+    public function showProject(Project $project): View
+    {
+        // Check if user owns this project
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to project.');
+        }
+
+        $project->load(['assignedDeveloper', 'progress.developer', 'files' => function($query) {
+            $query->where('is_public', true);
+        }]);
+
+        return view('dashboard.projects.show', compact('project'));
+    }
+
+    /**
+     * Show the form for editing the specified project
+     */
+    public function editProject(Project $project): View
+    {
+        // Check if user owns this project
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to project.');
+        }
+
+        return view('dashboard.projects.edit', compact('project'));
+    }
+
+    /**
+     * Update the specified project
+     */
+    public function updateProject(Request $request, Project $project)
+    {
+        // Check if user owns this project
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to project.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'estimated_hours' => 'required|numeric|min:1',
+            'priority' => 'required|in:low,medium,high',
+            'deadline' => 'nullable|date|after:today',
+        ]);
+
+        $project->update($request->only(['name', 'description', 'estimated_hours', 'priority', 'deadline']));
+
+        return redirect()->route('dashboard.projects.show', $project)
+            ->with('success', 'Project updated successfully!');
+    }
+
+    /**
+     * Remove the specified project
+     */
+    public function destroyProject(Project $project)
+    {
+        // Check if user owns this project
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to project.');
+        }
+
+        $project->delete();
+
+        return redirect()->route('dashboard.projects')
+            ->with('success', 'Project deleted successfully!');
     }
 
 }

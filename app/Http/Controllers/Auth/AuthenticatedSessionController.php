@@ -37,6 +37,10 @@ class AuthenticatedSessionController extends Controller
         // Redirect based on user role
         $user = Auth::user();
         if ($user->isAdministrator() || $user->isAdmin()) {
+            // Check if this is an admin login (from /admin/login)
+            if (request()->is('admin/login') || request()->header('referer') && str_contains(request()->header('referer'), '/admin/login')) {
+                return redirect()->intended(route('admin.dashboard', absolute: false));
+            }
             return redirect()->intended(route('administrator.dashboard', absolute: false));
         } elseif ($user->isDeveloper()) {
             return redirect()->intended(route('developer.dashboard', absolute: false));

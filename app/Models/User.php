@@ -119,6 +119,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Specialization::class);
     }
 
+    // Time logs relationship for developers
+    public function timeLogs()
+    {
+        return $this->hasMany(ProjectTimeLog::class, 'developer_id');
+    }
+
     // Team relationships
 
     // Check if user can access admin panel

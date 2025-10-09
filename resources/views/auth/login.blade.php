@@ -6,17 +6,23 @@
         <div class="text-center">
             <img class="mx-auto h-16 w-auto" src="{{ asset('images/imhotion.jpg') }}" alt="Imhotion">
             <h2 class="mt-6 text-center text-3xl font-semibold text-white">
-                Sign in to your account
+                @if(isset($admin) && $admin)
+                    Admin Login
+                @else
+                    Sign in to your account
+                @endif
             </h2>
+            @if(!isset($admin) || !$admin)
             <p class="mt-2 text-center text-sm text-gray-300">
                 Or
                 <a href="{{ route('register') }}" class="font-medium text-brand-primary-200 hover:text-brand-primary-200">
                     create a new account
                 </a>
             </p>
+            @endif
         </div>
 
-        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl py-8 px-6 shadow-2xl">
+        <div class="bg-white rounded-lg shadow-xl py-8 px-6 w-full max-w-md">
             @if(isset($errors) && $errors->any())
                 <div class="mb-6 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
                     <ul class="list-disc list-inside">
@@ -30,18 +36,18 @@
             <!-- Session Status -->
             <x-auth-session-status class="mb-4" :status="session('status')" />
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+            <form method="POST" action="{{ isset($admin) && $admin ? route('admin.login.post') : route('login') }}" class="space-y-6">
                 @csrf
 
                 <!-- Email Address -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-white">
-                        Email address
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        Email address *
                     </label>
                     <div class="mt-1">
                         <input id="email" name="email" type="email" autocomplete="email" required 
-                               value="{{ old('email') }}" autofocus
-                               class="appearance-none block w-full px-3 py-3 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white/10 text-white sm:text-sm">
+                               value="{{ old('email', 'administrator@imhotion.com') }}" autofocus
+                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 sm:text-sm">
                     </div>
                     @if(isset($errors))
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -50,12 +56,15 @@
 
                 <!-- Password -->
                 <div>
-                    <label for="password" class="block text-sm font-medium text-white">
-                        Password
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        Password *
                     </label>
-                    <div class="mt-1">
+                    <div class="mt-1 relative">
                         <input id="password" name="password" type="password" autocomplete="current-password" required
-                               class="appearance-none block w-full px-3 py-3 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white/10 text-white sm:text-sm">
+                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 sm:text-sm">
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i id="password-toggle-icon" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                        </button>
                     </div>
                     @if(isset($errors))
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -63,27 +72,17 @@
                 </div>
 
                 <!-- Remember Me -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember_me" name="remember" type="checkbox" 
-                               class="h-4 w-4 text-brand-primary focus:ring-brand-primary border-white/20 rounded bg-white/10">
-                        <label for="remember_me" class="ml-2 block text-sm text-white">
-                            Remember me
-                        </label>
-                    </div>
-
-                    @if (Route::has('password.request'))
-                        <div class="text-sm">
-                            <a href="{{ route('password.request') }}" class="font-medium text-brand-primary-200 hover:text-brand-primary-200">
-                                Forgot your password?
-                            </a>
-                        </div>
-                    @endif
+                <div class="flex items-center">
+                    <input id="remember_me" name="remember" type="checkbox" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+                        Remember me
+                    </label>
                 </div>
 
                 <div>
                     <button type="submit" 
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-300">
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                         Sign in
                     </button>
                 </div>

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ReportResource\Pages;
+namespace App\Filament\Admin\Resources\AdminSettingsResource\Pages;
 
-use App\Filament\Resources\ReportResource;
+use App\Filament\Admin\Resources\AdminSettingsResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditReport extends EditRecord
+class EditAdminSettings extends EditRecord
 {
-    protected static string $resource = ReportResource::class;
+    protected static string $resource = AdminSettingsResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -18,6 +18,3 @@ class EditReport extends EditRecord
         ];
     }
 }
-
-
-
