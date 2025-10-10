@@ -33,7 +33,7 @@
 </div>
 
 <!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
     <div class="admin-card p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -78,6 +78,18 @@
             </div>
             <div class="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center">
                 <i class="fas fa-pause text-yellow-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-semibold admin-text-secondary mb-2">Finalized</p>
+                <p class="text-3xl font-bold text-indigo-600">{{ $stats['finalized'] ?? 0 }}</p>
+            </div>
+            <div class="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center">
+                <i class="fas fa-flag-checkered text-indigo-600 text-2xl"></i>
             </div>
         </div>
     </div>

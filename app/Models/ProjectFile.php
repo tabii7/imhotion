@@ -41,6 +41,11 @@ class ProjectFile extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 
+    public function uploadedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
     public function progress(): BelongsTo
     {
         return $this->belongsTo(ProjectProgress::class);

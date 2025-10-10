@@ -33,4 +33,9 @@ class ProjectTimeLog extends Model
     {
         return $this->belongsTo(User::class, 'developer_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'developer_id');
+    }
 }

@@ -42,14 +42,20 @@ class DeveloperManagementController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'specialization_id' => 'required|exists:specializations,id',
             'skills' => 'nullable|array',
+            'skills.*' => 'string|max:100',
             'experience_level' => 'required|in:junior,mid,senior',
             'is_available' => 'boolean',
-            'working_hours' => 'nullable|array',
+            'working_hours' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:40',
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:2',
         ]);
+
+        // Process skills array
+        $skills = $request->skills ? array_filter($request->skills, function($skill) {
+            return !empty(trim($skill));
+        }) : [];
 
         $developer = User::create([
             'name' => $request->name,
@@ -57,10 +63,10 @@ class DeveloperManagementController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'developer',
             'specialization_id' => $request->specialization_id,
-            'skills' => $request->skills,
+            'skills' => $skills,
             'experience_level' => $request->experience_level,
             'is_available' => $request->has('is_available'),
-            'working_hours' => $request->working_hours ?? [],
+            'working_hours' => $request->working_hours,
             'phone' => $request->phone,
             'address' => $request->address,
             'city' => $request->city,

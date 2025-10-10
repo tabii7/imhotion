@@ -75,7 +75,6 @@
                             class="w-full px-3 py-2 border admin-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 admin-bg-secondary admin-text-primary @error('role') border-red-500 @enderror">
                         <option value="">Select Role</option>
                         <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="developer" {{ old('role') === 'developer' ? 'selected' : '' }}>Developer</option>
                         <option value="client" {{ old('role') === 'client' ? 'selected' : '' }}>Client</option>
                         <option value="administrator" {{ old('role') === 'administrator' ? 'selected' : '' }}>Administrator</option>
                     </select>
@@ -137,10 +136,16 @@
             </div>
             
             <div class="mt-6">
-                <label for="skills" class="block text-sm font-medium admin-text-primary mb-2">Skills (one per line)</label>
-                <textarea id="skills" name="skills" rows="4" placeholder="Enter skills, one per line..."
-                          class="w-full px-3 py-2 border admin-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 admin-bg-secondary admin-text-primary @error('skills') border-red-500 @enderror">{{ old('skills') }}</textarea>
-                <p class="text-sm admin-text-secondary mt-1">Enter each skill on a new line</p>
+                <label for="skills" class="block text-sm font-medium admin-text-primary mb-2">Skills & Expertise</label>
+                <div class="skills-tags-container border admin-border rounded-lg p-3 bg-admin-bg-secondary min-h-[100px]">
+                    <div id="skills-tags" class="flex flex-wrap gap-2 mb-3">
+                        <!-- Tags will be added here dynamically -->
+                    </div>
+                    <input type="text" id="skills-input" placeholder="Type a skill and press Enter..." 
+                        class="w-full border-none bg-transparent admin-text-primary placeholder-admin-text-secondary focus:outline-none focus:ring-0">
+                    <input type="hidden" id="skills-hidden" name="skills" value="">
+                </div>
+                <p class="text-sm admin-text-secondary mt-1">Add skills by typing and pressing Enter. Click on tags to remove them.</p>
                 @error('skills')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -158,4 +163,85 @@
         </div>
     </form>
 </div>
+
+<!-- Skills Tags JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const skillsInput = document.getElementById('skills-input');
+    const skillsTags = document.getElementById('skills-tags');
+    const skillsHidden = document.getElementById('skills-hidden');
+    const skills = [];
+
+    // Add skill tag
+    function addSkill(skill) {
+        if (skill.trim() && !skills.includes(skill.trim())) {
+            skills.push(skill.trim());
+            updateTags();
+            updateHiddenInput();
+        }
+    }
+
+    // Remove skill tag
+    function removeSkill(skill) {
+        const index = skills.indexOf(skill);
+        if (index > -1) {
+            skills.splice(index, 1);
+            updateTags();
+            updateHiddenInput();
+        }
+    }
+
+    // Update tags display
+    function updateTags() {
+        skillsTags.innerHTML = '';
+        skills.forEach(skill => {
+            const tag = document.createElement('span');
+            tag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer transition-colors';
+            tag.innerHTML = `${skill} <i class="fas fa-times ml-2 text-xs"></i>`;
+            tag.addEventListener('click', () => removeSkill(skill));
+            skillsTags.appendChild(tag);
+        });
+    }
+
+    // Update hidden inputs
+    function updateHiddenInput() {
+        // Remove existing skill inputs
+        const existingInputs = document.querySelectorAll('input[name="skills[]"]');
+        existingInputs.forEach(input => input.remove());
+        
+        // Add new skill inputs
+        skills.forEach(skill => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'skills[]';
+            input.value = skill;
+            skillsHidden.parentNode.insertBefore(input, skillsHidden);
+        });
+    }
+
+    // Handle input events
+    skillsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addSkill(this.value);
+            this.value = '';
+        }
+    });
+
+    // Handle comma separation
+    skillsInput.addEventListener('input', function(e) {
+        if (e.target.value.includes(',')) {
+            const newSkills = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+            newSkills.forEach(skill => addSkill(skill));
+            this.value = '';
+        }
+    });
+
+    // Load existing skills from old input
+    const existingSkills = @json(old('skills', []));
+    if (existingSkills && existingSkills.length > 0) {
+        existingSkills.forEach(skill => addSkill(skill));
+    }
+});
+</script>
 @endsection

@@ -42,6 +42,11 @@ class ProjectProgress extends Model
         return $this->belongsTo(User::class, 'developer_id');
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'developer_id');
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(ProjectFile::class, 'progress_id');

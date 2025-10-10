@@ -63,11 +63,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,developer,client,administrator',
+            'role' => 'required|in:admin,client,administrator',
             'phone' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:255',
             'skills' => 'nullable|array',
+            'skills.*' => 'string|max:100',
             'is_available' => 'boolean',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -77,11 +78,11 @@ class UserController extends Controller
             'specialization', 'is_available'
         ]);
         
-        // Handle skills as array
-        if ($request->filled('skills')) {
-            $skills = array_filter(array_map('trim', explode("\n", $request->skills)));
-            $userData['skills'] = $skills;
-        }
+        // Process skills array
+        $skills = $request->skills ? array_filter($request->skills, function($skill) {
+            return !empty(trim($skill));
+        }) : [];
+        $userData['skills'] = $skills;
         
         $userData['password'] = Hash::make($request->password);
 
@@ -122,7 +123,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:admin,developer,client,administrator',
+            'role' => 'required|in:admin,client,administrator',
             'phone' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:255',
@@ -136,11 +137,11 @@ class UserController extends Controller
             'specialization', 'is_available'
         ]);
         
-        // Handle skills as array
-        if ($request->filled('skills')) {
-            $skills = array_filter(array_map('trim', explode("\n", $request->skills)));
-            $userData['skills'] = $skills;
-        }
+        // Process skills array
+        $skills = $request->skills ? array_filter($request->skills, function($skill) {
+            return !empty(trim($skill));
+        }) : [];
+        $userData['skills'] = $skills;
 
         // Update password if provided
         if ($request->filled('password')) {

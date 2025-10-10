@@ -96,7 +96,7 @@ class Project extends Model
     }
 
     // New progress tracking relationships
-    public function progress()
+    public function progressUpdates()
     {
         return $this->hasMany(ProjectProgress::class);
     }

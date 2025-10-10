@@ -382,6 +382,7 @@ Route::middleware([\App\Http\Middleware\AdminAuth::class])->prefix('admin')->nam
     Route::get('/projects/{project}/edit', [App\Http\Controllers\Admin\ProjectController::class, 'edit'])->name('projects.edit');
     Route::put('/projects/{project}', [App\Http\Controllers\Admin\ProjectController::class, 'update'])->name('projects.update');
     Route::delete('/projects/{project}', [App\Http\Controllers\Admin\ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::get('/projects/documents/{document}/download', [App\Http\Controllers\Admin\ProjectController::class, 'downloadDocument'])->name('projects.download');
     Route::get('/projects/{project}/assign', [App\Http\Controllers\Admin\ProjectController::class, 'assignForm'])->name('projects.assign');
     Route::put('/projects/{project}/assign', [App\Http\Controllers\Admin\ProjectController::class, 'assignDeveloper'])->name('projects.assign.store');
     

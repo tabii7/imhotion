@@ -13,13 +13,41 @@ class ProjectController extends Controller
     /**
      * Display a listing of projects
      */
-    public function index()
+    public function index(Request $request)
     {
-        $projects = Project::with(['user', 'assignedDeveloper', 'assignedAdministrator'])
-            ->latest()
-            ->paginate(10);
+        $query = Project::with(['user', 'assignedDeveloper', 'assignedAdministrator']);
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('topic', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('client')) {
+            $query->where('user_id', $request->client);
+        }
+
+        $projects = $query->latest()->paginate(10);
+
+        // Calculate project statistics
+        $stats = [
+            'total_projects' => Project::count(),
+            'active_projects' => Project::whereIn('status', ['pending', 'in_progress'])->count(),
+            'completed' => Project::where('status', 'completed')->count(),
+            'on_hold' => Project::where('status', 'on_hold')->count(),
+            'cancelled' => Project::whereIn('status', ['cancelled', 'canceled'])->count(),
+            'finalized' => Project::where('status', 'finalized')->count(),
+        ];
         
-        return view('admin.projects.index', compact('projects'));
+        return view('admin.projects.index', compact('projects', 'stats'));
     }
 
     /**
@@ -70,9 +98,42 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['user', 'assignedDeveloper', 'assignedAdministrator']);
+        $project->load([
+            'user', 
+            'assignedDeveloper', 
+            'assignedAdministrator',
+            'documents' => function($query) {
+                $query->with('uploadedBy')->latest();
+            },
+            'progressUpdates' => function($query) {
+                $query->with('user')->latest();
+            },
+            'timeLogs' => function($query) {
+                $query->with('user')->latest();
+            },
+            'activities' => function($query) {
+                $query->with('user')->latest();
+            },
+            'requirements' => function($query) {
+                $query->latest();
+            },
+            'files' => function($query) {
+                $query->with('uploadedBy')->latest();
+            }
+        ]);
         
-        return view('admin.projects.show', compact('project'));
+        // Calculate project statistics
+        $stats = [
+            'total_hours_worked' => $project->timeLogs->sum('hours_spent') ?? 0,
+            'total_days_used' => $project->days_used ?? 0,
+            'estimated_hours' => $project->estimated_hours ?? 0,
+            'progress_percentage' => $project->progress ?? 0,
+            'documents_count' => $project->documents->count(),
+            'updates_count' => $project->progressUpdates->count(),
+            'files_count' => $project->files->count(),
+        ];
+        
+        return view('admin.projects.show', compact('project', 'stats'));
     }
 
     /**
@@ -161,5 +222,21 @@ class ProjectController extends Controller
 
         return redirect()->route('admin.projects')
             ->with('success', 'Developer assigned successfully!');
+    }
+
+    /**
+     * Download a project document
+     */
+    public function downloadDocument($documentId)
+    {
+        $document = \App\Models\ProjectDocument::findOrFail($documentId);
+        
+        $filePath = storage_path('app/public/' . $document->file_path);
+        
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+        
+        return response()->download($filePath, $document->name);
     }
 }

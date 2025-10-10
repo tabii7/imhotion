@@ -89,4 +89,17 @@ class ProjectDocumentController extends Controller
             'files' => $saved,
         ], Response::HTTP_CREATED);
     }
+
+    public function download(Project $project, ProjectDocument $document)
+    {
+        abort_unless($document->project_id === $project->id, 404);
+
+        $filePath = storage_path('app/public/' . $document->path);
+        
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+        
+        return response()->download($filePath, $document->filename);
+    }
 }

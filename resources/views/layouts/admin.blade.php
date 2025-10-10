@@ -95,6 +95,11 @@
             color: var(--admin-text-primary);
         }
         
+        .main-content-area {
+            width: calc(100% - 16rem); /* 16rem = 256px (sidebar width) */
+            margin-left: 16rem;
+        }
+        
         .admin-text-primary {
             color: var(--admin-text-primary);
         }
@@ -203,78 +208,25 @@
             .admin-sidebar.open {
                 transform: translateX(0);
             }
+            
+            .main-content-area {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .admin-sidebar {
+                transform: translateX(0) !important;
+            }
         }
     </style>
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen admin-main">
-        <!-- Admin Header -->
-        <header class="admin-header shadow-sm sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <button id="sidebar-toggle" class="lg:hidden mr-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                    </div>
-
-                    <div class="flex items-center space-x-4">
-                        <!-- Current Time and Date -->
-                        <div class="text-right">
-                            <div class="text-sm font-medium admin-text-primary" id="current-time">{{ now()->format('H:i') }}</div>
-                            <div class="text-xs admin-text-secondary" id="current-date">{{ now()->format('l, F j, Y') }}</div>
-                        </div>
-                        
-                        <!-- Theme Toggle -->
-                        <button id="theme-toggle" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
-                            <i id="theme-icon" class="fas fa-sun"></i>
-                        </button>
-                        
-                        <!-- Notifications -->
-                        <button class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-                            <i class="fas fa-bell"></i>
-                            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
-                        </button>
-
-                        <!-- User Menu -->
-                        @auth
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <span class="sr-only">Open user menu</span>
-                                <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                                    <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
-                                <span class="ml-2 text-gray-700 font-medium">{{ auth()->user()->name }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-gray-500"></i>
-                            </button>
-                            
-                            <!-- Dropdown Menu -->
-                            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-user mr-2"></i>Profile
-                                </a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-cog mr-2"></i>Settings
-                                </a>
-                                <hr class="my-1">
-                                <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                                    </button>
-                            </form>
-                            </div>
-                        </div>
-                        @endauth
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-        <div class="flex">
-            <!-- Sidebar -->
-            <aside id="admin-sidebar" class="admin-sidebar w-64 min-h-screen lg:translate-x-0 transform transition-transform duration-300 ease-in-out">
-                <div class="p-4">
+    <div class="min-h-screen admin-main flex">
+        <!-- Sidebar -->
+        <aside id="admin-sidebar" class="admin-sidebar w-64 fixed top-0 left-0 h-full lg:translate-x-0 transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+                <div class="p-4 h-full flex flex-col">
                     <!-- Logo -->
                     <div class="flex items-center mb-8">
                         <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
@@ -284,7 +236,7 @@
                     </div>
                     
                     <!-- Navigation -->
-                    <nav class="space-y-6">
+                    <nav class="space-y-6 flex-1 overflow-y-auto">
                         <!-- Dashboard -->
                         <a href="{{ route('admin.dashboard') }}" class="nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md text-white hover:bg-white hover:bg-opacity-10 {{ request()->routeIs('admin.dashboard') ? 'bg-white bg-opacity-10' : '' }}">
                             <i class="fas fa-tachometer-alt mr-3"></i>
@@ -363,11 +315,76 @@
                     </div>
             </aside>
 
-            <!-- Main Content -->
-            <main class="flex-1 p-8">
-                @yield('content')
-            </main>
-        </div>
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col ml-64 main-content-area min-h-screen">
+                <!-- Admin Header -->
+                <header class="admin-header shadow-sm sticky top-0 z-40">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between items-center py-4">
+                            <div class="flex items-center">
+                                <button id="sidebar-toggle" class="lg:hidden mr-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center space-x-4">
+                                <!-- Current Time and Date -->
+                                <div class="text-right">
+                                    <div class="text-sm font-medium admin-text-primary" id="current-time">{{ now()->format('H:i') }}</div>
+                                    <div class="text-xs admin-text-secondary" id="current-date">{{ now()->format('l, F j, Y') }}</div>
+                                </div>
+                                
+                                <!-- Theme Toggle -->
+                                <button id="theme-toggle" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                                    <i id="theme-icon" class="fas fa-sun"></i>
+                                </button>
+                                
+                                <!-- Notifications -->
+                                <button class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
+                                </button>
+
+                                <!-- User Menu -->
+                                @auth
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <span class="sr-only">Open user menu</span>
+                                        <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                                            <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                        </div>
+                                        <span class="ml-2 text-gray-700 font-medium">{{ auth()->user()->name }}</span>
+                                        <i class="fas fa-chevron-down ml-1 text-gray-500"></i>
+                                    </button>
+                                    
+                                    <!-- Dropdown Menu -->
+                                    <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-user mr-2"></i>Profile
+                                        </a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-cog mr-2"></i>Settings
+                                        </a>
+                                        <hr class="my-1">
+                                        <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                            </button>
+                                    </form>
+                                    </div>
+                                </div>
+                                @endauth
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                <!-- Main Content -->
+                <main class="flex-1 p-8 w-full">
+                    @yield('content')
+                </main>
+            </div>
     </div>
 
     <!-- JavaScript for sidebar toggle and theme switching -->
@@ -391,6 +408,13 @@
                     if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
                         sidebar.classList.remove('open');
                     }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('open');
                 }
             });
             
