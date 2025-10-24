@@ -22,7 +22,7 @@ class ProgressController extends Controller
         
         // Get user's projects with progress data
         $projects = Project::where('user_id', $user->id)
-            ->with(['assignedDeveloper', 'progress.developer', 'files' => function($query) {
+            ->with(['assignedDeveloper', 'progressUpdates.developer', 'files' => function($query) {
                 $query->where('is_public', true);
             }])
             ->latest()
@@ -53,7 +53,7 @@ class ProgressController extends Controller
             abort(403, 'Unauthorized access.');
         }
 
-        $progress = $project->progress()
+        $progress = $project->progressUpdates()
             ->with(['developer'])
             ->latest('work_date')
             ->get();

@@ -32,7 +32,7 @@ class ProgressController extends Controller
             abort(403, 'You are not assigned to this project.');
         }
 
-        $progress = $project->progress()->with('files')->latest('work_date')->get();
+        $progress = $project->progressUpdates()->with('files')->latest('work_date')->get();
         $timeTracking = $project->timeTracking()->latest('tracking_date')->get();
         $files = $project->files()->latest()->get();
 

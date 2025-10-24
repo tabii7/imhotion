@@ -60,7 +60,7 @@ class ProgressController extends Controller
 
     public function show(Project $project)
     {
-        $progress = $project->progress()->with(['developer', 'files'])->latest('work_date')->get();
+        $progress = $project->progressUpdates()->with(['developer', 'files'])->latest('work_date')->get();
         $timeTracking = $project->timeTracking()->with('developer')->latest('tracking_date')->get();
         $files = $project->files()->with('uploader')->latest()->get();
 
@@ -88,7 +88,7 @@ class ProgressController extends Controller
 
     public function exportProgress(Project $project)
     {
-        $progress = $project->progress()->with(['developer', 'files'])->latest('work_date')->get();
+        $progress = $project->progressUpdates()->with(['developer', 'files'])->latest('work_date')->get();
         
         $csvData = [];
         $csvData[] = ['Date', 'Developer', 'Hours Worked', 'Progress %', 'Status', 'Description', 'Tasks Completed', 'Challenges', 'Next Steps'];

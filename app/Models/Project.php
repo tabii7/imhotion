@@ -138,7 +138,7 @@ class Project extends Model
     // Progress tracking helper methods
     public function getTotalHoursWorkedAttribute(): float
     {
-        return $this->progress()->sum('hours_worked') ?? 0;
+        return $this->progressUpdates()->sum('hours_worked') ?? 0;
     }
 
     public function getTotalHoursPurchasedAttribute(): float
@@ -153,13 +153,13 @@ class Project extends Model
 
     public function getOverallProgressAttribute(): int
     {
-        $latestProgress = $this->progress()->latest('work_date')->first();
+        $latestProgress = $this->progressUpdates()->latest('work_date')->first();
         return $latestProgress ? $latestProgress->progress_percentage : 0;
     }
 
     public function getRecentProgressAttribute()
     {
-        return $this->progress()->latest('work_date')->limit(5)->get();
+        return $this->progressUpdates()->latest('work_date')->limit(5)->get();
     }
 
     public function getTotalFilesAttribute(): int
