@@ -28,12 +28,10 @@
 }
 
 body {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #0f0f0f !important;
+    margin: 0;
+    padding: 0;
+    background: #0f0f0f;
     overflow-x: hidden;
-    /* Prevent layout shifts that could cause blinking */
-    contain: layout style;
 }
 
 .dashboard-container {
@@ -45,20 +43,16 @@ body {
 }
 
 .sidebar {
-    width: 280px !important;
-    background: #1a1a1a !important;
-    border-right: 1px solid #2a2a2a !important;
-    transition: none !important;
-    position: fixed !important;
-    left: 0 !important;
-    top: 0 !important;
-    height: 100vh !important;
-    z-index: 9999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    /* Prevent layout shifts and reflows */
-    contain: layout style;
-    will-change: auto;
+    width: 280px;
+    background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar.collapsed {
@@ -242,7 +236,6 @@ body {
 .main-content {
     flex: 1;
     margin-left: 280px;
-    transition: none;
     background: #0f0f0f;
 }
 
@@ -383,9 +376,6 @@ body {
     background: #0f0f0f;
     margin-left: 280px;
     min-height: calc(100vh - 80px);
-    /* Prevent layout shifts and reflows */
-    contain: layout style;
-    will-change: auto;
 }
 </style>
 
@@ -505,11 +495,15 @@ function toggleSidebar() {
     if (sidebar.classList.contains('collapsed')) {
         sidebar.classList.remove('collapsed');
         sidebar.style.width = '280px';
-        mainContent.style.marginLeft = '280px';
+        if (mainContent) {
+            mainContent.style.marginLeft = '280px';
+        }
     } else {
         sidebar.classList.add('collapsed');
         sidebar.style.width = '80px';
-        mainContent.style.marginLeft = '80px';
+        if (mainContent) {
+            mainContent.style.marginLeft = '80px';
+        }
     }
 }
 
@@ -529,18 +523,22 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Initialize sidebar on page load - simplified to prevent blinking
+// Initialize sidebar on page load
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.content-area');
     
-    // Simple initialization without excessive DOM manipulation
+    // Ensure sidebar is properly positioned
     if (sidebar) {
-        sidebar.style.display = 'flex';
-        sidebar.style.visibility = 'visible';
-        sidebar.style.opacity = '1';
+        sidebar.style.position = 'fixed';
+        sidebar.style.left = '0';
+        sidebar.style.top = '0';
+        sidebar.style.width = '280px';
+        sidebar.style.height = '100vh';
+        sidebar.style.zIndex = '1000';
     }
     
+    // Ensure content area has proper margin
     if (mainContent) {
         mainContent.style.marginLeft = '280px';
     }
