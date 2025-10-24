@@ -46,7 +46,7 @@ body {
     width: 280px !important;
     background: #1a1a1a !important;
     border-right: 1px solid #2a2a2a !important;
-    transition: all 0.3s ease !important;
+    transition: none !important;
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
@@ -245,6 +245,10 @@ body {
     margin-left: 80px;
 }
 
+.sidebar.collapsed ~ .content-area {
+    margin-left: 80px;
+}
+
 .top-header {
     background: #1a1a1a;
     border-bottom: 1px solid #2a2a2a;
@@ -372,6 +376,7 @@ body {
 .content-area {
     padding: 32px;
     background: #0f0f0f;
+    margin-left: 280px;
     min-height: calc(100vh - 80px);
 }
 </style>
@@ -487,18 +492,16 @@ body {
 // Sidebar toggle functionality
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
+    const mainContent = document.querySelector('.content-area');
     
     if (sidebar.classList.contains('collapsed')) {
         sidebar.classList.remove('collapsed');
         sidebar.style.width = '280px';
         mainContent.style.marginLeft = '280px';
-        console.log('Sidebar expanded to 280px');
     } else {
         sidebar.classList.add('collapsed');
         sidebar.style.width = '80px';
         mainContent.style.marginLeft = '80px';
-        console.log('Sidebar collapsed to 80px');
     }
 }
 
@@ -521,7 +524,7 @@ document.addEventListener('click', function(event) {
 // Initialize sidebar on page load
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
+    const mainContent = document.querySelector('.content-area');
     
     // Force sidebar to be visible with maximum priority
     if (sidebar) {
