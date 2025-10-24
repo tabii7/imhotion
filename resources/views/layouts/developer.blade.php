@@ -16,7 +16,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" onerror="console.warn('Font Awesome failed to load')">
 </head>
 <body>
 <style>
@@ -32,6 +32,8 @@ body {
     padding: 0 !important;
     background: #0f0f0f !important;
     overflow-x: hidden;
+    /* Prevent layout shifts that could cause blinking */
+    contain: layout style;
 }
 
 .dashboard-container {
@@ -54,6 +56,9 @@ body {
     z-index: 9999 !important;
     display: flex !important;
     flex-direction: column !important;
+    /* Prevent layout shifts and reflows */
+    contain: layout style;
+    will-change: auto;
 }
 
 .sidebar.collapsed {
@@ -378,6 +383,9 @@ body {
     background: #0f0f0f;
     margin-left: 280px;
     min-height: calc(100vh - 80px);
+    /* Prevent layout shifts and reflows */
+    contain: layout style;
+    will-change: auto;
 }
 </style>
 
