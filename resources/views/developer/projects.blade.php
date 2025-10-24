@@ -33,7 +33,7 @@
                     class="w-full bg-gray-800/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg">
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition: none shadow-lg">
                     <i class="fas fa-search mr-2"></i>Filter
                 </button>
             </div>
@@ -43,7 +43,7 @@
     <!-- Projects Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         @forelse($projects as $project)
-            <div class="bg-white/5 backdrop-blur-sm border border-gray-700/30 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="bg-white/5 backdrop-blur-sm border border-gray-700/30 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition: none">
                 <div class="p-8">
                     <!-- Header -->
                     <div class="flex justify-between items-start mb-6">
@@ -90,14 +90,14 @@
                                 <div class="text-sm font-medium text-purple-300 mb-2">Recent Documents</div>
                                 <div class="space-y-1">
                                     @foreach($project->documents as $index => $document)
-                                        <div class="flex items-center justify-between text-xs text-gray-300 hover:bg-gray-700/30 rounded-lg p-2 transition-colors {{ $index >= 3 ? 'hidden more-docs-' . $project->id : '' }}">
+                                        <div class="flex items-center justify-between text-xs text-gray-300 hover:bg-gray-700/30 rounded-lg p-2 transition: none {{ $index >= 3 ? 'hidden more-docs-' . $project->id : '' }}">
                                             <div class="flex items-center flex-1 min-w-0">
                                                 <i class="fas fa-file text-purple-400 mr-2 flex-shrink-0"></i>
                                                 <span class="truncate">{{ $document->name }}</span>
                                             </div>
                                             <div class="flex items-center space-x-2 flex-shrink-0">
                                                 <span class="text-gray-400">{{ $document->created_at->format('M d') }}</span>
-                                                <a href="{{ route('developer.project-documents.download', $document) }}" class="text-blue-400 hover:text-blue-300 transition-colors" title="Download">
+                                                <a href="{{ route('developer.project-documents.download', $document) }}" class="text-blue-400 hover:text-blue-300 transition: none" title="Download">
                                                     <i class="fas fa-download text-xs"></i>
                                                 </a>
                                             </div>
@@ -105,7 +105,7 @@
                                     @endforeach
                                     @if($project->documents->count() > 3)
                                         <div class="text-xs text-center py-1">
-                                            <button onclick="toggleMoreDocuments({{ $project->id }})" class="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer" id="toggle-btn-{{ $project->id }}">
+                                            <button onclick="toggleMoreDocuments({{ $project->id }})" class="text-blue-400 hover:text-blue-300 transition: none cursor-pointer" id="toggle-btn-{{ $project->id }}">
                                                 <span id="toggle-text-{{ $project->id }}">+{{ $project->documents->count() - 3 }} more documents</span>
                                                 <i class="fas fa-chevron-down ml-1" id="toggle-icon-{{ $project->id }}"></i>
                                             </button>
@@ -124,7 +124,7 @@
                                 <span class="text-sm text-gray-300 font-semibold">{{ $project->progress }}%</span>
                             </div>
                             <div class="w-full bg-gray-700/50 rounded-full h-3">
-                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500" style="width: {{ $project->progress }}%"></div>
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition: none" style="width: {{ $project->progress }}%"></div>
                             </div>
                         </div>
                     @endif
@@ -157,11 +157,11 @@
 
                     <!-- Actions -->
                     <div class="flex space-x-3">
-                        <a href="{{ route('developer.projects.show', $project) }}" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <a href="{{ route('developer.projects.show', $project) }}" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center px-6 py-3 rounded-xl text-sm font-medium transition: none shadow-lg">
                             <i class="fas fa-eye mr-2"></i>View Details
                         </a>
                         @if($project->status !== 'completed')
-                            <button onclick="updateProjectStatus({{ $project->id }})" class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg">
+                            <button onclick="updateProjectStatus({{ $project->id }})" class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-center px-6 py-3 rounded-xl text-sm font-medium transition: none shadow-lg">
                                 <i class="fas fa-edit mr-2"></i>Update
                             </button>
                         @endif
@@ -175,7 +175,7 @@
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-4">No projects found</h3>
                 <p class="text-gray-400 text-lg mb-8">You don't have any projects assigned yet.</p>
-                <a href="{{ route('developer.dashboard') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg">
+                <a href="{{ route('developer.dashboard') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition: none shadow-lg">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
                 </a>
             </div>
@@ -226,7 +226,7 @@
                         <button type="button" onclick="closeStatusModal()" class="px-6 py-3 border border-gray-600/50 rounded-xl text-gray-300 hover:bg-gray-700/50 transition-all duration-200">
                             Cancel
                         </button>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition: none shadow-lg">
                             Update Project
                         </button>
                     </div>
@@ -338,7 +338,7 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
                     </div>
                     <h3 class="text-xl font-semibold text-white mb-2">Success!</h3>
                     <p class="text-gray-300 mb-6">Project updated successfully!</p>
-                    <button onclick="closeStatusModal(); location.reload();" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    <button onclick="closeStatusModal(); location.reload();" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition: none shadow-lg">
                         <i class="fas fa-check mr-2"></i>Continue
                     </button>
                 </div>

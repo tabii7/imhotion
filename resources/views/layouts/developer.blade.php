@@ -93,7 +93,7 @@ body {
     color: #ffffff;
     font-size: 20px;
     font-weight: 600;
-    transition: opacity 0.3s ease;
+    transition: none;
 }
 
 .sidebar.collapsed .sidebar-title {
@@ -113,7 +113,7 @@ body {
     padding: 12px 20px;
     color: #8b8b8b;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: none;
     border-left: 3px solid transparent;
 }
 
@@ -135,7 +135,7 @@ body {
 }
 
 .nav-item span {
-    transition: opacity 0.3s ease;
+    transition: none;
 }
 
 .sidebar.collapsed .nav-item span {
@@ -203,7 +203,7 @@ body {
 }
 
 .user-info {
-    transition: opacity 0.3s ease;
+    transition: none;
 }
 
 .sidebar.collapsed .user-info {
@@ -230,7 +230,7 @@ body {
     padding: 8px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: none;
     width: 100%;
 }
 
@@ -242,7 +242,7 @@ body {
 .main-content {
     flex: 1;
     margin-left: 280px;
-    transition: margin-left 0.3s ease;
+    transition: none;
     background: #0f0f0f;
 }
 
@@ -304,7 +304,7 @@ body {
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 .user-menu-btn:hover {
@@ -366,7 +366,7 @@ body {
     padding: 12px 16px;
     color: #ffffff;
     text-decoration: none;
-    transition: background 0.3s ease;
+    transition: none;
 }
 
 .dropdown-item:hover {
