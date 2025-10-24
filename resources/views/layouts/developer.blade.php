@@ -521,36 +521,20 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Initialize sidebar on page load
+// Initialize sidebar on page load - simplified to prevent blinking
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.content-area');
     
-    // Force sidebar to be visible with maximum priority
-    if (sidebar) {
-        sidebar.style.display = 'flex !important';
-        sidebar.style.position = 'fixed !important';
-        sidebar.style.left = '0 !important';
-        sidebar.style.top = '0 !important';
-        sidebar.style.zIndex = '9999 !important';
-        sidebar.style.height = '100vh !important';
-        sidebar.style.width = '280px';
-        sidebar.style.background = '#1a1a1a !important';
-        sidebar.style.visibility = 'visible !important';
-        sidebar.style.opacity = '1 !important';
-        
-    }
-    
-    // Set initial margin for main content
-    if (mainContent) {
-        mainContent.style.marginLeft = '280px';
-    }
-    
-    // Set sidebar visibility once (removed problematic interval)
+    // Simple initialization without excessive DOM manipulation
     if (sidebar) {
         sidebar.style.display = 'flex';
         sidebar.style.visibility = 'visible';
         sidebar.style.opacity = '1';
+    }
+    
+    if (mainContent) {
+        mainContent.style.marginLeft = '280px';
     }
 });
 
