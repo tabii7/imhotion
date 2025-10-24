@@ -40,6 +40,8 @@ body {
     display: flex;
     width: 100vw;
     position: relative;
+    margin: 0;
+    padding: 0;
 }
 
 .sidebar {
@@ -53,6 +55,8 @@ body {
     z-index: 1000;
     display: flex;
     flex-direction: column;
+    margin: 0;
+    padding: 0;
 }
 
 .sidebar.collapsed {
@@ -376,6 +380,7 @@ body {
     background: #0f0f0f;
     margin-left: 280px;
     min-height: calc(100vh - 80px);
+    width: calc(100vw - 280px);
 }
 </style>
 
@@ -497,12 +502,14 @@ function toggleSidebar() {
         sidebar.style.width = '280px';
         if (mainContent) {
             mainContent.style.marginLeft = '280px';
+            mainContent.style.width = 'calc(100vw - 280px)';
         }
     } else {
         sidebar.classList.add('collapsed');
         sidebar.style.width = '80px';
         if (mainContent) {
             mainContent.style.marginLeft = '80px';
+            mainContent.style.width = 'calc(100vw - 80px)';
         }
     }
 }
@@ -538,9 +545,10 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebar.style.zIndex = '1000';
     }
     
-    // Ensure content area has proper margin
+    // Ensure content area has proper margin and width
     if (mainContent) {
         mainContent.style.marginLeft = '280px';
+        mainContent.style.width = 'calc(100vw - 280px)';
     }
 });
 
