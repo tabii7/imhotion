@@ -296,11 +296,7 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
     
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     
-    // Debug: Log form data
-    console.log('Form data being sent:');
-    for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
+    // Debug logging removed for performance
     
     // Show loading state
     const submitBtn = this.querySelector('button[type="submit"]');
@@ -317,9 +313,6 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
         body: formData
     })
     .then(response => {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -327,7 +320,6 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
             return response.text().then(text => {
-                console.error('Non-JSON response:', text);
                 throw new Error('Server returned non-JSON response');
             });
         }
@@ -335,7 +327,6 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
         return response.json();
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             // Show success message in modal
             const modal = document.getElementById('statusModal');
@@ -357,7 +348,6 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
         }
     })
     .catch(error => {
-        console.error('Detailed error:', error);
         alert('Error updating project: ' + error.message);
     })
     .finally(() => {

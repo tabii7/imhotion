@@ -520,13 +520,8 @@ document.addEventListener('click', function(event) {
 
 // Initialize sidebar on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing sidebar...');
-    
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.main-content');
-    
-    console.log('Sidebar element:', sidebar);
-    console.log('Main content element:', mainContent);
     
     // Force sidebar to be visible with maximum priority
     if (sidebar) {
@@ -541,32 +536,19 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebar.style.visibility = 'visible !important';
         sidebar.style.opacity = '1 !important';
         
-        console.log('Sidebar forced to be visible');
-        console.log('Sidebar computed styles:', window.getComputedStyle(sidebar));
-    } else {
-        console.error('Sidebar not found!');
     }
     
     // Set initial margin for main content
     if (mainContent) {
         mainContent.style.marginLeft = '280px';
-        console.log('Main content margin set to 280px');
     }
     
-    // Force sidebar visibility every 100ms for first 3 seconds
-    let attempts = 0;
-    const forceVisibility = setInterval(() => {
-        if (sidebar) {
-            sidebar.style.display = 'flex !important';
-            sidebar.style.visibility = 'visible !important';
-            sidebar.style.opacity = '1 !important';
-            console.log('Forcing sidebar visibility, attempt:', attempts);
-        }
-        attempts++;
-        if (attempts > 30) {
-            clearInterval(forceVisibility);
-        }
-    }, 100);
+    // Set sidebar visibility once (removed problematic interval)
+    if (sidebar) {
+        sidebar.style.display = 'flex';
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+    }
 });
 
 function updateAvailability() {
