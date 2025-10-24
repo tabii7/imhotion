@@ -25,6 +25,7 @@ class Project extends Model
         'weekend_days',
         'estimated_hours',
         'notes',
+        'progress',
 
         // status meta
         'pending_note',
@@ -54,6 +55,7 @@ class Project extends Model
         'days_used'     => 'integer',
         'weekend_days'  => 'integer',
         'estimated_hours' => 'decimal:2',
+        'progress'      => 'integer',
         'assigned_at'   => 'datetime',
         'started_at'    => 'datetime',
         'last_activity_at' => 'datetime',

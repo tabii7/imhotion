@@ -65,7 +65,7 @@ class DeveloperController extends Controller
                 'documents' => function($query) {
                     $query->latest()->limit(5);
                 },
-                'progress' => function($query) {
+                'progressUpdates' => function($query) {
                     $query->latest()->limit(10);
                 }
             ])
