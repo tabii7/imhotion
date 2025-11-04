@@ -138,7 +138,7 @@
       <p class="text-xl md:text-2xl text-gray-300 mb-10 md:mb-12 max-w-3xl mx-auto leading-relaxed">
         Get expert development services on-demand. Buy development days, manage projects, and track progress all in one place.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12 md:mt-16" style="margin: 60px;">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12 md:mt-16" style="margin: 55px;">
         <a href="#pricing" class="bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-3 rounded-lg font-semibold text-base transition-all duration-300 transform hover:scale-105 shadow-lg shadow-brand-primary/30 flex items-center gap-2"
            onclick="event.preventDefault(); document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });">
           View Pricing
